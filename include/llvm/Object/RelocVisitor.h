@@ -204,6 +204,8 @@ private:
 
   RelocToApply visitCOFF(uint32_t RelocType, RelocationRef R, uint64_t Value) {
     switch (ObjToVisit.getArch()) {
+    default:
+      break;
     case Triple::x86:
       switch (RelocType) {
       case COFF::IMAGE_REL_I386_SECREL:

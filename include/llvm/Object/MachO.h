@@ -258,7 +258,7 @@ public:
   uint8_t getBytesInAddress() const override;
 
   StringRef getFileFormatName() const override;
-  unsigned getArch() const override;
+  Triple::ArchType getArch() const override;
   Triple getArch(const char **McpuDefault, Triple *ThumbTriple) const;
 
   relocation_iterator section_rel_begin(unsigned Index) const;

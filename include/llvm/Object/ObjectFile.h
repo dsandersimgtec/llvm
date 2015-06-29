@@ -15,6 +15,7 @@
 #define LLVM_OBJECT_OBJECTFILE_H
 
 #include "llvm/ADT/StringRef.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Object/SymbolicFile.h"
 #include "llvm/Support/DataTypes.h"
 #include "llvm/Support/ErrorHandling.h"
@@ -259,7 +260,7 @@ public:
   virtual uint8_t getBytesInAddress() const = 0;
 
   virtual StringRef getFileFormatName() const = 0;
-  virtual /* Triple::ArchType */ unsigned getArch() const = 0;
+  virtual Triple::ArchType getArch() const = 0;
 
   /// Returns platform-specific object flags, if any.
   virtual std::error_code getPlatformFlags(unsigned &Result) const {

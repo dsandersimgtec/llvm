@@ -1165,7 +1165,7 @@ bool MachOObjectFile::isValidArch(StringRef ArchFlag) {
       .Default(false);
 }
 
-unsigned MachOObjectFile::getArch() const {
+Triple::ArchType MachOObjectFile::getArch() const {
   return getArch(getCPUType(this));
 }
 

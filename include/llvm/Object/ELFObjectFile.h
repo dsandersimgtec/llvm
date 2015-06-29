@@ -323,7 +323,7 @@ public:
 
   uint8_t getBytesInAddress() const override;
   StringRef getFileFormatName() const override;
-  unsigned getArch() const override;
+  Triple::ArchType getArch() const override;
 
   std::error_code getPlatformFlags(unsigned &Result) const override {
     Result = EF.getHeader()->e_flags;
@@ -866,8 +866,7 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
   }
 }
 
-template <class ELFT>
-unsigned ELFObjectFile<ELFT>::getArch() const {
+template <class ELFT> Triple::ArchType ELFObjectFile<ELFT>::getArch() const {
   bool IsLittleEndian = ELFT::TargetEndianness == support::little;
   switch (EF.getHeader()->e_machine) {
   case ELF::EM_386:
