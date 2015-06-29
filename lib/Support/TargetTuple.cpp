@@ -106,6 +106,98 @@ convertTripleArchToTupleArch(Triple::ArchType Arch) {
 }
 
 // FIXME: These should be removed as soon as the Triple member is replaced.
+static Triple::ArchType
+convertTupleArchToTripleArch(TargetTuple::ArchType Arch) {
+  switch (Arch) {
+  case TargetTuple::UnknownArch:
+    return Triple::UnknownArch;
+  case TargetTuple::arm:
+    return Triple::arm;
+  case TargetTuple::armeb:
+    return Triple::armeb;
+  case TargetTuple::aarch64:
+    return Triple::aarch64;
+  case TargetTuple::aarch64_be:
+    return Triple::aarch64_be;
+  case TargetTuple::bpfel:
+    return Triple::bpfel;
+  case TargetTuple::bpfeb:
+    return Triple::bpfeb;
+  case TargetTuple::hexagon:
+    return Triple::hexagon;
+  case TargetTuple::mips:
+    return Triple::mips;
+  case TargetTuple::mipsel:
+    return Triple::mipsel;
+  case TargetTuple::mips64:
+    return Triple::mips64;
+  case TargetTuple::mips64el:
+    return Triple::mips64el;
+  case TargetTuple::msp430:
+    return Triple::msp430;
+  case TargetTuple::ppc:
+    return Triple::ppc;
+  case TargetTuple::ppc64:
+    return Triple::ppc64;
+  case TargetTuple::ppc64le:
+    return Triple::ppc64le;
+  case TargetTuple::r600:
+    return Triple::r600;
+  case TargetTuple::amdgcn:
+    return Triple::amdgcn;
+  case TargetTuple::sparc:
+    return Triple::sparc;
+  case TargetTuple::sparcv9:
+    return Triple::sparcv9;
+  case TargetTuple::sparcel:
+    return Triple::sparcel;
+  case TargetTuple::systemz:
+    return Triple::systemz;
+  case TargetTuple::tce:
+    return Triple::tce;
+  case TargetTuple::thumb:
+    return Triple::thumb;
+  case TargetTuple::thumbeb:
+    return Triple::thumbeb;
+  case TargetTuple::x86:
+    return Triple::x86;
+  case TargetTuple::x86_64:
+    return Triple::x86_64;
+  case TargetTuple::xcore:
+    return Triple::xcore;
+  case TargetTuple::nvptx:
+    return Triple::nvptx;
+  case TargetTuple::nvptx64:
+    return Triple::nvptx64;
+  case TargetTuple::le32:
+    return Triple::le32;
+  case TargetTuple::le64:
+    return Triple::le64;
+  case TargetTuple::amdil:
+    return Triple::amdil;
+  case TargetTuple::amdil64:
+    return Triple::amdil64;
+  case TargetTuple::hsail:
+    return Triple::hsail;
+  case TargetTuple::hsail64:
+    return Triple::hsail64;
+  case TargetTuple::spir:
+    return Triple::spir;
+  case TargetTuple::spir64:
+    return Triple::spir64;
+  case TargetTuple::kalimba:
+    return Triple::kalimba;
+  case TargetTuple::shave:
+    return Triple::shave;
+  case TargetTuple::wasm32:
+    return Triple::wasm32;
+  case TargetTuple::wasm64:
+    return Triple::wasm64;
+  }
+  llvm_unreachable("Unmapped architecture.");
+}
+
+// FIXME: These should be removed as soon as the Triple member is replaced.
 static TargetTuple::SubArchType
 convertTripleSubArchToTupleSubArch(Triple::SubArchType SubArch) {
   switch (SubArch) {
@@ -310,4 +402,12 @@ TargetTuple::EnvironmentType TargetTuple::getEnvironment() const {
 
 TargetTuple::ObjectFormatType TargetTuple::getObjectFormat() const {
   return convertTripleObjFmtToTupleObjFmt(GnuTT.getObjectFormat());
+}
+
+void TargetTuple::setArch(ArchType Kind) {
+  GnuTT.setArch(convertTupleArchToTripleArch(Kind));
+}
+
+TargetTuple::ArchType TargetTuple::getArchTypeForLLVMName(StringRef Str) {
+  return convertTripleArchToTupleArch(Triple::getArchTypeForLLVMName(Str));
 }

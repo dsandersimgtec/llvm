@@ -48,7 +48,7 @@ class MCJITMemoryManager;
 class MutexGuard;
 class ObjectCache;
 class RTDyldMemoryManager;
-class Triple;
+class TargetTuple;
 class Type;
 
 namespace object {
@@ -629,10 +629,9 @@ public:
 
   /// selectTarget - Pick a target either via -march or by guessing the native
   /// arch.  Add any CPU features specified via -mcpu or -mattr.
-  TargetMachine *selectTarget(const Triple &TargetTriple,
-                              StringRef MArch,
+  TargetMachine *selectTarget(const TargetTuple &TargetTuple, StringRef MArch,
                               StringRef MCPU,
-                              const SmallVectorImpl<std::string>& MAttrs);
+                              const SmallVectorImpl<std::string> &MAttrs);
 
   ExecutionEngine *create() {
     return create(selectTarget());

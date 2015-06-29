@@ -416,6 +416,20 @@ public:
   bool isPS4() const { return GnuTT.isPS4(); }
 
   /// @}
+  /// @name Mutators
+  /// @{
+
+  /// Set the architecture to a known type.
+  void setArch(ArchType Kind);
+  /// @}
+  /// @name Static helpers for converting alternate architecture names.
+  /// @{
+
+  /// getArchTypeForLLVMName - The canonical type for the given LLVM
+  /// architecture name (e.g., "x86").
+  static ArchType getArchTypeForLLVMName(StringRef Str);
+
+  /// @}
 
   // FIXME: Remove. This function exists to avoid having to migrate everything
   //        at once.

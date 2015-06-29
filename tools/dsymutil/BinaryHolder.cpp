@@ -171,11 +171,13 @@ BinaryHolder::MapArchiveAndGetMemberBuffers(StringRef Filename,
 
 ErrorOr<const object::ObjectFile &>
 BinaryHolder::getObjfileForArch(const Triple &T) {
+  TargetTuple TT(T);
+
   for (const auto &Obj : CurrentObjectFiles) {
     if (const auto *MachO = dyn_cast<object::MachOObjectFile>(Obj.get())) {
       if (getTriple(*MachO).str() == T.str())
         return *MachO;
-    } else if (Obj->getArch() == T.getArch())
+    } else if (Obj->getArch() == TT.getArch())
       return *Obj;
   }
 

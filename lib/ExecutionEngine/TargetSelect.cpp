@@ -26,27 +26,27 @@
 using namespace llvm;
 
 TargetMachine *EngineBuilder::selectTarget() {
-  Triple TT;
+  TargetTuple TT;
 
   // MCJIT can generate code for remote targets, but the old JIT and Interpreter
   // must use the host architecture.
   if (WhichEngine != EngineKind::Interpreter && M)
-    TT.setTriple(M->getTargetTriple());
+    TT = M->getTargetTuple();
 
   return selectTarget(TT, MArch, MCPU, MAttrs);
 }
 
 /// selectTarget - Pick a target either via -march or by guessing the native
 /// arch.  Add any CPU features specified via -mcpu or -mattr.
-TargetMachine *EngineBuilder::selectTarget(const Triple &TargetTriple,
-                              StringRef MArch,
-                              StringRef MCPU,
-                              const SmallVectorImpl<std::string>& MAttrs) {
-  Triple TheTriple(TargetTriple);
-  if (TheTriple.getTriple().empty())
-    TheTriple.setTriple(sys::getProcessTriple());
+TargetMachine *
+EngineBuilder::selectTarget(const TargetTuple &TT, StringRef MArch,
+                            StringRef MCPU,
+                            const SmallVectorImpl<std::string> &MAttrs) {
+  TargetTuple TheTT(TT);
+  if (TheTT.getTargetTriple().str().empty())
+    TheTT = TargetTuple(Triple(sys::getProcessTriple()));
 
-  // Adjust the triple to match what the user requested.
+  // Adjust the tuple to match what the user requested.
   const Target *TheTarget = nullptr;
   if (!MArch.empty()) {
     auto I = std::find_if(
@@ -62,14 +62,15 @@ TargetMachine *EngineBuilder::selectTarget(const Triple &TargetTriple,
 
     TheTarget = &*I;
 
-    // Adjust the triple to match (if known), otherwise stick with the
-    // requested/host triple.
-    Triple::ArchType Type = Triple::getArchTypeForLLVMName(MArch);
-    if (Type != Triple::UnknownArch)
-      TheTriple.setArch(Type);
+    // Adjust the tuple to match (if known), otherwise stick with the
+    // requested/host tuple.
+    TargetTuple::ArchType Type = TargetTuple::getArchTypeForLLVMName(MArch);
+    if (Type != TargetTuple::UnknownArch)
+      TheTT.setArch(Type);
   } else {
     std::string Error;
-    TheTarget = TargetRegistry::lookupTarget(TheTriple.getTriple(), Error);
+    TheTarget =
+        TargetRegistry::lookupTarget(TheTT.getTargetTriple().str(), Error);
     if (!TheTarget) {
       if (ErrorStr)
         *ErrorStr = Error;
@@ -87,18 +88,15 @@ TargetMachine *EngineBuilder::selectTarget(const Triple &TargetTriple,
   }
 
   // FIXME: non-iOS ARM FastISel is broken with MCJIT.
-  if (TheTriple.getArch() == Triple::arm &&
-      !TheTriple.isiOS() &&
+  if (TheTT.getArch() == TargetTuple::arm && !TheTT.isiOS() &&
       OptLevel == CodeGenOpt::None) {
     OptLevel = CodeGenOpt::Less;
   }
 
   // Allocate a target...
-  TargetMachine *Target = TheTarget->createTargetMachine(TheTriple.getTriple(),
-                                                         MCPU, FeaturesStr,
-                                                         Options,
-                                                         RelocModel, CMModel,
-                                                         OptLevel);
+  TargetMachine *Target = TheTarget->createTargetMachine(
+      TheTT.getTargetTriple().str(), MCPU, FeaturesStr, Options, RelocModel,
+      CMModel, OptLevel);
   assert(Target && "Could not allocate target machine!");
   return Target;
 }
