@@ -53,8 +53,7 @@ void LLVMTargetMachine::initAsmInfo() {
       TheTarget.createMCSubtargetInfo(getTargetTuple().getTargetTriple().str(),
                                       getTargetCPU(), getTargetFeatureString());
 
-  MCAsmInfo *TmpAsmInfo =
-      TheTarget.createMCAsmInfo(*MRI, getTargetTuple().getTargetTriple().str());
+  MCAsmInfo *TmpAsmInfo = TheTarget.createMCAsmInfo(*MRI, getTargetTuple());
   // TargetSelect.h moved to a different directory between LLVM 2.9 and 3.0,
   // and if the old one gets included then MCAsmInfo will be NULL and
   // we'll crash later.

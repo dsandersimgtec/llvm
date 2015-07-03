@@ -818,6 +818,9 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
     FeaturesStr = Features.getString();
   }
 
+  Triple TheTriple(TripleName);
+  TargetTuple TT(TheTriple);
+
   std::unique_ptr<const MCRegisterInfo> MRI(
       TheTarget->createMCRegInfo(TripleName));
   if (!MRI) {
@@ -826,8 +829,7 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
   }
 
   // Set up disassembler.
-  std::unique_ptr<const MCAsmInfo> AsmInfo(
-      TheTarget->createMCAsmInfo(*MRI, TripleName));
+  std::unique_ptr<const MCAsmInfo> AsmInfo(TheTarget->createMCAsmInfo(*MRI, TT));
   if (!AsmInfo) {
     errs() << "error: no assembly info for target " << TripleName << "\n";
     return;
@@ -862,15 +864,15 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
 
   int AsmPrinterVariant = AsmInfo->getAssemblerDialect();
   std::unique_ptr<MCInstPrinter> IP(
-      TheTarget->createMCInstPrinter(TargetTuple(Triple(TripleName)),
-                                     AsmPrinterVariant, *AsmInfo, *MII, *MRI));
+      TheTarget->createMCInstPrinter(TT, AsmPrinterVariant, *AsmInfo, *MII,
+                                     *MRI));
   if (!IP) {
     errs() << "error: no instruction printer for target " << TripleName
       << '\n';
     return;
   }
   IP->setPrintImmHex(PrintImmHex);
-  PrettyPrinter &PIP = selectPrettyPrinter(Triple(TripleName));
+  PrettyPrinter &PIP = selectPrettyPrinter(TheTriple);
 
   StringRef Fmt = Obj->getBytesInAddress() > 4 ? "\t\t%016" PRIx64 ":  " :
                                                  "\t\t\t%08" PRIx64 ":  ";

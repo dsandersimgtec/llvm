@@ -33,17 +33,19 @@ using namespace llvm;
 // disassembler context.  If not, it returns NULL.
 //
 LLVMDisasmContextRef
-LLVMCreateDisasmCPUFeatures(const char *TT, const char *CPU,
+LLVMCreateDisasmCPUFeatures(const char *TTStr, const char *CPU,
                             const char *Features, void *DisInfo, int TagType,
                             LLVMOpInfoCallback GetOpInfo,
                             LLVMSymbolLookupCallback SymbolLookUp) {
   // Get the target.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(TT, Error);
+  const Target *TheTarget = TargetRegistry::lookupTarget(TTStr, Error);
   if (!TheTarget)
     return nullptr;
+  Triple TheTriple(TTStr);
+  TargetTuple TT(TheTriple);
 
-  const MCRegisterInfo *MRI = TheTarget->createMCRegInfo(TT);
+  const MCRegisterInfo *MRI = TheTarget->createMCRegInfo(TTStr);
   if (!MRI)
     return nullptr;
 
@@ -57,7 +59,7 @@ LLVMCreateDisasmCPUFeatures(const char *TT, const char *CPU,
     return nullptr;
 
   const MCSubtargetInfo *STI =
-      TheTarget->createMCSubtargetInfo(TT, CPU, Features);
+      TheTarget->createMCSubtargetInfo(TTStr, CPU, Features);
   if (!STI)
     return nullptr;
 
@@ -72,23 +74,23 @@ LLVMCreateDisasmCPUFeatures(const char *TT, const char *CPU,
     return nullptr;
 
   std::unique_ptr<MCRelocationInfo> RelInfo(
-      TheTarget->createMCRelocationInfo(TT, *Ctx));
+      TheTarget->createMCRelocationInfo(TTStr, *Ctx));
   if (!RelInfo)
     return nullptr;
 
   std::unique_ptr<MCSymbolizer> Symbolizer(TheTarget->createMCSymbolizer(
-      TT, GetOpInfo, SymbolLookUp, DisInfo, Ctx, std::move(RelInfo)));
+      TTStr, GetOpInfo, SymbolLookUp, DisInfo, Ctx, std::move(RelInfo)));
   DisAsm->setSymbolizer(std::move(Symbolizer));
 
   // Set up the instruction printer.
   int AsmPrinterVariant = MAI->getAssemblerDialect();
   MCInstPrinter *IP = TheTarget->createMCInstPrinter(
-      TargetTuple(Triple(TT)), AsmPrinterVariant, *MAI, *MII, *MRI);
+      TT, AsmPrinterVariant, *MAI, *MII, *MRI);
   if (!IP)
     return nullptr;
 
   LLVMDisasmContext *DC =
-      new LLVMDisasmContext(TT, DisInfo, TagType, GetOpInfo, SymbolLookUp,
+      new LLVMDisasmContext(TTStr, DisInfo, TagType, GetOpInfo, SymbolLookUp,
                             TheTarget, MAI, MRI, STI, MII, Ctx, DisAsm, IP);
   if (!DC)
     return nullptr;

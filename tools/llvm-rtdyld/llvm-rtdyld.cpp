@@ -585,6 +585,7 @@ static int linkAndVerify() {
     return 1;
   }
   TripleName = TheTriple.getTriple();
+  TargetTuple TT(TheTriple);
 
   std::unique_ptr<MCSubtargetInfo> STI(
     TheTarget->createMCSubtargetInfo(TripleName, MCPU, ""));
@@ -593,7 +594,7 @@ static int linkAndVerify() {
   std::unique_ptr<MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TripleName));
   assert(MRI && "Unable to create target register info!");
 
-  std::unique_ptr<MCAsmInfo> MAI(TheTarget->createMCAsmInfo(*MRI, TripleName));
+  std::unique_ptr<MCAsmInfo> MAI(TheTarget->createMCAsmInfo(*MRI, TT));
   assert(MAI && "Unable to create target asm info!");
 
   MCContext Ctx(MAI.get(), MRI.get(), nullptr);

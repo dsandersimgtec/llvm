@@ -557,20 +557,20 @@ bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
   if (!TheTarget)
     return error(ErrorStr, Context);
   TripleName = TheTriple.getTriple();
+  TargetTuple TT(TheTriple);
 
   // Create all the MC Objects.
   MRI.reset(TheTarget->createMCRegInfo(TripleName));
   if (!MRI)
     return error(Twine("no register info for target ") + TripleName, Context);
 
-  MAI.reset(TheTarget->createMCAsmInfo(*MRI, TripleName));
+  MAI.reset(TheTarget->createMCAsmInfo(*MRI, TT));
   if (!MAI)
     return error("no asm info for target " + TripleName, Context);
 
   MOFI.reset(new MCObjectFileInfo);
   MC.reset(new MCContext(MAI.get(), MRI.get(), MOFI.get()));
-  MOFI->InitMCObjectFileInfo(TargetTuple(TheTriple), Reloc::Default,
-                             CodeModel::Default, *MC);
+  MOFI->InitMCObjectFileInfo(TT, Reloc::Default, CodeModel::Default, *MC);
 
   MAB = TheTarget->createMCAsmBackend(*MRI, TripleName, "");
   if (!MAB)
@@ -595,9 +595,8 @@ bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
   if (EC)
     return error(Twine(OutputFilename) + ": " + EC.message(), Context);
 
-  MS = TheTarget->createMCObjectStreamer(TargetTuple(TheTriple), *MC, *MAB,
-                                         *OutFile, MCE, *MSTI, false,
-                                         /*DWARFMustBeAtTheEnd*/ false);
+  MS = TheTarget->createMCObjectStreamer(TT, *MC, *MAB, *OutFile, MCE, *MSTI,
+                                         false, /*DWARFMustBeAtTheEnd*/ false);
   if (!MS)
     return error("no object streamer for target " + TripleName, Context);
 

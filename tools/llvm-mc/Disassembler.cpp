@@ -131,22 +131,24 @@ static bool ByteArrayFromString(ByteArrayTy &ByteArray,
 }
 
 int Disassembler::disassemble(const Target &T,
-                              const std::string &Triple,
+                              const std::string &TTStr,
                               MCSubtargetInfo &STI,
                               MCStreamer &Streamer,
                               MemoryBuffer &Buffer,
                               SourceMgr &SM,
                               raw_ostream &Out) {
+  Triple TheTriple(TTStr);
+  TargetTuple TT(TheTriple);
 
-  std::unique_ptr<const MCRegisterInfo> MRI(T.createMCRegInfo(Triple));
+  std::unique_ptr<const MCRegisterInfo> MRI(T.createMCRegInfo(TTStr));
   if (!MRI) {
-    errs() << "error: no register info for target " << Triple << "\n";
+    errs() << "error: no register info for target " << TTStr << "\n";
     return -1;
   }
 
-  std::unique_ptr<const MCAsmInfo> MAI(T.createMCAsmInfo(*MRI, Triple));
+  std::unique_ptr<const MCAsmInfo> MAI(T.createMCAsmInfo(*MRI, TT));
   if (!MAI) {
-    errs() << "error: no assembly info for target " << Triple << "\n";
+    errs() << "error: no assembly info for target " << TTStr << "\n";
     return -1;
   }
 
@@ -156,7 +158,7 @@ int Disassembler::disassemble(const Target &T,
   std::unique_ptr<const MCDisassembler> DisAsm(
     T.createMCDisassembler(STI, Ctx));
   if (!DisAsm) {
-    errs() << "error: no disassembler for target " << Triple << "\n";
+    errs() << "error: no disassembler for target " << TTStr << "\n";
     return -1;
   }
 
