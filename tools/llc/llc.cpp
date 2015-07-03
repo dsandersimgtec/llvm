@@ -279,9 +279,9 @@ static int compileModule(char **argv, LLVMContext &Context) {
   Options.MCOptions.MCUseDwarfDirectory = EnableDwarfDirectory;
   Options.MCOptions.AsmVerbose = AsmVerbose;
 
-  std::unique_ptr<TargetMachine> Target(
-      TheTarget->createTargetMachine(TheTriple.getTriple(), CPUStr, FeaturesStr,
-                                     Options, RelocModel, CMModel, OLvl));
+  std::unique_ptr<TargetMachine> Target(TheTarget->createTargetMachine(
+      TargetTuple(TheTriple), CPUStr, FeaturesStr, Options, RelocModel, CMModel,
+      OLvl));
 
   assert(Target && "Could not allocate target machine!");
 

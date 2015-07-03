@@ -363,25 +363,24 @@ public:
   /// either the target triple from the module, or the target triple of the
   /// host if that does not exist.
   TargetMachine *
-  createTargetMachine(StringRef TT, StringRef CPU, StringRef Features,
+  createTargetMachine(const TargetTuple &TT, StringRef CPU, StringRef Features,
                       const TargetOptions &Options,
                       Reloc::Model RM = Reloc::Default,
                       CodeModel::Model CM = CodeModel::Default,
                       CodeGenOpt::Level OL = CodeGenOpt::Default) const {
     if (!TargetMachineCtorFn)
       return nullptr;
-    return TargetMachineCtorFn(*this, TargetTuple(Triple(TT)), CPU, Features,
-                               Options, RM, CM, OL);
+    return TargetMachineCtorFn(*this, TT, CPU, Features, Options, RM, CM, OL);
   }
 
   /// createMCAsmBackend - Create a target specific assembly parser.
   ///
   /// \param TT The target triple string.
-  MCAsmBackend *createMCAsmBackend(const MCRegisterInfo &MRI, StringRef TT,
-                                   StringRef CPU) const {
+  MCAsmBackend *createMCAsmBackend(const MCRegisterInfo &MRI,
+                                   const TargetTuple &TT, StringRef CPU) const {
     if (!MCAsmBackendCtorFn)
       return nullptr;
-    return MCAsmBackendCtorFn(*this, MRI, TargetTuple(Triple(TT)), CPU);
+    return MCAsmBackendCtorFn(*this, MRI, TT, CPU);
   }
 
   /// createMCAsmParser - Create a target specific assembly parser.
@@ -511,11 +510,12 @@ public:
   ///
   /// \param TT The target triple.
   /// \param Ctx The target context.
-  MCRelocationInfo *createMCRelocationInfo(StringRef TT, MCContext &Ctx) const {
+  MCRelocationInfo *createMCRelocationInfo(const TargetTuple &TT,
+                                           MCContext &Ctx) const {
     MCRelocationInfoCtorTy Fn = MCRelocationInfoCtorFn
                                     ? MCRelocationInfoCtorFn
                                     : llvm::createMCRelocationInfo;
-    return Fn(TargetTuple(Triple(TT)), Ctx);
+    return Fn(TT, Ctx);
   }
 
   /// createMCSymbolizer - Create a target specific MCSymbolizer.
@@ -531,14 +531,13 @@ public:
   /// \param RelInfo The relocation information for this target. Takes
   /// ownership.
   MCSymbolizer *
-  createMCSymbolizer(StringRef TT, LLVMOpInfoCallback GetOpInfo,
+  createMCSymbolizer(const TargetTuple &TT, LLVMOpInfoCallback GetOpInfo,
                      LLVMSymbolLookupCallback SymbolLookUp, void *DisInfo,
                      MCContext *Ctx,
                      std::unique_ptr<MCRelocationInfo> &&RelInfo) const {
     MCSymbolizerCtorTy Fn =
         MCSymbolizerCtorFn ? MCSymbolizerCtorFn : llvm::createMCSymbolizer;
-    return Fn(TargetTuple(Triple(TT)), GetOpInfo, SymbolLookUp, DisInfo, Ctx,
-              std::move(RelInfo));
+    return Fn(TT, GetOpInfo, SymbolLookUp, DisInfo, Ctx, std::move(RelInfo));
   }
 
   /// @}

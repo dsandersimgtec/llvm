@@ -478,8 +478,8 @@ int main(int argc, char **argv) {
 
   MCInstPrinter *IP = nullptr;
   if (FileType == OFT_AssemblyFile) {
-    IP = TheTarget->createMCInstPrinter(TargetTuple(Triple(TripleName)),
-                                        OutputAsmVariant, *MAI, *MCII, *MRI);
+    IP =
+        TheTarget->createMCInstPrinter(TT, OutputAsmVariant, *MAI, *MCII, *MRI);
 
     // Set the display preference for hex vs. decimal immediates.
     IP->setPrintImmHex(PrintImmHex);
@@ -489,7 +489,7 @@ int main(int argc, char **argv) {
     MCAsmBackend *MAB = nullptr;
     if (ShowEncoding) {
       CE = TheTarget->createMCCodeEmitter(*MCII, *MRI, Ctx);
-      MAB = TheTarget->createMCAsmBackend(*MRI, TripleName, MCPU);
+      MAB = TheTarget->createMCAsmBackend(*MRI, TT, MCPU);
     }
     auto FOut = llvm::make_unique<formatted_raw_ostream>(*OS);
     Str.reset(TheTarget->createAsmStreamer(
@@ -510,7 +510,7 @@ int main(int argc, char **argv) {
     }
 
     MCCodeEmitter *CE = TheTarget->createMCCodeEmitter(*MCII, *MRI, Ctx);
-    MCAsmBackend *MAB = TheTarget->createMCAsmBackend(*MRI, TripleName, MCPU);
+    MCAsmBackend *MAB = TheTarget->createMCAsmBackend(*MRI, TT, MCPU);
     Str.reset(TheTarget->createMCObjectStreamer(TT, Ctx, *MAB, *OS, CE, *STI,
                                                 RelaxAll,
                                                 /*DWARFMustBeAtTheEnd*/ false));

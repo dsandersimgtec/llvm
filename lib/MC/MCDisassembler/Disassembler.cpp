@@ -74,12 +74,12 @@ LLVMCreateDisasmCPUFeatures(const char *TTStr, const char *CPU,
     return nullptr;
 
   std::unique_ptr<MCRelocationInfo> RelInfo(
-      TheTarget->createMCRelocationInfo(TTStr, *Ctx));
+      TheTarget->createMCRelocationInfo(TT, *Ctx));
   if (!RelInfo)
     return nullptr;
 
   std::unique_ptr<MCSymbolizer> Symbolizer(TheTarget->createMCSymbolizer(
-      TTStr, GetOpInfo, SymbolLookUp, DisInfo, Ctx, std::move(RelInfo)));
+      TT, GetOpInfo, SymbolLookUp, DisInfo, Ctx, std::move(RelInfo)));
   DisAsm->setSymbolizer(std::move(Symbolizer));
 
   // Set up the instruction printer.

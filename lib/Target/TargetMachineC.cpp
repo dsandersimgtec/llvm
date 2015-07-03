@@ -110,10 +110,10 @@ LLVMBool LLVMTargetHasAsmBackend(LLVMTargetRef T) {
   return unwrap(T)->hasMCAsmBackend();
 }
 
-LLVMTargetMachineRef LLVMCreateTargetMachine(LLVMTargetRef T,
-        const char* Triple, const char* CPU, const char* Features,
-        LLVMCodeGenOptLevel Level, LLVMRelocMode Reloc,
-        LLVMCodeModel CodeModel) {
+LLVMTargetMachineRef
+LLVMCreateTargetMachine(LLVMTargetRef T, const char *TripleStr, const char *CPU,
+                        const char *Features, LLVMCodeGenOptLevel Level,
+                        LLVMRelocMode Reloc, LLVMCodeModel CodeModel) {
   Reloc::Model RM;
   switch (Reloc){
     case LLVMRelocStatic:
@@ -149,8 +149,10 @@ LLVMTargetMachineRef LLVMCreateTargetMachine(LLVMTargetRef T,
   }
 
   TargetOptions opt;
-  return wrap(unwrap(T)->createTargetMachine(Triple, CPU, Features, opt, RM,
-    CM, OL));
+  Triple TheTriple(TripleStr);
+  TargetTuple TT(TheTriple);
+  return wrap(
+      unwrap(T)->createTargetMachine(TT, CPU, Features, opt, RM, CM, OL));
 }
 
 void LLVMDisposeTargetMachine(LLVMTargetMachineRef T) { delete unwrap(T); }

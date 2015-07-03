@@ -95,8 +95,7 @@ EngineBuilder::selectTarget(const TargetTuple &TT, StringRef MArch,
 
   // Allocate a target...
   TargetMachine *Target = TheTarget->createTargetMachine(
-      TheTT.getTargetTriple().str(), MCPU, FeaturesStr, Options, RelocModel,
-      CMModel, OptLevel);
+      TheTT, MCPU, FeaturesStr, Options, RelocModel, CMModel, OptLevel);
   assert(Target && "Could not allocate target machine!");
   return Target;
 }

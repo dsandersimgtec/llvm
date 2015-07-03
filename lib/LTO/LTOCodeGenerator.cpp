@@ -310,9 +310,9 @@ bool LTOCodeGenerator::determineTarget(std::string &ErrMsg) {
       MCpu = "cyclone";
   }
 
-  TargetMach.reset(march->createTargetMachine(TripleStr, MCpu, FeatureStr,
-                                              Options, RelocModel,
-                                              CodeModel::Default, CGOptLevel));
+  TargetMach.reset(march->createTargetMachine(TT, MCpu, FeatureStr, Options,
+                                              RelocModel, CodeModel::Default,
+                                              CGOptLevel));
   return true;
 }
 

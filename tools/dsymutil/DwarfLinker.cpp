@@ -572,7 +572,7 @@ bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
   MC.reset(new MCContext(MAI.get(), MRI.get(), MOFI.get()));
   MOFI->InitMCObjectFileInfo(TT, Reloc::Default, CodeModel::Default, *MC);
 
-  MAB = TheTarget->createMCAsmBackend(*MRI, TripleName, "");
+  MAB = TheTarget->createMCAsmBackend(*MRI, TT, "");
   if (!MAB)
     return error("no asm backend for target " + TripleName, Context);
 
@@ -601,7 +601,7 @@ bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
     return error("no object streamer for target " + TripleName, Context);
 
   // Finally create the AsmPrinter we'll use to emit the DIEs.
-  TM.reset(TheTarget->createTargetMachine(TripleName, "", "", TargetOptions()));
+  TM.reset(TheTarget->createTargetMachine(TT, "", "", TargetOptions()));
   if (!TM)
     return error("no target machine for target " + TripleName, Context);
 

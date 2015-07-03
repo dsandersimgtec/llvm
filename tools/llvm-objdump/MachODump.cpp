@@ -5902,11 +5902,11 @@ static void DisassembleMachO(StringRef Filename, MachOObjectFile *MachOOF,
   std::unique_ptr<MCSymbolizer> Symbolizer;
   struct DisassembleInfo SymbolizerInfo;
   std::unique_ptr<MCRelocationInfo> RelInfo(
-      TheTarget->createMCRelocationInfo(TripleName, Ctx));
+      TheTarget->createMCRelocationInfo(TT, Ctx));
   if (RelInfo) {
     Symbolizer.reset(TheTarget->createMCSymbolizer(
-        TripleName, SymbolizerGetOpInfo, SymbolizerSymbolLookUp,
-        &SymbolizerInfo, &Ctx, std::move(RelInfo)));
+        TT, SymbolizerGetOpInfo, SymbolizerSymbolLookUp, &SymbolizerInfo, &Ctx,
+        std::move(RelInfo)));
     DisAsm->setSymbolizer(std::move(Symbolizer));
   }
   int AsmPrinterVariant = AsmInfo->getAssemblerDialect();
@@ -5952,10 +5952,10 @@ static void DisassembleMachO(StringRef Filename, MachOObjectFile *MachOOF,
     ThumbDisAsm.reset(ThumbTarget->createMCDisassembler(*ThumbSTI, *ThumbCtx));
     MCContext *PtrThumbCtx = ThumbCtx.get();
     ThumbRelInfo.reset(
-        ThumbTarget->createMCRelocationInfo(ThumbTripleName, *PtrThumbCtx));
+        ThumbTarget->createMCRelocationInfo(ThumbTT, *PtrThumbCtx));
     if (ThumbRelInfo) {
       ThumbSymbolizer.reset(ThumbTarget->createMCSymbolizer(
-          ThumbTripleName, SymbolizerGetOpInfo, SymbolizerSymbolLookUp,
+          ThumbTT, SymbolizerGetOpInfo, SymbolizerSymbolLookUp,
           &ThumbSymbolizerInfo, PtrThumbCtx, std::move(ThumbRelInfo)));
       ThumbDisAsm->setSymbolizer(std::move(ThumbSymbolizer));
     }
