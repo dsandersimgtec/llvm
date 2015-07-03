@@ -130,12 +130,9 @@ static bool ByteArrayFromString(ByteArrayTy &ByteArray,
   return false;
 }
 
-int Disassembler::disassemble(const Target &T,
-                              const std::string &TTStr,
-                              MCSubtargetInfo &STI,
-                              MCStreamer &Streamer,
-                              MemoryBuffer &Buffer,
-                              SourceMgr &SM,
+int Disassembler::disassemble(const Target &T, const std::string &TTStr,
+                              MCSubtargetInfo &STI, MCStreamer &Streamer,
+                              MemoryBuffer &Buffer, SourceMgr &SM,
                               raw_ostream &Out) {
   Triple TheTriple(TTStr);
   TargetTuple TT(TheTriple);

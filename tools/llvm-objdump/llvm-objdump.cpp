@@ -829,7 +829,8 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
   }
 
   // Set up disassembler.
-  std::unique_ptr<const MCAsmInfo> AsmInfo(TheTarget->createMCAsmInfo(*MRI, TT));
+  std::unique_ptr<const MCAsmInfo> AsmInfo(
+      TheTarget->createMCAsmInfo(*MRI, TT));
   if (!AsmInfo) {
     errs() << "error: no assembly info for target " << TripleName << "\n";
     return;
@@ -863,9 +864,8 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
       TheTarget->createMCInstrAnalysis(MII.get()));
 
   int AsmPrinterVariant = AsmInfo->getAssemblerDialect();
-  std::unique_ptr<MCInstPrinter> IP(
-      TheTarget->createMCInstPrinter(TT, AsmPrinterVariant, *AsmInfo, *MII,
-                                     *MRI));
+  std::unique_ptr<MCInstPrinter> IP(TheTarget->createMCInstPrinter(
+      TT, AsmPrinterVariant, *AsmInfo, *MII, *MRI));
   if (!IP) {
     errs() << "error: no instruction printer for target " << TripleName
       << '\n';

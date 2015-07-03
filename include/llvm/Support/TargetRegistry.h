@@ -298,7 +298,8 @@ public:
   /// feature set; it should always be provided. Generally this should be
   /// either the target triple from the module, or the target triple of the
   /// host if that does not exist.
-  MCAsmInfo *createMCAsmInfo(const MCRegisterInfo &MRI, const TargetTuple &TT) const {
+  MCAsmInfo *createMCAsmInfo(const MCRegisterInfo &MRI,
+                             const TargetTuple &TT) const {
     if (!MCAsmInfoCtorFn)
       return nullptr;
     return MCAsmInfoCtorFn(MRI, TT);
@@ -306,12 +307,12 @@ public:
 
   /// createMCCodeGenInfo - Create a MCCodeGenInfo implementation.
   ///
-  MCCodeGenInfo *createMCCodeGenInfo(StringRef TT, Reloc::Model RM,
+  MCCodeGenInfo *createMCCodeGenInfo(const TargetTuple &TT, Reloc::Model RM,
                                      CodeModel::Model CM,
                                      CodeGenOpt::Level OL) const {
     if (!MCCodeGenInfoCtorFn)
       return nullptr;
-    return MCCodeGenInfoCtorFn(TargetTuple(Triple(TT)), RM, CM, OL);
+    return MCCodeGenInfoCtorFn(TT, RM, CM, OL);
   }
 
   /// createMCInstrInfo - Create a MCInstrInfo implementation.

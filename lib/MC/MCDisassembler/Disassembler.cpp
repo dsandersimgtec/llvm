@@ -84,8 +84,8 @@ LLVMCreateDisasmCPUFeatures(const char *TTStr, const char *CPU,
 
   // Set up the instruction printer.
   int AsmPrinterVariant = MAI->getAssemblerDialect();
-  MCInstPrinter *IP = TheTarget->createMCInstPrinter(
-      TT, AsmPrinterVariant, *MAI, *MII, *MRI);
+  MCInstPrinter *IP =
+      TheTarget->createMCInstPrinter(TT, AsmPrinterVariant, *MAI, *MII, *MRI);
   if (!IP)
     return nullptr;
 

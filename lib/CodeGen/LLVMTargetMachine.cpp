@@ -78,7 +78,7 @@ LLVMTargetMachine::LLVMTargetMachine(const Target &T,
                                      Reloc::Model RM, CodeModel::Model CM,
                                      CodeGenOpt::Level OL)
     : TargetMachine(T, DataLayoutString, TT, CPU, FS, Options) {
-  CodeGenInfo = T.createMCCodeGenInfo(TT.str(), RM, CM, OL);
+  CodeGenInfo = T.createMCCodeGenInfo(TT, RM, CM, OL);
 }
 
 TargetIRAnalysis LLVMTargetMachine::getTargetIRAnalysis() {
