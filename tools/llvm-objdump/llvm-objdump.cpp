@@ -821,8 +821,7 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
   Triple TheTriple(TripleName);
   TargetTuple TT(TheTriple);
 
-  std::unique_ptr<const MCRegisterInfo> MRI(
-      TheTarget->createMCRegInfo(TripleName));
+  std::unique_ptr<const MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TT));
   if (!MRI) {
     errs() << "error: no register info for target " << TripleName << "\n";
     return;
@@ -837,7 +836,7 @@ static void DisassembleObject(const ObjectFile *Obj, bool InlineRelocs) {
   }
 
   std::unique_ptr<const MCSubtargetInfo> STI(
-      TheTarget->createMCSubtargetInfo(TripleName, MCPU, FeaturesStr));
+      TheTarget->createMCSubtargetInfo(TT, MCPU, FeaturesStr));
   if (!STI) {
     errs() << "error: no subtarget info for target " << TripleName << "\n";
     return;

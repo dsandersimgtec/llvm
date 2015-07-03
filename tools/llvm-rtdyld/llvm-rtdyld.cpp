@@ -588,10 +588,10 @@ static int linkAndVerify() {
   TargetTuple TT(TheTriple);
 
   std::unique_ptr<MCSubtargetInfo> STI(
-    TheTarget->createMCSubtargetInfo(TripleName, MCPU, ""));
+      TheTarget->createMCSubtargetInfo(TT, MCPU, ""));
   assert(STI && "Unable to create subtarget info!");
 
-  std::unique_ptr<MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TripleName));
+  std::unique_ptr<MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TT));
   assert(MRI && "Unable to create target register info!");
 
   std::unique_ptr<MCAsmInfo> MAI(TheTarget->createMCAsmInfo(*MRI, TT));

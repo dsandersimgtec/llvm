@@ -5891,12 +5891,11 @@ static void DisassembleMachO(StringRef Filename, MachOObjectFile *MachOOF,
   Triple TheTriple(TripleName);
   TargetTuple TT(TheTriple);
   // Set up disassembler.
-  std::unique_ptr<const MCRegisterInfo> MRI(
-      TheTarget->createMCRegInfo(TripleName));
+  std::unique_ptr<const MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TT));
   std::unique_ptr<const MCAsmInfo> AsmInfo(
       TheTarget->createMCAsmInfo(*MRI, TT));
   std::unique_ptr<const MCSubtargetInfo> STI(
-      TheTarget->createMCSubtargetInfo(TripleName, MCPU, FeaturesStr));
+      TheTarget->createMCSubtargetInfo(TT, MCPU, FeaturesStr));
   MCContext Ctx(AsmInfo.get(), MRI.get(), nullptr);
   std::unique_ptr<MCDisassembler> DisAsm(
       TheTarget->createMCDisassembler(*STI, Ctx));
@@ -5945,10 +5944,10 @@ static void DisassembleMachO(StringRef Filename, MachOObjectFile *MachOOF,
   if (ThumbTarget) {
     Triple TheThumbTriple(ThumbTripleName);
     TargetTuple ThumbTT(TheThumbTriple);
-    ThumbMRI.reset(ThumbTarget->createMCRegInfo(ThumbTripleName));
+    ThumbMRI.reset(ThumbTarget->createMCRegInfo(ThumbTT));
     ThumbAsmInfo.reset(ThumbTarget->createMCAsmInfo(*ThumbMRI, ThumbTT));
     ThumbSTI.reset(
-        ThumbTarget->createMCSubtargetInfo(ThumbTripleName, MCPU, FeaturesStr));
+        ThumbTarget->createMCSubtargetInfo(ThumbTT, MCPU, FeaturesStr));
     ThumbCtx.reset(new MCContext(ThumbAsmInfo.get(), ThumbMRI.get(), nullptr));
     ThumbDisAsm.reset(ThumbTarget->createMCDisassembler(*ThumbSTI, *ThumbCtx));
     MCContext *PtrThumbCtx = ThumbCtx.get();

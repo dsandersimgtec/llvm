@@ -560,7 +560,7 @@ bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
   TargetTuple TT(TheTriple);
 
   // Create all the MC Objects.
-  MRI.reset(TheTarget->createMCRegInfo(TripleName));
+  MRI.reset(TheTarget->createMCRegInfo(TT));
   if (!MRI)
     return error(Twine("no register info for target ") + TripleName, Context);
 
@@ -580,7 +580,7 @@ bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
   if (!MII)
     return error("no instr info info for target " + TripleName, Context);
 
-  MSTI.reset(TheTarget->createMCSubtargetInfo(TripleName, "", ""));
+  MSTI.reset(TheTarget->createMCSubtargetInfo(TT, "", ""));
   if (!MSTI)
     return error("no subtarget info for target " + TripleName, Context);
 

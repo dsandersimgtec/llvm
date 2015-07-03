@@ -45,7 +45,7 @@ LLVMCreateDisasmCPUFeatures(const char *TTStr, const char *CPU,
   Triple TheTriple(TTStr);
   TargetTuple TT(TheTriple);
 
-  const MCRegisterInfo *MRI = TheTarget->createMCRegInfo(TTStr);
+  const MCRegisterInfo *MRI = TheTarget->createMCRegInfo(TT);
   if (!MRI)
     return nullptr;
 
@@ -59,7 +59,7 @@ LLVMCreateDisasmCPUFeatures(const char *TTStr, const char *CPU,
     return nullptr;
 
   const MCSubtargetInfo *STI =
-      TheTarget->createMCSubtargetInfo(TTStr, CPU, Features);
+      TheTarget->createMCSubtargetInfo(TT, CPU, Features);
   if (!STI)
     return nullptr;
 

@@ -413,7 +413,7 @@ int main(int argc, char **argv) {
   // it later.
   SrcMgr.setIncludeDirs(IncludeDirs);
 
-  std::unique_ptr<MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TripleName));
+  std::unique_ptr<MCRegisterInfo> MRI(TheTarget->createMCRegInfo(TT));
   assert(MRI && "Unable to create target register info!");
 
   std::unique_ptr<MCAsmInfo> MAI(TheTarget->createMCAsmInfo(*MRI, TT));
@@ -474,7 +474,7 @@ int main(int argc, char **argv) {
 
   std::unique_ptr<MCInstrInfo> MCII(TheTarget->createMCInstrInfo());
   std::unique_ptr<MCSubtargetInfo> STI(
-      TheTarget->createMCSubtargetInfo(TripleName, MCPU, FeaturesStr));
+      TheTarget->createMCSubtargetInfo(TT, MCPU, FeaturesStr));
 
   MCInstPrinter *IP = nullptr;
   if (FileType == OFT_AssemblyFile) {

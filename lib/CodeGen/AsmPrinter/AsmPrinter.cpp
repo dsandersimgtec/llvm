@@ -223,8 +223,7 @@ bool AsmPrinter::doInitialization(Module &M) {
     // We're at the module level. Construct MCSubtarget from the default CPU
     // and target triple.
     std::unique_ptr<MCSubtargetInfo> STI(TM.getTarget().createMCSubtargetInfo(
-        TM.getTargetTuple().getTargetTriple().str(), TM.getTargetCPU(),
-        TM.getTargetFeatureString()));
+        TM.getTargetTuple(), TM.getTargetCPU(), TM.getTargetFeatureString()));
     OutStreamer->AddComment("Start of file scope inline assembly");
     OutStreamer->AddBlankLine();
     EmitInlineAsm(M.getModuleInlineAsm()+"\n", *STI, TM.Options.MCOptions);

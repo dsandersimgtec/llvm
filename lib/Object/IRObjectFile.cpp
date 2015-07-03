@@ -51,8 +51,7 @@ IRObjectFile::IRObjectFile(MemoryBufferRef Object, std::unique_ptr<Module> Mod)
   if (!T)
     return;
 
-  std::unique_ptr<MCRegisterInfo> MRI(
-      T->createMCRegInfo(TT.getTargetTriple().str()));
+  std::unique_ptr<MCRegisterInfo> MRI(T->createMCRegInfo(TT));
   if (!MRI)
     return;
 
@@ -60,8 +59,7 @@ IRObjectFile::IRObjectFile(MemoryBufferRef Object, std::unique_ptr<Module> Mod)
   if (!MAI)
     return;
 
-  std::unique_ptr<MCSubtargetInfo> STI(
-      T->createMCSubtargetInfo(TT.getTargetTriple().str(), "", ""));
+  std::unique_ptr<MCSubtargetInfo> STI(T->createMCSubtargetInfo(TT, "", ""));
   if (!STI)
     return;
 

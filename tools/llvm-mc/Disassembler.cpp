@@ -137,7 +137,7 @@ int Disassembler::disassemble(const Target &T, const std::string &TTStr,
   Triple TheTriple(TTStr);
   TargetTuple TT(TheTriple);
 
-  std::unique_ptr<const MCRegisterInfo> MRI(T.createMCRegInfo(TTStr));
+  std::unique_ptr<const MCRegisterInfo> MRI(T.createMCRegInfo(TT));
   if (!MRI) {
     errs() << "error: no register info for target " << TTStr << "\n";
     return -1;

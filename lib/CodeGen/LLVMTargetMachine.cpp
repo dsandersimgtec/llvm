@@ -43,15 +43,14 @@ EnableFastISelOption("fast-isel", cl::Hidden,
   cl::desc("Enable the \"fast\" instruction selector"));
 
 void LLVMTargetMachine::initAsmInfo() {
-  MRI = TheTarget.createMCRegInfo(getTargetTuple().getTargetTriple().str());
+  MRI = TheTarget.createMCRegInfo(getTargetTuple());
   MII = TheTarget.createMCInstrInfo();
   // FIXME: Having an MCSubtargetInfo on the target machine is a hack due
   // to some backends having subtarget feature dependent module level
   // code generation. This is similar to the hack in the AsmPrinter for
   // module level assembly etc.
-  STI =
-      TheTarget.createMCSubtargetInfo(getTargetTuple().getTargetTriple().str(),
-                                      getTargetCPU(), getTargetFeatureString());
+  STI = TheTarget.createMCSubtargetInfo(getTargetTuple(), getTargetCPU(),
+                                        getTargetFeatureString());
 
   MCAsmInfo *TmpAsmInfo = TheTarget.createMCAsmInfo(*MRI, getTargetTuple());
   // TargetSelect.h moved to a different directory between LLVM 2.9 and 3.0,

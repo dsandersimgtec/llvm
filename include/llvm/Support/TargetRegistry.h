@@ -333,10 +333,10 @@ public:
 
   /// createMCRegInfo - Create a MCRegisterInfo implementation.
   ///
-  MCRegisterInfo *createMCRegInfo(StringRef TT) const {
+  MCRegisterInfo *createMCRegInfo(const TargetTuple &TT) const {
     if (!MCRegInfoCtorFn)
       return nullptr;
-    return MCRegInfoCtorFn(TargetTuple(Triple(TT)));
+    return MCRegInfoCtorFn(TT);
   }
 
   /// createMCSubtargetInfo - Create a MCSubtargetInfo implementation.
@@ -348,11 +348,11 @@ public:
   /// \param CPU This specifies the name of the target CPU.
   /// \param Features This specifies the string representation of the
   /// additional target features.
-  MCSubtargetInfo *createMCSubtargetInfo(StringRef TT, StringRef CPU,
+  MCSubtargetInfo *createMCSubtargetInfo(const TargetTuple &TT, StringRef CPU,
                                          StringRef Features) const {
     if (!MCSubtargetInfoCtorFn)
       return nullptr;
-    return MCSubtargetInfoCtorFn(TargetTuple(Triple(TT)), CPU, Features);
+    return MCSubtargetInfoCtorFn(TT, CPU, Features);
   }
 
   /// createTargetMachine - Create a target specific machine implementation

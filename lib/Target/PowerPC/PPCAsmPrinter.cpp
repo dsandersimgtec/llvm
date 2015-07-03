@@ -1332,8 +1332,7 @@ EmitFunctionStubs(const MachineModuleInfoMachO::SymbolListTy &Stubs) {
   // freed) and since we're at the global level we can use the default
   // constructed subtarget.
   std::unique_ptr<MCSubtargetInfo> STI(TM.getTarget().createMCSubtargetInfo(
-      TM.getTargetTuple().getTargetTriple().str(), TM.getTargetCPU(),
-      TM.getTargetFeatureString()));
+      TM.getTargetTuple(), TM.getTargetCPU(), TM.getTargetFeatureString()));
   auto EmitToStreamer = [&STI] (MCStreamer &S, const MCInst &Inst) {
     S.EmitInstruction(Inst, *STI);
   };
