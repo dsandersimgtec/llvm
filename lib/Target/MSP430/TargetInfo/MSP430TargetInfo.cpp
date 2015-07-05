@@ -14,7 +14,7 @@ using namespace llvm;
 
 Target llvm::TheMSP430Target;
 
-extern "C" void LLVMInitializeMSP430TargetInfo() { 
-  RegisterTarget<Triple::msp430> 
-    X(TheMSP430Target, "msp430", "MSP430 [experimental]");
+extern "C" void LLVMInitializeMSP430TargetInfo() {
+  RegisterTarget<TargetTuple::msp430> X(TheMSP430Target, "msp430",
+                                        "MSP430 [experimental]");
 }

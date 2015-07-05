@@ -548,21 +548,21 @@ public:
 
 bool DwarfStreamer::init(Triple TheTriple, StringRef OutputFilename) {
   std::string ErrorStr;
-  std::string TripleName;
   StringRef Context = "dwarf streamer init";
+  TargetTuple TT(TheTriple);
 
   // Get the target.
-  const Target *TheTarget =
-      TargetRegistry::lookupTarget(TripleName, TheTriple, ErrorStr);
+  const Target *TheTarget = TargetRegistry::lookupTarget("", TT, ErrorStr);
   if (!TheTarget)
     return error(ErrorStr, Context);
-  TripleName = TheTriple.getTriple();
-  TargetTuple TT(TheTriple);
+  std::string TripleName = TT.getTargetTriple().str();
 
   // Create all the MC Objects.
   MRI.reset(TheTarget->createMCRegInfo(TT));
   if (!MRI)
-    return error(Twine("no register info for target ") + TripleName, Context);
+    return error(Twine("no register info for target ") +
+                     TT.getTargetTriple().str(),
+                 Context);
 
   MAI.reset(TheTarget->createMCAsmInfo(*MRI, TT));
   if (!MAI)

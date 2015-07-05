@@ -280,15 +280,15 @@ static const Target *getTarget(const ObjectFile *Obj = nullptr) {
 
   // Get the target specific parser.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(ArchName, TheTriple,
-                                                         Error);
+  TargetTuple TT(TheTriple);
+  const Target *TheTarget = TargetRegistry::lookupTarget(ArchName, TT, Error);
   if (!TheTarget) {
     errs() << ToolName << ": " << Error;
     return nullptr;
   }
 
   // Update the triple name and return the found target.
-  TripleName = TheTriple.getTriple();
+  TripleName = TT.getTargetTriple().str();
   return TheTarget;
 }
 

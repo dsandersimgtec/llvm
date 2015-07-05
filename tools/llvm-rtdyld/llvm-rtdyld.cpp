@@ -576,16 +576,15 @@ static int linkAndVerify() {
 
   // Look up the target and build the disassembler.
   Triple TheTriple(Triple::normalize(TripleName));
+  TargetTuple TT(TheTriple);
   std::string ErrorStr;
-  const Target *TheTarget =
-    TargetRegistry::lookupTarget("", TheTriple, ErrorStr);
+  const Target *TheTarget = TargetRegistry::lookupTarget("", TT, ErrorStr);
   if (!TheTarget) {
     llvm::errs() << "Error accessing target '" << TripleName << "': "
                  << ErrorStr << "\n";
     return 1;
   }
-  TripleName = TheTriple.getTriple();
-  TargetTuple TT(TheTriple);
+  TripleName = TT.getTargetTriple().str();
 
   std::unique_ptr<MCSubtargetInfo> STI(
       TheTarget->createMCSubtargetInfo(TT, MCPU, ""));

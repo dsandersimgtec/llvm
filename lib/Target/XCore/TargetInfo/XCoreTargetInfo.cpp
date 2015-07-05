@@ -15,5 +15,5 @@ using namespace llvm;
 Target llvm::TheXCoreTarget;
 
 extern "C" void LLVMInitializeXCoreTargetInfo() {
-  RegisterTarget<Triple::xcore> X(TheXCoreTarget, "xcore", "XCore");
+  RegisterTarget<TargetTuple::xcore> X(TheXCoreTarget, "xcore", "XCore");
 }

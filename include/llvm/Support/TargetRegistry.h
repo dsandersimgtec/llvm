@@ -20,7 +20,6 @@
 #define LLVM_SUPPORT_TARGETREGISTRY_H
 
 #include "llvm-c/Disassembler.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/ADT/TargetTuple.h"
 #include "llvm/Support/CodeGen.h"
 #include "llvm/Support/FormattedStream.h"
@@ -90,7 +89,7 @@ class Target {
 public:
   friend struct TargetRegistry;
 
-  typedef bool (*ArchMatchFnTy)(Triple::ArchType Arch);
+  typedef bool (*ArchMatchFnTy)(TargetTuple::ArchType Arch);
 
   typedef MCAsmInfo *(*MCAsmInfoCtorFnTy)(const MCRegisterInfo &MRI,
                                           const TargetTuple &TT);
@@ -610,8 +609,8 @@ struct TargetRegistry {
   /// by architecture is done.
   /// \param Error - On failure, an error string describing why no target was
   /// found.
-  static const Target *lookupTarget(const std::string &ArchName, Triple &TT,
-                                    std::string &Error);
+  static const Target *lookupTarget(const std::string &ArchName,
+                                    TargetTuple &TT, std::string &Error);
 
   /// @}
   /// @name Target Registration
@@ -868,16 +867,17 @@ struct TargetRegistry {
 /// Target TheFooTarget; // The global target instance.
 ///
 /// extern "C" void LLVMInitializeFooTargetInfo() {
-///   RegisterTarget<Triple::foo> X(TheFooTarget, "foo", "Foo description");
+///   RegisterTarget<TargetTuple::foo> X(TheFooTarget, "foo",
+///                                      "Foo description");
 /// }
-template <Triple::ArchType TargetArchType = Triple::UnknownArch,
+template <TargetTuple::ArchType TargetArchType = TargetTuple::UnknownArch,
           bool HasJIT = false>
 struct RegisterTarget {
   RegisterTarget(Target &T, const char *Name, const char *Desc) {
     TargetRegistry::RegisterTarget(T, Name, Desc, &getArchMatch, HasJIT);
   }
 
-  static bool getArchMatch(Triple::ArchType Arch) {
+  static bool getArchMatch(TargetTuple::ArchType Arch) {
     return Arch == TargetArchType;
   }
 };

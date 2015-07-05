@@ -269,16 +269,16 @@ static TargetMachine* GetTargetMachine(Triple TheTriple, StringRef CPUStr,
                                        StringRef FeaturesStr,
                                        const TargetOptions &Options) {
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(MArch, TheTriple,
-                                                         Error);
+  TargetTuple TT(TheTriple);
+  const Target *TheTarget = TargetRegistry::lookupTarget(MArch, TT, Error);
   // Some modules don't specify a triple, and this is okay.
   if (!TheTarget) {
     return nullptr;
   }
 
-  return TheTarget->createTargetMachine(TargetTuple(TheTriple), CPUStr,
-                                        FeaturesStr, Options, RelocModel,
-                                        CMModel, GetCodeGenOptLevel());
+  return TheTarget->createTargetMachine(TT, CPUStr, FeaturesStr, Options,
+                                        RelocModel, CMModel,
+                                        GetCodeGenOptLevel());
 }
 
 #ifdef LINK_POLLY_INTO_TOOLS

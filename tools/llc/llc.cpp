@@ -252,8 +252,8 @@ static int compileModule(char **argv, LLVMContext &Context) {
 
   // Get the target specific parser.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(MArch, TheTriple,
-                                                         Error);
+  TargetTuple TT(TheTriple);
+  const Target *TheTarget = TargetRegistry::lookupTarget(MArch, TT, Error);
   if (!TheTarget) {
     errs() << argv[0] << ": " << Error;
     return 1;
@@ -280,8 +280,7 @@ static int compileModule(char **argv, LLVMContext &Context) {
   Options.MCOptions.AsmVerbose = AsmVerbose;
 
   std::unique_ptr<TargetMachine> Target(TheTarget->createTargetMachine(
-      TargetTuple(TheTriple), CPUStr, FeaturesStr, Options, RelocModel, CMModel,
-      OLvl));
+      TT, CPUStr, FeaturesStr, Options, RelocModel, CMModel, OLvl));
 
   assert(Target && "Could not allocate target machine!");
 
@@ -296,8 +295,8 @@ static int compileModule(char **argv, LLVMContext &Context) {
     Options.FloatABIType = FloatABIForCalls;
 
   // Figure out where we are going to send the output.
-  std::unique_ptr<tool_output_file> Out =
-      GetOutputStream(TheTarget->getName(), TheTriple.getOS(), argv[0]);
+  std::unique_ptr<tool_output_file> Out = GetOutputStream(
+      TheTarget->getName(), TT.getTargetTriple().getOS(), argv[0]);
   if (!Out) return 1;
 
   // Build up all of the passes that we want to do to the module.

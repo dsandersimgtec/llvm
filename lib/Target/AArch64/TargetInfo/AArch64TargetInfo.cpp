@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Support/TargetRegistry.h"
 using namespace llvm;
 
@@ -19,14 +19,13 @@ Target TheARM64Target;
 
 extern "C" void LLVMInitializeAArch64TargetInfo() {
   // Now register the "arm64" name for use with "-march". We don't want it to
-  // take possession of the Triple::aarch64 tag though.
-  TargetRegistry::RegisterTarget(TheARM64Target, "arm64",
-                                 "ARM64 (little endian)",
-                                 [](Triple::ArchType) { return false; }, true);
+  // take possession of the TargetTuple::aarch64 tag though.
+  TargetRegistry::RegisterTarget(
+      TheARM64Target, "arm64", "ARM64 (little endian)",
+      [](TargetTuple::ArchType) { return false; }, true);
 
-  RegisterTarget<Triple::aarch64, /*HasJIT=*/true> Z(
+  RegisterTarget<TargetTuple::aarch64, /*HasJIT=*/true> Z(
       TheAArch64leTarget, "aarch64", "AArch64 (little endian)");
-  RegisterTarget<Triple::aarch64_be, /*HasJIT=*/true> W(
+  RegisterTarget<TargetTuple::aarch64_be, /*HasJIT=*/true> W(
       TheAArch64beTarget, "aarch64_be", "AArch64 (big endian)");
-
 }

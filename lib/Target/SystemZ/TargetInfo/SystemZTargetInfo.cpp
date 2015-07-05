@@ -15,6 +15,6 @@ using namespace llvm;
 Target llvm::TheSystemZTarget;
 
 extern "C" void LLVMInitializeSystemZTargetInfo() {
-  RegisterTarget<Triple::systemz, /*HasJIT=*/true>
-    X(TheSystemZTarget, "systemz", "SystemZ");
+  RegisterTarget<TargetTuple::systemz, /*HasJIT=*/true> X(TheSystemZTarget,
+                                                          "systemz", "SystemZ");
 }

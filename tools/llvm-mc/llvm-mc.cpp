@@ -192,18 +192,18 @@ static const Target *GetTarget(const char *ProgName) {
   if (TripleName.empty())
     TripleName = sys::getDefaultTargetTriple();
   Triple TheTriple(Triple::normalize(TripleName));
+  TargetTuple TT(TheTriple);
 
   // Get the target specific parser.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(ArchName, TheTriple,
-                                                         Error);
+  const Target *TheTarget = TargetRegistry::lookupTarget(ArchName, TT, Error);
   if (!TheTarget) {
     errs() << ProgName << ": " << Error;
     return nullptr;
   }
 
   // Update the triple name and return the found target.
-  TripleName = TheTriple.getTriple();
+  TripleName = TT.getTargetTriple().str();
   return TheTarget;
 }
 

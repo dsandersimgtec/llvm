@@ -15,5 +15,6 @@ using namespace llvm;
 Target llvm::TheHexagonTarget;
 
 extern "C" void LLVMInitializeHexagonTargetInfo() {
-  RegisterTarget<Triple::hexagon, /*HasJIT=*/false>  X(TheHexagonTarget, "hexagon", "Hexagon");
+  RegisterTarget<TargetTuple::hexagon, /*HasJIT=*/false> X(
+      TheHexagonTarget, "hexagon", "Hexagon");
 }

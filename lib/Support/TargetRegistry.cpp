@@ -23,7 +23,7 @@ iterator_range<TargetRegistry::iterator> TargetRegistry::targets() {
 }
 
 const Target *TargetRegistry::lookupTarget(const std::string &ArchName,
-                                           Triple &TheTriple,
+                                           TargetTuple &TT,
                                            std::string &Error) {
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
@@ -43,17 +43,17 @@ const Target *TargetRegistry::lookupTarget(const std::string &ArchName,
 
     // Adjust the triple to match (if known), otherwise stick with the
     // given triple.
-    Triple::ArchType Type = Triple::getArchTypeForLLVMName(ArchName);
-    if (Type != Triple::UnknownArch)
-      TheTriple.setArch(Type);
+    TargetTuple::ArchType Type = TargetTuple::getArchTypeForLLVMName(ArchName);
+    if (Type != TargetTuple::UnknownArch)
+      TT.setArch(Type);
   } else {
     // Get the target specific parser.
     std::string TempError;
-    TheTarget = TargetRegistry::lookupTarget(TheTriple.getTriple(), TempError);
+    TheTarget =
+        TargetRegistry::lookupTarget(TT.getTargetTriple().str(), TempError);
     if (!TheTarget) {
-      Error = ": error: unable to get target for '"
-            + TheTriple.getTriple()
-            + "', see --version and --triple.\n";
+      Error = ": error: unable to get target for '" +
+              TT.getTargetTriple().str() + "', see --version and --triple.\n";
       return nullptr;
     }
   }
@@ -68,7 +68,7 @@ const Target *TargetRegistry::lookupTarget(const std::string &TT,
     Error = "Unable to find target for this triple (no targets are registered)";
     return nullptr;
   }
-  Triple::ArchType Arch = Triple(TT).getArch();
+  TargetTuple::ArchType Arch = TargetTuple(Triple(TT)).getArch();
   auto ArchMatch = [&](const Target &T) { return T.ArchMatchFn(Arch); };
   auto I = std::find_if(targets().begin(), targets().end(), ArchMatch);
 

@@ -14,7 +14,7 @@ using namespace llvm;
 
 Target llvm::TheCppBackendTarget;
 
-static bool CppBackend_TripleMatchQuality(Triple::ArchType Arch) {
+static bool CppBackend_TripleMatchQuality(TargetTuple::ArchType Arch) {
   // This backend doesn't correspond to any architecture. It must be explicitly
   // selected with -march.
   return false;

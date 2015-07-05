@@ -16,13 +16,13 @@ Target llvm::TheARMLETarget,   llvm::TheARMBETarget;
 Target llvm::TheThumbLETarget, llvm::TheThumbBETarget;
 
 extern "C" void LLVMInitializeARMTargetInfo() {
-  RegisterTarget<Triple::arm, /*HasJIT=*/true>
-    X(TheARMLETarget, "arm", "ARM");
-  RegisterTarget<Triple::armeb, /*HasJIT=*/true>
-    Y(TheARMBETarget, "armeb", "ARM (big endian)");
+  RegisterTarget<TargetTuple::arm, /*HasJIT=*/true> X(TheARMLETarget, "arm",
+                                                      "ARM");
+  RegisterTarget<TargetTuple::armeb, /*HasJIT=*/true> Y(TheARMBETarget, "armeb",
+                                                        "ARM (big endian)");
 
-  RegisterTarget<Triple::thumb, /*HasJIT=*/true>
-    A(TheThumbLETarget, "thumb", "Thumb");
-  RegisterTarget<Triple::thumbeb, /*HasJIT=*/true>
-    B(TheThumbBETarget, "thumbeb", "Thumb (big endian)");
+  RegisterTarget<TargetTuple::thumb, /*HasJIT=*/true> A(TheThumbLETarget,
+                                                        "thumb", "Thumb");
+  RegisterTarget<TargetTuple::thumbeb, /*HasJIT=*/true> B(
+      TheThumbBETarget, "thumbeb", "Thumb (big endian)");
 }

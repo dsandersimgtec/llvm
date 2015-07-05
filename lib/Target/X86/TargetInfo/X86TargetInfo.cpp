@@ -14,9 +14,9 @@ using namespace llvm;
 Target llvm::TheX86_32Target, llvm::TheX86_64Target;
 
 extern "C" void LLVMInitializeX86TargetInfo() {
-  RegisterTarget<Triple::x86, /*HasJIT=*/true>
-    X(TheX86_32Target, "x86", "32-bit X86: Pentium-Pro and above");
+  RegisterTarget<TargetTuple::x86, /*HasJIT=*/true> X(
+      TheX86_32Target, "x86", "32-bit X86: Pentium-Pro and above");
 
-  RegisterTarget<Triple::x86_64, /*HasJIT=*/true>
-    Y(TheX86_64Target, "x86-64", "64-bit X86: EM64T and AMD64");
+  RegisterTarget<TargetTuple::x86_64, /*HasJIT=*/true> Y(
+      TheX86_64Target, "x86-64", "64-bit X86: EM64T and AMD64");
 }
