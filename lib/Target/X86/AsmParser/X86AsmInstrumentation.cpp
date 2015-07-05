@@ -12,7 +12,6 @@
 #include "X86Operand.h"
 #include "X86RegisterInfo.h"
 #include "llvm/ADT/StringExtras.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/CodeGen/MachineValueType.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCContext.h"
