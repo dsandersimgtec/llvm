@@ -46,8 +46,7 @@ IRObjectFile::IRObjectFile(MemoryBufferRef Object, std::unique_ptr<Module> Mod)
   Triple TheTriple(M->getTargetTriple());
   TargetTuple TT(TheTriple);
   std::string Err;
-  const Target *T =
-      TargetRegistry::lookupTarget(TT.getTargetTriple().str(), Err);
+  const Target *T = TargetRegistry::lookupTarget(TT, Err);
   if (!T)
     return;
 

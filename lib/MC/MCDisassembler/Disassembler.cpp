@@ -39,11 +39,11 @@ LLVMCreateDisasmCPUFeatures(const char *TTStr, const char *CPU,
                             LLVMSymbolLookupCallback SymbolLookUp) {
   // Get the target.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(TTStr, Error);
-  if (!TheTarget)
-    return nullptr;
   Triple TheTriple(TTStr);
   TargetTuple TT(TheTriple);
+  const Target *TheTarget = TargetRegistry::lookupTarget(TT, Error);
+  if (!TheTarget)
+    return nullptr;
 
   const MCRegisterInfo *MRI = TheTarget->createMCRegInfo(TT);
   if (!MRI)

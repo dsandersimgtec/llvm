@@ -596,7 +596,7 @@ struct TargetRegistry {
   /// \param TT - The triple to use for finding a target.
   /// \param Error - On failure, an error string describing why no target was
   /// found.
-  static const Target *lookupTarget(const std::string &TT, std::string &Error);
+  static const Target *lookupTarget(const TargetTuple &TT, std::string &Error);
 
   /// lookupTarget - Lookup a target based on an architecture name
   /// and a target triple.  If the architecture name is non-empty,

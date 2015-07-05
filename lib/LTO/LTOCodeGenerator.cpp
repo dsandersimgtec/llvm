@@ -291,7 +291,7 @@ bool LTOCodeGenerator::determineTarget(std::string &ErrMsg) {
   llvm::TargetTuple TT(Triple);
 
   // create target machine from info for merged modules
-  const Target *march = TargetRegistry::lookupTarget(TripleStr, ErrMsg);
+  const Target *march = TargetRegistry::lookupTarget(TT, ErrMsg);
   if (!march)
     return false;
 

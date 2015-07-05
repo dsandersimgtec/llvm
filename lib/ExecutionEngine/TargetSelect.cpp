@@ -69,8 +69,7 @@ EngineBuilder::selectTarget(const TargetTuple &TT, StringRef MArch,
       TheTT.setArch(Type);
   } else {
     std::string Error;
-    TheTarget =
-        TargetRegistry::lookupTarget(TheTT.getTargetTriple().str(), Error);
+    TheTarget = TargetRegistry::lookupTarget(TheTT, Error);
     if (!TheTarget) {
       if (ErrorStr)
         *ErrorStr = Error;

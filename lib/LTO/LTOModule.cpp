@@ -213,7 +213,7 @@ LTOModule *LTOModule::makeLTOModule(MemoryBufferRef Buffer,
   llvm::TargetTuple TT(Triple);
 
   // find machine architecture for this module
-  const Target *march = TargetRegistry::lookupTarget(TripleStr, errMsg);
+  const Target *march = TargetRegistry::lookupTarget(TT, errMsg);
   if (!march)
     return nullptr;
 

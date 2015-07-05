@@ -149,21 +149,26 @@ static const Target *GetTarget(const MachOObjectFile *MachOObj,
     ThumbTripleName = ThumbTuple.getTargetTriple().str();
   }
 
+  Triple TheTriple(TripleName);
+  TargetTuple TT(TheTriple);
+
   // Get the target specific parser.
   std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(TripleName, Error);
+  const Target *TheTarget = TargetRegistry::lookupTarget(TT, Error);
   if (TheTarget && ThumbTripleName.empty())
     return TheTarget;
 
-  *ThumbTarget = TargetRegistry::lookupTarget(ThumbTripleName, Error);
+  Triple TheThumbTriple(ThumbTripleName);
+  TargetTuple ThumbTT(TheThumbTriple);
+  *ThumbTarget = TargetRegistry::lookupTarget(ThumbTT, Error);
   if (*ThumbTarget)
     return TheTarget;
 
   errs() << "llvm-objdump: error: unable to get target for '";
   if (!TheTarget)
-    errs() << TripleName;
+    errs() << TT.getTargetTriple().str();
   else
-    errs() << ThumbTripleName;
+    errs() << ThumbTT.getTargetTriple().str();
   errs() << "', see --version and --triple.\n";
   return nullptr;
 }
