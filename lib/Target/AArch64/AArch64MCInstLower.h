@@ -10,7 +10,7 @@
 #ifndef LLVM_LIB_TARGET_AARCH64_AARCH64MCINSTLOWER_H
 #define LLVM_LIB_TARGET_AARCH64_AARCH64MCINSTLOWER_H
 
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Support/Compiler.h"
 
 namespace llvm {
@@ -30,7 +30,7 @@ class Mangler;
 class LLVM_LIBRARY_VISIBILITY AArch64MCInstLower {
   MCContext &Ctx;
   AsmPrinter &Printer;
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
 
 public:
   AArch64MCInstLower(MCContext &ctx, AsmPrinter &printer);

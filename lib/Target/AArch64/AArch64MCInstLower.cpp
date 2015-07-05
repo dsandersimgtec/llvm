@@ -29,8 +29,7 @@ using namespace llvm;
 extern cl::opt<bool> EnableAArch64ELFLocalDynamicTLSGeneration;
 
 AArch64MCInstLower::AArch64MCInstLower(MCContext &ctx, AsmPrinter &printer)
-    : Ctx(ctx), Printer(printer),
-      TargetTriple(printer.getTargetTuple().getTargetTriple()) {}
+    : Ctx(ctx), Printer(printer), TheTargetTuple(printer.getTargetTuple()) {}
 
 MCSymbol *
 AArch64MCInstLower::GetGlobalAddressSymbol(const MachineOperand &MO) const {
@@ -154,10 +153,10 @@ MCOperand AArch64MCInstLower::lowerSymbolOperandELF(const MachineOperand &MO,
 
 MCOperand AArch64MCInstLower::LowerSymbolOperand(const MachineOperand &MO,
                                                  MCSymbol *Sym) const {
-  if (TargetTriple.isOSDarwin())
+  if (TheTargetTuple.isOSDarwin())
     return lowerSymbolOperandDarwin(MO, Sym);
 
-  assert(TargetTriple.isOSBinFormatELF() && "Expect Darwin or ELF target");
+  assert(TheTargetTuple.isOSBinFormatELF() && "Expect Darwin or ELF target");
   return lowerSymbolOperandELF(MO, Sym);
 }
 
