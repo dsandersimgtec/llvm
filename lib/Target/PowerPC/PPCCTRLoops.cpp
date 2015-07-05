@@ -102,7 +102,7 @@ namespace {
     }
 
   private:
-    bool mightUseCTR(const Triple &TT, BasicBlock *BB);
+    bool mightUseCTR(const TargetTuple &TT, BasicBlock *BB);
     bool convertToCTRLoop(Loop *L);
 
   private:
@@ -209,7 +209,7 @@ static bool memAddrUsesCTR(const PPCTargetMachine *TM,
   return Model == TLSModel::GeneralDynamic || Model == TLSModel::LocalDynamic;
 }
 
-bool PPCCTRLoops::mightUseCTR(const Triple &TT, BasicBlock *BB) {
+bool PPCCTRLoops::mightUseCTR(const TargetTuple &TT, BasicBlock *BB) {
   for (BasicBlock::iterator J = BB->begin(), JE = BB->end();
        J != JE; ++J) {
     if (CallInst *CI = dyn_cast<CallInst>(J)) {
@@ -423,8 +423,8 @@ bool PPCCTRLoops::mightUseCTR(const Triple &TT, BasicBlock *BB) {
 bool PPCCTRLoops::convertToCTRLoop(Loop *L) {
   bool MadeChange = false;
 
-  const Triple TT =
-      Triple(L->getHeader()->getParent()->getParent()->getTargetTriple());
+  const TargetTuple TT = TargetTuple(
+      Triple(L->getHeader()->getParent()->getParent()->getTargetTriple()));
   if (!TT.isArch32Bit() && !TT.isArch64Bit())
     return MadeChange; // Unknown arch. type.
 
