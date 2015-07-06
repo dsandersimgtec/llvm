@@ -17,7 +17,7 @@
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringMap.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
 #include "llvm/ExecutionEngine/RuntimeDyld.h"
 #include "llvm/ExecutionEngine/RuntimeDyldChecker.h"
@@ -234,7 +234,7 @@ protected:
 
   typedef std::map<RelocationValueRef, uintptr_t> StubMap;
 
-  Triple::ArchType Arch;
+  TargetTuple::ArchType Arch;
   bool IsTargetLittleEndian;
   bool IsMipsO32ABI;
   bool IsMipsN64ABI;

@@ -127,7 +127,7 @@ RuntimeDyldImpl::loadObjectImpl(const object::ObjectFile &Obj) {
   MutexGuard locked(lock);
 
   // Save information about our target
-  Arch = (Triple::ArchType)Obj.getArch();
+  Arch = Obj.getArch();
   IsTargetLittleEndian = Obj.isLittleEndian();
   setMipsABI(Obj);
 
@@ -661,7 +661,7 @@ void RuntimeDyldImpl::addRelocationForSymbol(const RelocationEntry &RE,
 
 uint8_t *RuntimeDyldImpl::createStubFunction(uint8_t *Addr,
                                              unsigned AbiVariant) {
-  if (Arch == Triple::aarch64 || Arch == Triple::aarch64_be) {
+  if (Arch == TargetTuple::aarch64 || Arch == TargetTuple::aarch64_be) {
     // This stub has to be able to access the full address space,
     // since symbol lookup won't necessarily find a handy, in-range,
     // PLT stub for functions which could be anywhere.
@@ -673,7 +673,7 @@ uint8_t *RuntimeDyldImpl::createStubFunction(uint8_t *Addr,
     writeBytesUnaligned(0xd61f0200, Addr+16, 4); // br ip0
 
     return Addr;
-  } else if (Arch == Triple::arm || Arch == Triple::armeb) {
+  } else if (Arch == TargetTuple::arm || Arch == TargetTuple::armeb) {
     // TODO: There is only ARM far stub now. We should add the Thumb stub,
     // and stubs for branches Thumb - ARM and ARM - Thumb.
     writeBytesUnaligned(0xe51ff004, Addr, 4); // ldr pc,<label>
@@ -691,7 +691,7 @@ uint8_t *RuntimeDyldImpl::createStubFunction(uint8_t *Addr,
     writeBytesUnaligned(JrT9Instr, Addr+8, 4);
     writeBytesUnaligned(NopInstr, Addr+12, 4);
     return Addr;
-  } else if (Arch == Triple::ppc64 || Arch == Triple::ppc64le) {
+  } else if (Arch == TargetTuple::ppc64 || Arch == TargetTuple::ppc64le) {
     // Depending on which version of the ELF ABI is in use, we need to
     // generate one of two variants of the stub.  They both start with
     // the same sequence to load the target address into r12.
@@ -718,18 +718,18 @@ uint8_t *RuntimeDyldImpl::createStubFunction(uint8_t *Addr,
       writeInt32BE(Addr+40, 0x4E800420); // bctr
     }
     return Addr;
-  } else if (Arch == Triple::systemz) {
+  } else if (Arch == TargetTuple::systemz) {
     writeInt16BE(Addr,    0xC418);     // lgrl %r1,.+8
     writeInt16BE(Addr+2,  0x0000);
     writeInt16BE(Addr+4,  0x0004);
     writeInt16BE(Addr+6,  0x07F1);     // brc 15,%r1
     // 8-byte address stored at Addr + 8
     return Addr;
-  } else if (Arch == Triple::x86_64) {
+  } else if (Arch == TargetTuple::x86_64) {
     *Addr      = 0xFF; // jmp
     *(Addr+1)  = 0x25; // rip
     // 32-bit PC-relative address of the GOT entry will be stored at Addr+2
-  } else if (Arch == Triple::x86) {
+  } else if (Arch == TargetTuple::x86) {
     *Addr      = 0xE9; // 32-bit pc-relative jump.
   }
   return Addr;
@@ -861,10 +861,10 @@ RuntimeDyld::RuntimeDyld(RuntimeDyld::MemoryManager &MemMgr,
 
 RuntimeDyld::~RuntimeDyld() {}
 
-static std::unique_ptr<RuntimeDyldCOFF>
-createRuntimeDyldCOFF(Triple::ArchType Arch, RuntimeDyld::MemoryManager &MM,
-                      RuntimeDyld::SymbolResolver &Resolver,
-                      bool ProcessAllSections, RuntimeDyldCheckerImpl *Checker) {
+static std::unique_ptr<RuntimeDyldCOFF> createRuntimeDyldCOFF(
+    TargetTuple::ArchType Arch, RuntimeDyld::MemoryManager &MM,
+    RuntimeDyld::SymbolResolver &Resolver, bool ProcessAllSections,
+    RuntimeDyldCheckerImpl *Checker) {
   std::unique_ptr<RuntimeDyldCOFF> Dyld =
     RuntimeDyldCOFF::create(Arch, MM, Resolver);
   Dyld->setProcessAllSections(ProcessAllSections);
@@ -882,11 +882,10 @@ createRuntimeDyldELF(RuntimeDyld::MemoryManager &MM,
   return Dyld;
 }
 
-static std::unique_ptr<RuntimeDyldMachO>
-createRuntimeDyldMachO(Triple::ArchType Arch, RuntimeDyld::MemoryManager &MM,
-                       RuntimeDyld::SymbolResolver &Resolver,
-                       bool ProcessAllSections,
-                       RuntimeDyldCheckerImpl *Checker) {
+static std::unique_ptr<RuntimeDyldMachO> createRuntimeDyldMachO(
+    TargetTuple::ArchType Arch, RuntimeDyld::MemoryManager &MM,
+    RuntimeDyld::SymbolResolver &Resolver, bool ProcessAllSections,
+    RuntimeDyldCheckerImpl *Checker) {
   std::unique_ptr<RuntimeDyldMachO> Dyld =
     RuntimeDyldMachO::create(Arch, MM, Resolver);
   Dyld->setProcessAllSections(ProcessAllSections);
@@ -900,13 +899,11 @@ RuntimeDyld::loadObject(const ObjectFile &Obj) {
     if (Obj.isELF())
       Dyld = createRuntimeDyldELF(MemMgr, Resolver, ProcessAllSections, Checker);
     else if (Obj.isMachO())
-      Dyld = createRuntimeDyldMachO(
-               static_cast<Triple::ArchType>(Obj.getArch()), MemMgr, Resolver,
-               ProcessAllSections, Checker);
+      Dyld = createRuntimeDyldMachO(Obj.getArch(), MemMgr, Resolver,
+                                    ProcessAllSections, Checker);
     else if (Obj.isCOFF())
-      Dyld = createRuntimeDyldCOFF(
-               static_cast<Triple::ArchType>(Obj.getArch()), MemMgr, Resolver,
-               ProcessAllSections, Checker);
+      Dyld = createRuntimeDyldCOFF(Obj.getArch(), MemMgr, Resolver,
+                                   ProcessAllSections, Checker);
     else
       report_fatal_error("Incompatible object format!");
   }

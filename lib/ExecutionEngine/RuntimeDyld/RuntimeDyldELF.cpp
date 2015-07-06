@@ -16,7 +16,7 @@
 #include "llvm/ADT/IntervalMap.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/StringRef.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/Object/ELFObjectFile.h"
 #include "llvm/Object/ObjectFile.h"
@@ -565,8 +565,9 @@ void RuntimeDyldELF::resolveMIPSRelocation(const SectionEntry &Section,
 }
 
 void RuntimeDyldELF::setMipsABI(const ObjectFile &Obj) {
-  if (Arch == Triple::UnknownArch ||
-      !StringRef(Triple::getArchTypePrefix(Arch)).equals("mips")) {
+  if (Arch == TargetTuple::UnknownArch ||
+      !(Arch == TargetTuple::mips || Arch == TargetTuple::mipsel ||
+        Arch == TargetTuple::mips64 || Arch == TargetTuple::mips64el)) {
     IsMipsO32ABI = false;
     IsMipsN64ABI = false;
     return;
@@ -1065,28 +1066,28 @@ void RuntimeDyldELF::resolveRelocation(const SectionEntry &Section,
                                        uint32_t Type, int64_t Addend,
                                        uint64_t SymOffset, SID SectionID) {
   switch (Arch) {
-  case Triple::x86_64:
+  case TargetTuple::x86_64:
     resolveX86_64Relocation(Section, Offset, Value, Type, Addend, SymOffset);
     break;
-  case Triple::x86:
+  case TargetTuple::x86:
     resolveX86Relocation(Section, Offset, (uint32_t)(Value & 0xffffffffL), Type,
                          (uint32_t)(Addend & 0xffffffffL));
     break;
-  case Triple::aarch64:
-  case Triple::aarch64_be:
+  case TargetTuple::aarch64:
+  case TargetTuple::aarch64_be:
     resolveAArch64Relocation(Section, Offset, Value, Type, Addend);
     break;
-  case Triple::arm: // Fall through.
-  case Triple::armeb:
-  case Triple::thumb:
-  case Triple::thumbeb:
+  case TargetTuple::arm: // Fall through.
+  case TargetTuple::armeb:
+  case TargetTuple::thumb:
+  case TargetTuple::thumbeb:
     resolveARMRelocation(Section, Offset, (uint32_t)(Value & 0xffffffffL), Type,
                          (uint32_t)(Addend & 0xffffffffL));
     break;
-  case Triple::mips: // Fall through.
-  case Triple::mipsel:
-  case Triple::mips64:
-  case Triple::mips64el:
+  case TargetTuple::mips: // Fall through.
+  case TargetTuple::mipsel:
+  case TargetTuple::mips64:
+  case TargetTuple::mips64el:
     if (IsMipsO32ABI)
       resolveMIPSRelocation(Section, Offset, (uint32_t)(Value & 0xffffffffL),
                             Type, (uint32_t)(Addend & 0xffffffffL));
@@ -1096,14 +1097,14 @@ void RuntimeDyldELF::resolveRelocation(const SectionEntry &Section,
     else
       llvm_unreachable("Mips ABI not handled");
     break;
-  case Triple::ppc:
+  case TargetTuple::ppc:
     resolvePPC32Relocation(Section, Offset, Value, Type, Addend);
     break;
-  case Triple::ppc64: // Fall through.
-  case Triple::ppc64le:
+  case TargetTuple::ppc64: // Fall through.
+  case TargetTuple::ppc64le:
     resolvePPC64Relocation(Section, Offset, Value, Type, Addend);
     break;
-  case Triple::systemz:
+  case TargetTuple::systemz:
     resolveSystemZRelocation(Section, Offset, Value, Type, Addend);
     break;
   default:
@@ -1218,7 +1219,7 @@ relocation_iterator RuntimeDyldELF::processRelocationRef(
 
   DEBUG(dbgs() << "\t\tSectionID: " << SectionID << " Offset: " << Offset
                << "\n");
-  if ((Arch == Triple::aarch64 || Arch == Triple::aarch64_be) &&
+  if ((Arch == TargetTuple::aarch64 || Arch == TargetTuple::aarch64_be) &&
       (RelType == ELF::R_AARCH64_CALL26 || RelType == ELF::R_AARCH64_JUMP26)) {
     // This is an AArch64 branch relocation, need to use a stub function.
     DEBUG(dbgs() << "\t\tThis is an AArch64 branch relocation.");
@@ -1263,7 +1264,7 @@ relocation_iterator RuntimeDyldELF::processRelocationRef(
                         0);
       Section.StubOffset += getMaxStubSize();
     }
-  } else if (Arch == Triple::arm) {
+  } else if (Arch == TargetTuple::arm) {
     if (RelType == ELF::R_ARM_PC24 || RelType == ELF::R_ARM_CALL ||
       RelType == ELF::R_ARM_JUMP24) {
       // This is an ARM branch relocation, need to use a stub function.
@@ -1410,7 +1411,7 @@ relocation_iterator RuntimeDyldELF::processRelocationRef(
       addRelocationForSymbol(RE, Value.SymbolName);
     else
       addRelocationForSection(RE, Value.SectionID);
-  } else if (Arch == Triple::ppc64 || Arch == Triple::ppc64le) {
+  } else if (Arch == TargetTuple::ppc64 || Arch == TargetTuple::ppc64le) {
     if (RelType == ELF::R_PPC64_REL24) {
       // Determine ABI variant in use for this object.
       unsigned AbiVariant;
@@ -1560,7 +1561,7 @@ relocation_iterator RuntimeDyldELF::processRelocationRef(
       else
         addRelocationForSection(RE, Value.SectionID);
     }
-  } else if (Arch == Triple::systemz &&
+  } else if (Arch == TargetTuple::systemz &&
              (RelType == ELF::R_390_PLT32DBL || RelType == ELF::R_390_GOTENT)) {
     // Create function stubs for both PLT and GOT references, regardless of
     // whether the GOT reference is to data or code.  The stub contains the
@@ -1606,7 +1607,7 @@ relocation_iterator RuntimeDyldELF::processRelocationRef(
                         Addend);
     else
       resolveRelocation(Section, Offset, StubAddress, RelType, Addend);
-  } else if (Arch == Triple::x86_64) {
+  } else if (Arch == TargetTuple::x86_64) {
     if (RelType == ELF::R_X86_64_PLT32) {
       // The way the PLT relocations normally work is that the linker allocates
       // the
@@ -1687,7 +1688,7 @@ relocation_iterator RuntimeDyldELF::processRelocationRef(
       processSimpleRelocation(SectionID, Offset, RelType, Value);
     }
   } else {
-    if (Arch == Triple::x86) {
+    if (Arch == TargetTuple::x86) {
       Value.Addend += support::ulittle32_t::ref(computePlaceholderAddress(SectionID, Offset));
     }
     processSimpleRelocation(SectionID, Offset, RelType, Value);
@@ -1700,23 +1701,23 @@ size_t RuntimeDyldELF::getGOTEntrySize() {
   // to put them all here.
   size_t Result = 0;
   switch (Arch) {
-  case Triple::x86_64:
-  case Triple::aarch64:
-  case Triple::aarch64_be:
-  case Triple::ppc64:
-  case Triple::ppc64le:
-  case Triple::systemz:
+  case TargetTuple::x86_64:
+  case TargetTuple::aarch64:
+  case TargetTuple::aarch64_be:
+  case TargetTuple::ppc64:
+  case TargetTuple::ppc64le:
+  case TargetTuple::systemz:
     Result = sizeof(uint64_t);
     break;
-  case Triple::x86:
-  case Triple::arm:
-  case Triple::thumb:
+  case TargetTuple::x86:
+  case TargetTuple::arm:
+  case TargetTuple::thumb:
     Result = sizeof(uint32_t);
     break;
-  case Triple::mips:
-  case Triple::mipsel:
-  case Triple::mips64:
-  case Triple::mips64el:
+  case TargetTuple::mips:
+  case TargetTuple::mipsel:
+  case TargetTuple::mips64:
+  case TargetTuple::mips64el:
     if (IsMipsO32ABI)
       Result = sizeof(uint32_t);
     else if (IsMipsN64ABI)

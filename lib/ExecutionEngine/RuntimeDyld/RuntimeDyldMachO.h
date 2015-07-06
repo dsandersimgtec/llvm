@@ -121,8 +121,7 @@ public:
 
   /// Create a RuntimeDyldMachO instance for the given target architecture.
   static std::unique_ptr<RuntimeDyldMachO>
-  create(Triple::ArchType Arch,
-         RuntimeDyld::MemoryManager &MemMgr,
+  create(TargetTuple::ArchType Arch, RuntimeDyld::MemoryManager &MemMgr,
          RuntimeDyld::SymbolResolver &Resolver);
 
   std::unique_ptr<RuntimeDyld::LoadedObjectInfo>

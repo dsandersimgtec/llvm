@@ -33,7 +33,7 @@ public:
   bool isCompatibleFile(const object::ObjectFile &Obj) const override;
 
   static std::unique_ptr<RuntimeDyldCOFF>
-  create(Triple::ArchType Arch, RuntimeDyld::MemoryManager &MemMgr,
+  create(TargetTuple::ArchType Arch, RuntimeDyld::MemoryManager &MemMgr,
          RuntimeDyld::SymbolResolver &Resolver);
 
 protected:

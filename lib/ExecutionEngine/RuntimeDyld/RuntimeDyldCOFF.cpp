@@ -14,7 +14,7 @@
 #include "RuntimeDyldCOFF.h"
 #include "Targets/RuntimeDyldCOFFX86_64.h"
 #include "llvm/ADT/STLExtras.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Object/ObjectFile.h"
 
 using namespace llvm;
@@ -40,14 +40,14 @@ public:
 namespace llvm {
 
 std::unique_ptr<RuntimeDyldCOFF>
-llvm::RuntimeDyldCOFF::create(Triple::ArchType Arch,
+llvm::RuntimeDyldCOFF::create(TargetTuple::ArchType Arch,
                               RuntimeDyld::MemoryManager &MemMgr,
                               RuntimeDyld::SymbolResolver &Resolver) {
   switch (Arch) {
   default:
     llvm_unreachable("Unsupported target for RuntimeDyldCOFF.");
     break;
-  case Triple::x86_64:
+  case TargetTuple::x86_64:
     return make_unique<RuntimeDyldCOFFX86_64>(MemMgr, Resolver);
   }
 }

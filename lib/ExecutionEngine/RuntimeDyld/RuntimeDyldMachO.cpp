@@ -314,20 +314,20 @@ void RuntimeDyldMachOCRTPBase<Impl>::registerEHFrames() {
 }
 
 std::unique_ptr<RuntimeDyldMachO>
-RuntimeDyldMachO::create(Triple::ArchType Arch,
+RuntimeDyldMachO::create(TargetTuple::ArchType Arch,
                          RuntimeDyld::MemoryManager &MemMgr,
                          RuntimeDyld::SymbolResolver &Resolver) {
   switch (Arch) {
   default:
     llvm_unreachable("Unsupported target for RuntimeDyldMachO.");
     break;
-  case Triple::arm:
+  case TargetTuple::arm:
     return make_unique<RuntimeDyldMachOARM>(MemMgr, Resolver);
-  case Triple::aarch64:
+  case TargetTuple::aarch64:
     return make_unique<RuntimeDyldMachOAArch64>(MemMgr, Resolver);
-  case Triple::x86:
+  case TargetTuple::x86:
     return make_unique<RuntimeDyldMachOI386>(MemMgr, Resolver);
-  case Triple::x86_64:
+  case TargetTuple::x86_64:
     return make_unique<RuntimeDyldMachOX86_64>(MemMgr, Resolver);
   }
 }
