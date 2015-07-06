@@ -21,7 +21,7 @@
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/SmallSet.h"
 #include "llvm/ADT/SetVector.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/ADT/TinyPtrVector.h"
 #include "llvm/Analysis/CFG.h"
 #include "llvm/Analysis/LibCallSemantics.h"
@@ -77,7 +77,7 @@ public:
   WinEHPrepare(const TargetMachine *TM = nullptr)
       : FunctionPass(ID) {
     if (TM)
-      TheTriple = TM->getTargetTuple().getTargetTriple();
+      TheTargetTuple = TM->getTargetTuple();
   }
 
   bool runOnFunction(Function &Fn) override;
@@ -134,7 +134,7 @@ private:
                          SmallVectorImpl<BasicBlock *> &EntryBlocks);
   void colorFunclets(Function &F, SmallVectorImpl<BasicBlock *> &EntryBlocks);
 
-  Triple TheTriple;
+  TargetTuple TheTargetTuple;
 
   // All fields are reset by runOnFunction.
   DominatorTree *DT = nullptr;
@@ -1392,7 +1392,7 @@ Function *WinEHPrepare::createHandlerFunc(Function *ParentFn, Type *RetTy,
   LLVMContext &Context = M->getContext();
   Type *Int8PtrType = Type::getInt8PtrTy(Context);
   FunctionType *FnType;
-  if (TheTriple.getArch() == Triple::x86_64) {
+  if (TheTargetTuple.getArch() == TargetTuple::x86_64) {
     Type *ArgTys[2] = {Int8PtrType, Int8PtrType};
     FnType = FunctionType::get(RetTy, ArgTys, false);
   } else {
@@ -1403,7 +1403,7 @@ Function *WinEHPrepare::createHandlerFunc(Function *ParentFn, Type *RetTy,
       Function::Create(FnType, GlobalVariable::InternalLinkage, Name, M);
   BasicBlock *Entry = BasicBlock::Create(Context, "entry");
   Handler->getBasicBlockList().push_front(Entry);
-  if (TheTriple.getArch() == Triple::x86_64) {
+  if (TheTargetTuple.getArch() == TargetTuple::x86_64) {
     ParentFP = &(Handler->getArgumentList().back());
   } else {
     assert(M);
@@ -2456,7 +2456,7 @@ void WinEHPrepare::findCleanupHandlers(LandingPadActions &Actions,
 
       // Look for outlined finally calls on x64, since those happen to match the
       // prototype provided by the runtime.
-      if (TheTriple.getArch() == Triple::x86_64) {
+      if (TheTargetTuple.getArch() == TargetTuple::x86_64) {
         if (CallSite FinallyCall = matchOutlinedFinallyCall(BB, MaybeCall)) {
           Function *Fin = FinallyCall.getCalledFunction();
           assert(Fin && "outlined finally call should be direct");

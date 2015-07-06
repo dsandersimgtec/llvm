@@ -286,7 +286,7 @@ bool LTOCodeGenerator::determineTarget(std::string &ErrMsg) {
       MergedModule->getTargetTuple().getTargetTriple().str();
   if (TripleStr.empty()) {
     TripleStr = sys::getDefaultTargetTriple();
-    MergedModule->setTargetTriple(TripleStr);
+    MergedModule->setTargetTuple(TargetTuple(Triple(TripleStr)));
   }
   llvm::Triple Triple(TripleStr);
   llvm::TargetTuple TT(Triple);
