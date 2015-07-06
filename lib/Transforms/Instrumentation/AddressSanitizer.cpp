@@ -24,7 +24,7 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/ADT/StringExtras.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Analysis/MemoryBuiltins.h"
 #include "llvm/Analysis/TargetLibraryInfo.h"
 #include "llvm/Analysis/ValueTracking.h"
@@ -336,21 +336,21 @@ struct ShadowMapping {
   bool OrShadowOffset;
 };
 
-static ShadowMapping getShadowMapping(Triple &TargetTriple, int LongSize,
+static ShadowMapping getShadowMapping(const TargetTuple &TT, int LongSize,
                                       bool IsKasan) {
-  bool IsAndroid = TargetTriple.getEnvironment() == llvm::Triple::Android;
-  bool IsIOS = TargetTriple.isiOS();
-  bool IsFreeBSD = TargetTriple.isOSFreeBSD();
-  bool IsLinux = TargetTriple.isOSLinux();
-  bool IsPPC64 = TargetTriple.getArch() == llvm::Triple::ppc64 ||
-                 TargetTriple.getArch() == llvm::Triple::ppc64le;
-  bool IsX86_64 = TargetTriple.getArch() == llvm::Triple::x86_64;
-  bool IsMIPS32 = TargetTriple.getArch() == llvm::Triple::mips ||
-                  TargetTriple.getArch() == llvm::Triple::mipsel;
-  bool IsMIPS64 = TargetTriple.getArch() == llvm::Triple::mips64 ||
-                  TargetTriple.getArch() == llvm::Triple::mips64el;
-  bool IsAArch64 = TargetTriple.getArch() == llvm::Triple::aarch64;
-  bool IsWindows = TargetTriple.isOSWindows();
+  bool IsAndroid = TT.getEnvironment() == llvm::TargetTuple::Android;
+  bool IsIOS = TT.isiOS();
+  bool IsFreeBSD = TT.isOSFreeBSD();
+  bool IsLinux = TT.isOSLinux();
+  bool IsPPC64 = TT.getArch() == llvm::TargetTuple::ppc64 ||
+                 TT.getArch() == llvm::TargetTuple::ppc64le;
+  bool IsX86_64 = TT.getArch() == llvm::TargetTuple::x86_64;
+  bool IsMIPS32 = TT.getArch() == llvm::TargetTuple::mips ||
+                  TT.getArch() == llvm::TargetTuple::mipsel;
+  bool IsMIPS64 = TT.getArch() == llvm::TargetTuple::mips64 ||
+                  TT.getArch() == llvm::TargetTuple::mips64el;
+  bool IsAArch64 = TT.getArch() == llvm::TargetTuple::aarch64;
+  bool IsWindows = TT.isOSWindows();
 
   ShadowMapping Mapping;
 
@@ -481,7 +481,7 @@ struct AddressSanitizer : public FunctionPass {
   };
 
   LLVMContext *C;
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
   int LongSize;
   bool CompileKernel;
   Type *IntptrTy;
@@ -528,7 +528,7 @@ class AddressSanitizerModule : public ModulePass {
   bool CompileKernel;
   Type *IntptrTy;
   LLVMContext *C;
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
   ShadowMapping Mapping;
   Function *AsanPoisonGlobals;
   Function *AsanUnpoisonGlobals;
@@ -1196,7 +1196,7 @@ bool AddressSanitizerModule::ShouldInstrumentGlobal(GlobalVariable *G) {
       return false;
     }
 
-    if (TargetTriple.isOSBinFormatMachO()) {
+    if (TheTargetTuple.isOSBinFormatMachO()) {
       StringRef ParsedSegment, ParsedSection;
       unsigned TAA = 0, StubSize = 0;
       bool TAAParsed;
@@ -1397,8 +1397,8 @@ bool AddressSanitizerModule::runOnModule(Module &M) {
   C = &(M.getContext());
   int LongSize = M.getDataLayout().getPointerSizeInBits();
   IntptrTy = Type::getIntNTy(*C, LongSize);
-  TargetTriple = M.getTargetTuple().getTargetTriple();
-  Mapping = getShadowMapping(TargetTriple, LongSize, CompileKernel);
+  TheTargetTuple = M.getTargetTuple();
+  Mapping = getShadowMapping(TheTargetTuple, LongSize, CompileKernel);
   initializeCallbacks(M);
 
   bool Changed = false;
@@ -1484,7 +1484,7 @@ bool AddressSanitizer::doInitialization(Module &M) {
   C = &(M.getContext());
   LongSize = M.getDataLayout().getPointerSizeInBits();
   IntptrTy = Type::getIntNTy(*C, LongSize);
-  TargetTriple = M.getTargetTuple().getTargetTriple();
+  TheTargetTuple = M.getTargetTuple();
 
   if (!CompileKernel) {
     std::tie(AsanCtorFunction, AsanInitFunction) =
@@ -1493,7 +1493,7 @@ bool AddressSanitizer::doInitialization(Module &M) {
             /*InitArgTypes=*/{}, /*InitArgs=*/{}, kAsanVersionCheckName);
     appendToGlobalCtors(M, AsanCtorFunction, kAsanCtorAndDtorPriority);
   }
-  Mapping = getShadowMapping(TargetTriple, LongSize, CompileKernel);
+  Mapping = getShadowMapping(TheTargetTuple, LongSize, CompileKernel);
   return true;
 }
 
