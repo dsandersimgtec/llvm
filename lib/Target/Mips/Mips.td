@@ -168,6 +168,9 @@ def FeatureCnMips     : SubtargetFeature<"cnmips", "HasCnMips",
 // Mips processors supported.
 //===----------------------------------------------------------------------===//
 
+def ImplP5600 : SubtargetFeature<"p5600", "ProcImpl", "CPU::P5600",
+                                 "The P5600 Processor", [FeatureMips32r2]>;
+
 class Proc<string Name, list<SubtargetFeature> Features>
  : Processor<Name, MipsGenericItineraries, Features>;
 
@@ -189,6 +192,7 @@ def : Proc<"mips64r5", [FeatureMips64r5]>;
 def : Proc<"mips64r6", [FeatureMips64r6]>;
 def : Proc<"mips16", [FeatureMips16]>;
 def : Proc<"octeon", [FeatureMips64r2, FeatureCnMips]>;
+def : ProcessorModel<"p5600", MipsP5600Model, [ImplP5600]>;
 
 def MipsAsmParser : AsmParser {
   let ShouldEmitMatchRegisterName = 0;
