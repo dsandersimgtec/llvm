@@ -178,7 +178,7 @@ PPCTargetMachine::PPCTargetMachine(const Target &T, const Triple &TT,
                         computeFSAdditions(FS, OL, TT), Options, RM, CM, OL),
       TLOF(createTLOF(getTargetTriple())),
       TargetABI(computeTargetABI(TT, Options)),
-      Subtarget(TargetTriple, CPU, computeFSAdditions(FS, OL, TT), *this) {
+      Subtarget(TargetTuple(TT), CPU, computeFSAdditions(FS, OL, TT), *this) {
 
   // For the estimates, convergence is quadratic, so we essentially double the
   // number of digits correct after every iteration. For both FRE and FRSQRTE,
@@ -239,7 +239,7 @@ PPCTargetMachine::getSubtargetImpl(const Function &F) const {
     // function that reside in TargetOptions.
     resetTargetOptions(F);
     I = llvm::make_unique<PPCSubtarget>(
-        TargetTriple, CPU,
+        TargetTuple(TargetTriple), CPU,
         // FIXME: It would be good to have the subtarget additions here
         // not necessary. Anything that turns them on/off (overrides) ends
         // up being put at the end of the feature string, but the defaults

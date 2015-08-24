@@ -20,7 +20,7 @@
 #include "SystemZRegisterInfo.h"
 #include "SystemZSelectionDAGInfo.h"
 #include "llvm/IR/DataLayout.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Target/TargetSubtargetInfo.h"
 #include <string>
 
@@ -47,7 +47,7 @@ protected:
   bool HasVector;
 
 private:
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
   SystemZInstrInfo InstrInfo;
   SystemZTargetLowering TLInfo;
   SystemZSelectionDAGInfo TSInfo;
@@ -56,7 +56,7 @@ private:
   SystemZSubtarget &initializeSubtargetDependencies(StringRef CPU,
                                                     StringRef FS);
 public:
-  SystemZSubtarget(const Triple &TT, const std::string &CPU,
+  SystemZSubtarget(const TargetTuple &TT, const std::string &CPU,
                    const std::string &FS, const TargetMachine &TM);
 
   const TargetFrameLowering *getFrameLowering() const override {
@@ -119,7 +119,7 @@ public:
   bool isPC32DBLSymbol(const GlobalValue *GV, Reloc::Model RM,
                        CodeModel::Model CM) const;
 
-  bool isTargetELF() const { return TargetTriple.isOSBinFormatELF(); }
+  bool isTargetELF() const { return TheTargetTuple.isOSBinFormatELF(); }
 };
 } // end namespace llvm
 

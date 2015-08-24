@@ -697,7 +697,7 @@ void MipsAsmPrinter::EmitStartOfAsmFile(Module &M) {
   StringRef CPU = MIPS_MC::selectMipsCPU(TT, TM.getTargetCPU());
   StringRef FS = TM.getTargetFeatureString();
   const MipsTargetMachine &MTM = static_cast<const MipsTargetMachine &>(TM);
-  const MipsSubtarget STI(TM.getTargetTriple(), CPU, FS, MTM.isLittleEndian(),
+  const MipsSubtarget STI(TM.getTargetTuple(), CPU, FS, MTM.isLittleEndian(),
                           MTM);
 
   bool IsABICalls = STI.isABICalls();

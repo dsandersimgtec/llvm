@@ -59,7 +59,7 @@ static cl::opt<bool>
 
 void MipsSubtarget::anchor() { }
 
-MipsSubtarget::MipsSubtarget(const Triple &TT, const std::string &CPU,
+MipsSubtarget::MipsSubtarget(const TargetTuple &TT, const std::string &CPU,
                              const std::string &FS, bool little,
                              const MipsTargetMachine &TM)
     : MipsGenSubtargetInfo(TargetTuple(TT), CPU, FS),
@@ -71,7 +71,7 @@ MipsSubtarget::MipsSubtarget(const Triple &TT, const std::string &CPU,
       InMips16Mode(false), InMips16HardFloat(Mips16HardFloat),
       InMicroMipsMode(false), HasDSP(false), HasDSPR2(false),
       AllowMixed16_32(Mixed16_32 | Mips_Os16), Os16(Mips_Os16), HasMSA(false),
-      UseTCCInDIV(false), TM(TM), TargetTriple(TT), TSInfo(),
+      UseTCCInDIV(false), TM(TM), TheTargetTuple(TT), TSInfo(),
       InstrInfo(
           MipsInstrInfo::create(initializeSubtargetDependencies(CPU, FS, TM))),
       FrameLowering(MipsFrameLowering::create(*this)),
@@ -142,8 +142,7 @@ CodeGenOpt::Level MipsSubtarget::getOptLevelToEnablePostRAScheduler() const {
 MipsSubtarget &
 MipsSubtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS,
                                                const TargetMachine &TM) {
-  std::string CPUName =
-      MIPS_MC::selectMipsCPU(TargetTuple(TM.getTargetTriple()), CPU);
+  std::string CPUName = MIPS_MC::selectMipsCPU(TM.getTargetTuple(), CPU);
 
   // Parse features string.
   ParseSubtargetFeatures(CPUName, FS);

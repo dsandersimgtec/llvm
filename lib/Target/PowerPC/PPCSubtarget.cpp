@@ -47,11 +47,11 @@ PPCSubtarget &PPCSubtarget::initializeSubtargetDependencies(StringRef CPU,
   return *this;
 }
 
-PPCSubtarget::PPCSubtarget(const Triple &TT, const std::string &CPU,
+PPCSubtarget::PPCSubtarget(const TargetTuple &TT, const std::string &CPU,
                            const std::string &FS, const PPCTargetMachine &TM)
-    : PPCGenSubtargetInfo(TargetTuple(TT), CPU, FS), TargetTriple(TT),
-      IsPPC64(TargetTriple.getArch() == Triple::ppc64 ||
-              TargetTriple.getArch() == Triple::ppc64le),
+    : PPCGenSubtargetInfo(TargetTuple(TT), CPU, FS), TheTargetTuple(TT),
+      IsPPC64(TheTargetTuple.getArch() == TargetTuple::ppc64 ||
+              TheTargetTuple.getArch() == TargetTuple::ppc64le),
       TM(TM), FrameLowering(initializeSubtargetDependencies(CPU, FS)),
       InstrInfo(*this), TLInfo(TM, *this) {}
 
@@ -107,7 +107,7 @@ void PPCSubtarget::initSubtargetFeatures(StringRef CPU, StringRef FS) {
   std::string CPUName = CPU;
   if (CPUName.empty()) {
     // If cross-compiling with -march=ppc64le without -mcpu
-    if (TargetTriple.getArch() == Triple::ppc64le)
+    if (TheTargetTuple.getArch() == TargetTuple::ppc64le)
       CPUName = "ppc64le";
     else
       CPUName = "generic";
@@ -136,7 +136,7 @@ void PPCSubtarget::initSubtargetFeatures(StringRef CPU, StringRef FS) {
 
   // Determine endianness.
   // FIXME: Part of the TargetMachine.
-  IsLittleEndian = (TargetTriple.getArch() == Triple::ppc64le);
+  IsLittleEndian = (TheTargetTuple.getArch() == TargetTuple::ppc64le);
 }
 
 /// hasLazyResolverStub - Return true if accesses to the specified global have

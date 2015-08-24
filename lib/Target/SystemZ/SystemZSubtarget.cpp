@@ -32,7 +32,8 @@ SystemZSubtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS) {
   return *this;
 }
 
-SystemZSubtarget::SystemZSubtarget(const Triple &TT, const std::string &CPU,
+SystemZSubtarget::SystemZSubtarget(const TargetTuple &TT,
+                                   const std::string &CPU,
                                    const std::string &FS,
                                    const TargetMachine &TM)
     : SystemZGenSubtargetInfo(TargetTuple(TT), CPU, FS), HasDistinctOps(false),
@@ -40,7 +41,7 @@ SystemZSubtarget::SystemZSubtarget(const Triple &TT, const std::string &CPU,
       HasPopulationCount(false), HasFastSerialization(false),
       HasInterlockedAccess1(false), HasMiscellaneousExtensions(false),
       HasTransactionalExecution(false), HasProcessorAssist(false),
-      HasVector(false), TargetTriple(TT),
+      HasVector(false), TheTargetTuple(TT),
       InstrInfo(initializeSubtargetDependencies(CPU, FS)), TLInfo(TM, *this),
       TSInfo(), FrameLowering() {}
 

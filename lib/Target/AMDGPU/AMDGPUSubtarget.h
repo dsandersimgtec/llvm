@@ -95,12 +95,12 @@ private:
   std::unique_ptr<AMDGPUTargetLowering> TLInfo;
   std::unique_ptr<AMDGPUInstrInfo> InstrInfo;
   InstrItineraryData InstrItins;
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
 
 public:
-  AMDGPUSubtarget(const Triple &TT, StringRef CPU, StringRef FS,
+  AMDGPUSubtarget(const TargetTuple &TT, StringRef CPU, StringRef FS,
                   TargetMachine &TM);
-  AMDGPUSubtarget &initializeSubtargetDependencies(const Triple &TT,
+  AMDGPUSubtarget &initializeSubtargetDependencies(const TargetTuple &TT,
                                                    StringRef GPU, StringRef FS);
 
   const AMDGPUFrameLowering *getFrameLowering() const override {
@@ -283,7 +283,7 @@ public:
     return R600ALUInst;
   }
   bool isAmdHsaOS() const {
-    return TargetTriple.getOS() == Triple::AMDHSA;
+    return TheTargetTuple.getOS() == TargetTuple::AMDHSA;
   }
   bool isVGPRSpillingEnabled(const SIMachineFunctionInfo *MFI) const;
 

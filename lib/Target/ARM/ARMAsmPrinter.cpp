@@ -567,7 +567,8 @@ void ARMAsmPrinter::emitAttributes() {
   }
   const ARMBaseTargetMachine &ATM =
       static_cast<const ARMBaseTargetMachine &>(TM);
-  const ARMSubtarget STI(TT, CPU, ArchFS, ATM, ATM.isLittleEndian());
+  const ARMSubtarget STI(TargetTuple(TT), CPU, ArchFS, ATM,
+                         ATM.isLittleEndian());
 
   std::string CPUString = STI.getCPUString();
 

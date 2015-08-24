@@ -382,8 +382,8 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
   }
 
   // Use divmod compiler-rt calls for iOS 5.0 and later.
-  if (Subtarget->getTargetTriple().isiOS() &&
-      !Subtarget->getTargetTriple().isOSVersionLT(5, 0)) {
+  if (Subtarget->getTargetTuple().isiOS() &&
+      !Subtarget->getTargetTuple().isOSVersionLT(5, 0)) {
     setLibcallName(RTLIB::SDIVREM_I32, "__divmodsi4");
     setLibcallName(RTLIB::UDIVREM_I32, "__udivmodsi4");
   }
@@ -798,7 +798,7 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
     setExceptionSelectorRegister(ARM::R1);
   }
 
-  if (Subtarget->getTargetTriple().isWindowsItaniumEnvironment())
+  if (Subtarget->getTargetTuple().isWindowsItaniumEnvironment())
     setOperationAction(ISD::DYNAMIC_STACKALLOC, MVT::i32, Custom);
   else
     setOperationAction(ISD::DYNAMIC_STACKALLOC, MVT::i32, Expand);
@@ -927,7 +927,7 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
   if (Subtarget->hasSinCos()) {
     setLibcallName(RTLIB::SINCOS_F32, "sincosf");
     setLibcallName(RTLIB::SINCOS_F64, "sincos");
-    if (Subtarget->getTargetTriple().isiOS()) {
+    if (Subtarget->getTargetTuple().isiOS()) {
       // For iOS, we don't want to the normal expansion of a libcall to
       // sincos. We want to issue a libcall to __sincos_stret.
       setOperationAction(ISD::FSINCOS, MVT::f64, Custom);
@@ -2100,7 +2100,7 @@ ARMTargetLowering::IsEligibleForTailCallOptimization(SDValue Callee,
   // cannot rely on the linker replacing the tail call with a return.
   if (GlobalAddressSDNode *G = dyn_cast<GlobalAddressSDNode>(Callee)) {
     const GlobalValue *GV = G->getGlobal();
-    const Triple &TT = getTargetMachine().getTargetTriple();
+    const TargetTuple &TT = getTargetMachine().getTargetTuple();
     if (GV->hasExternalWeakLinkage() &&
         (!TT.isOSWindows() || TT.isOSBinFormatELF() || TT.isOSBinFormatMachO()))
       return false;
@@ -6679,7 +6679,7 @@ SDValue ARMTargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
   case ISD::ConstantPool:  return LowerConstantPool(Op, DAG);
   case ISD::BlockAddress:  return LowerBlockAddress(Op, DAG);
   case ISD::GlobalAddress:
-    switch (Subtarget->getTargetTriple().getObjectFormat()) {
+    switch (Subtarget->getTargetTuple().getObjectFormat()) {
     default: llvm_unreachable("unknown object format");
     case Triple::COFF:
       return LowerGlobalAddressWindows(Op, DAG);
@@ -6747,7 +6747,7 @@ SDValue ARMTargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
   case ISD::SDIVREM:
   case ISD::UDIVREM:       return LowerDivRem(Op, DAG);
   case ISD::DYNAMIC_STACKALLOC:
-    if (Subtarget->getTargetTriple().isWindowsItaniumEnvironment())
+    if (Subtarget->getTargetTuple().isWindowsItaniumEnvironment())
       return LowerDYNAMIC_STACKALLOC(Op, DAG);
     llvm_unreachable("Don't know how to custom lower this!");
   case ISD::FP_ROUND: return LowerFP_ROUND(Op, DAG);

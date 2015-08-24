@@ -34,7 +34,7 @@ MSP430TargetMachine::MSP430TargetMachine(const Target &T, const Triple &TT,
                         Options, RM, CM, OL),
       TLOF(make_unique<TargetLoweringObjectFileELF>()),
       // FIXME: Check DataLayout string.
-      Subtarget(TT, CPU, FS, *this) {
+      Subtarget(TargetTuple(TT), CPU, FS, *this) {
   initAsmInfo();
 }
 

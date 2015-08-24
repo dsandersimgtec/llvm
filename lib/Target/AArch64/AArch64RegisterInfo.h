@@ -22,14 +22,14 @@ namespace llvm {
 class MachineFunction;
 class RegScavenger;
 class TargetRegisterClass;
-class Triple;
+class TargetTuple;
 
 struct AArch64RegisterInfo : public AArch64GenRegisterInfo {
 private:
-  const Triple &TT;
+  const TargetTuple &TT;
 
 public:
-  AArch64RegisterInfo(const Triple &TT);
+  AArch64RegisterInfo(const TargetTuple &TT);
 
   bool isReservedReg(const MachineFunction &MF, unsigned Reg) const;
 

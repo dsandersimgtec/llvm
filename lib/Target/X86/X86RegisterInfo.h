@@ -20,7 +20,7 @@
 #include "X86GenRegisterInfo.inc"
 
 namespace llvm {
-  class Triple;
+class TargetTuple;
 
 class X86RegisterInfo final : public X86GenRegisterInfo {
 private:
@@ -50,7 +50,7 @@ private:
   unsigned BasePtr;
 
 public:
-  X86RegisterInfo(const Triple &TT);
+  X86RegisterInfo(const TargetTuple &TT);
 
   // FIXME: This should be tablegen'd like getDwarfRegNum is
   int getSEHRegNum(unsigned i) const;

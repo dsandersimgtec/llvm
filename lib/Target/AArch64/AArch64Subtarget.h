@@ -30,7 +30,7 @@
 namespace llvm {
 class GlobalValue;
 class StringRef;
-class Triple;
+class TargetTuple;
 
 class AArch64Subtarget : public AArch64GenSubtargetInfo {
 protected:
@@ -64,8 +64,8 @@ protected:
   /// CPUString - String name of used CPU.
   std::string CPUString;
 
-  /// TargetTriple - What processor and OS we're targeting.
-  Triple TargetTriple;
+  /// What processor and OS we're targeting.
+  TargetTuple TheTargetTuple;
 
   AArch64FrameLowering FrameLowering;
   AArch64InstrInfo InstrInfo;
@@ -80,7 +80,7 @@ private:
 public:
   /// This constructor initializes the data members to match that
   /// of the specified triple.
-  AArch64Subtarget(const Triple &TT, const std::string &CPU,
+  AArch64Subtarget(const TargetTuple &TT, const std::string &CPU,
                    const std::string &FS, const TargetMachine &TM,
                    bool LittleEndian);
 
@@ -97,9 +97,7 @@ public:
   const AArch64RegisterInfo *getRegisterInfo() const override {
     return &getInstrInfo()->getRegisterInfo();
   }
-  const Triple &getTargetTriple() const { return TargetTriple; }
-  // FIXME: Return a references once our member is a TargetTuple.
-  const TargetTuple getTargetTuple() const { return TargetTuple(TargetTriple); }
+  const TargetTuple &getTargetTuple() const { return TheTargetTuple; }
   bool enableMachineScheduler() const override { return true; }
   bool enablePostRAScheduler() const override {
     return isCortexA53() || isCortexA57();
@@ -122,14 +120,14 @@ public:
 
   bool isLittleEndian() const { return IsLittle; }
 
-  bool isTargetDarwin() const { return TargetTriple.isOSDarwin(); }
-  bool isTargetIOS() const { return TargetTriple.isiOS(); }
-  bool isTargetLinux() const { return TargetTriple.isOSLinux(); }
-  bool isTargetWindows() const { return TargetTriple.isOSWindows(); }
+  bool isTargetDarwin() const { return TheTargetTuple.isOSDarwin(); }
+  bool isTargetIOS() const { return TheTargetTuple.isiOS(); }
+  bool isTargetLinux() const { return TheTargetTuple.isOSLinux(); }
+  bool isTargetWindows() const { return TheTargetTuple.isOSWindows(); }
 
-  bool isTargetCOFF() const { return TargetTriple.isOSBinFormatCOFF(); }
-  bool isTargetELF() const { return TargetTriple.isOSBinFormatELF(); }
-  bool isTargetMachO() const { return TargetTriple.isOSBinFormatMachO(); }
+  bool isTargetCOFF() const { return TheTargetTuple.isOSBinFormatCOFF(); }
+  bool isTargetELF() const { return TheTargetTuple.isOSBinFormatELF(); }
+  bool isTargetMachO() const { return TheTargetTuple.isOSBinFormatMachO(); }
 
   bool isCyclone() const { return CPUString == "cyclone"; }
   bool isCortexA57() const { return CPUString == "cortex-a57"; }

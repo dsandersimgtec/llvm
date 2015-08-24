@@ -18,7 +18,7 @@
 #include "AArch64Subtarget.h"
 #include "MCTargetDesc/AArch64AddressingModes.h"
 #include "llvm/ADT/BitVector.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
@@ -34,7 +34,7 @@ using namespace llvm;
 #define GET_REGINFO_TARGET_DESC
 #include "AArch64GenRegisterInfo.inc"
 
-AArch64RegisterInfo::AArch64RegisterInfo(const Triple &TT)
+AArch64RegisterInfo::AArch64RegisterInfo(const TargetTuple &TT)
     : AArch64GenRegisterInfo(AArch64::LR), TT(TT) {}
 
 const MCPhysReg *

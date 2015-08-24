@@ -2783,7 +2783,7 @@ static unsigned computeBytesPoppedByCallee(const X86Subtarget *Subtarget,
                                            ImmutableCallSite *CS) {
   if (Subtarget->is64Bit())
     return 0;
-  if (Subtarget->getTargetTriple().isOSMSVCRT())
+  if (Subtarget->getTargetTuple().isOSMSVCRT())
     return 0;
   if (CC == CallingConv::Fast || CC == CallingConv::GHC ||
       CC == CallingConv::HiPE)
@@ -3092,8 +3092,8 @@ bool X86FastISel::fastLowerCall(CallLoweringInfo &CLI) {
       OpFlags = X86II::MO_PLT;
     } else if (Subtarget->isPICStyleStubAny() &&
                !GV->isStrongDefinitionForLinker() &&
-               (!Subtarget->getTargetTriple().isMacOSX() ||
-                Subtarget->getTargetTriple().isMacOSXVersionLT(10, 5))) {
+               (!Subtarget->getTargetTuple().isMacOSX() ||
+                Subtarget->getTargetTuple().isMacOSXVersionLT(10, 5))) {
       // PC-relative references to external symbols should go through $stub,
       // unless we're building with the leopard linker or later, which
       // automatically synthesizes these stubs.

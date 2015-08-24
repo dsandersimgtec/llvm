@@ -43,7 +43,7 @@ NVPTXSubtarget &NVPTXSubtarget::initializeSubtargetDependencies(StringRef CPU,
   return *this;
 }
 
-NVPTXSubtarget::NVPTXSubtarget(const Triple &TT, const std::string &CPU,
+NVPTXSubtarget::NVPTXSubtarget(const TargetTuple &TT, const std::string &CPU,
                                const std::string &FS,
                                const NVPTXTargetMachine &TM)
     : NVPTXGenSubtargetInfo(TargetTuple(TT), CPU, FS), PTXVersion(0),

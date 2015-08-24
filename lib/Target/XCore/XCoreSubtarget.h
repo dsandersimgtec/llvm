@@ -40,7 +40,7 @@ public:
   /// This constructor initializes the data members to match that
   /// of the specified triple.
   ///
-  XCoreSubtarget(const Triple &TT, const std::string &CPU,
+  XCoreSubtarget(const TargetTuple &TT, const std::string &CPU,
                  const std::string &FS, const TargetMachine &TM);
 
   /// ParseSubtargetFeatures - Parses features string setting specified 

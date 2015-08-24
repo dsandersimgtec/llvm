@@ -72,8 +72,8 @@ AMDGPUTargetMachine::AMDGPUTargetMachine(const Target &T, const Triple &TT,
                                          CodeGenOpt::Level OptLevel)
     : LLVMTargetMachine(T, computeDataLayout(TT), TT, CPU, FS, Options, RM, CM,
                         OptLevel),
-      TLOF(new TargetLoweringObjectFileELF()), Subtarget(TT, CPU, FS, *this),
-      IntrinsicInfo() {
+      TLOF(new TargetLoweringObjectFileELF()),
+      Subtarget(TargetTuple(TT), CPU, FS, *this), IntrinsicInfo() {
   setRequiresStructuredCFG(true);
   initAsmInfo();
 }

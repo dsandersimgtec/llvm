@@ -24,7 +24,7 @@
 #include "Thumb1FrameLowering.h"
 #include "Thumb1InstrInfo.h"
 #include "Thumb2InstrInfo.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/MC/MCInstrItineraries.h"
 #include "llvm/Target/TargetSubtargetInfo.h"
@@ -222,8 +222,8 @@ protected:
   /// IsLittle - The target is Little Endian
   bool IsLittle;
 
-  /// TargetTriple - What processor and OS we're targeting.
-  Triple TargetTriple;
+  /// TheTargetTuple - What processor and OS we're targeting.
+  TargetTuple TheTargetTuple;
 
   /// SchedModel - Processor specific instruction costs.
   MCSchedModel SchedModel;
@@ -240,8 +240,9 @@ public:
   /// This constructor initializes the data members to match that
   /// of the specified triple.
   ///
-  ARMSubtarget(const Triple &TT, const std::string &CPU, const std::string &FS,
-               const ARMBaseTargetMachine &TM, bool IsLittle);
+  ARMSubtarget(const TargetTuple &TT, const std::string &CPU,
+               const std::string &FS, const ARMBaseTargetMachine &TM,
+               bool IsLittle);
 
   /// getMaxInlineSizeThreshold - Returns the maximum memset / memcpy size
   /// that still makes it profitable to inline the call.
@@ -350,51 +351,51 @@ public:
   bool hasFP16() const { return HasFP16; }
   bool hasD16() const { return HasD16; }
 
-  const Triple &getTargetTriple() const { return TargetTriple; }
+  const TargetTuple &getTargetTuple() const { return TheTargetTuple; }
 
-  bool isTargetDarwin() const { return TargetTriple.isOSDarwin(); }
-  bool isTargetIOS() const { return TargetTriple.isiOS(); }
-  bool isTargetLinux() const { return TargetTriple.isOSLinux(); }
-  bool isTargetNaCl() const { return TargetTriple.isOSNaCl(); }
-  bool isTargetNetBSD() const { return TargetTriple.isOSNetBSD(); }
-  bool isTargetWindows() const { return TargetTriple.isOSWindows(); }
+  bool isTargetDarwin() const { return TheTargetTuple.isOSDarwin(); }
+  bool isTargetIOS() const { return TheTargetTuple.isiOS(); }
+  bool isTargetLinux() const { return TheTargetTuple.isOSLinux(); }
+  bool isTargetNaCl() const { return TheTargetTuple.isOSNaCl(); }
+  bool isTargetNetBSD() const { return TheTargetTuple.isOSNetBSD(); }
+  bool isTargetWindows() const { return TheTargetTuple.isOSWindows(); }
 
-  bool isTargetCOFF() const { return TargetTriple.isOSBinFormatCOFF(); }
-  bool isTargetELF() const { return TargetTriple.isOSBinFormatELF(); }
-  bool isTargetMachO() const { return TargetTriple.isOSBinFormatMachO(); }
+  bool isTargetCOFF() const { return TheTargetTuple.isOSBinFormatCOFF(); }
+  bool isTargetELF() const { return TheTargetTuple.isOSBinFormatELF(); }
+  bool isTargetMachO() const { return TheTargetTuple.isOSBinFormatMachO(); }
 
   // ARM EABI is the bare-metal EABI described in ARM ABI documents and
   // can be accessed via -target arm-none-eabi. This is NOT GNUEABI.
-  // FIXME: Add a flag for bare-metal for that target and set Triple::EABI
+  // FIXME: Add a flag for bare-metal for that target and set TargetTuple::EABI
   // even for GNUEABI, so we can make a distinction here and still conform to
   // the EABI on GNU (and Android) mode. This requires change in Clang, too.
   // FIXME: The Darwin exception is temporary, while we move users to
   // "*-*-*-macho" triples as quickly as possible.
   bool isTargetAEABI() const {
-    return (TargetTriple.getEnvironment() == Triple::EABI ||
-            TargetTriple.getEnvironment() == Triple::EABIHF) &&
+    return (TheTargetTuple.getEnvironment() == TargetTuple::EABI ||
+            TheTargetTuple.getEnvironment() == TargetTuple::EABIHF) &&
            !isTargetDarwin() && !isTargetWindows();
   }
 
   // ARM Targets that support EHABI exception handling standard
   // Darwin uses SjLj. Other targets might need more checks.
   bool isTargetEHABICompatible() const {
-    return (TargetTriple.getEnvironment() == Triple::EABI ||
-            TargetTriple.getEnvironment() == Triple::GNUEABI ||
-            TargetTriple.getEnvironment() == Triple::EABIHF ||
-            TargetTriple.getEnvironment() == Triple::GNUEABIHF ||
-            TargetTriple.getEnvironment() == Triple::Android) &&
+    return (TheTargetTuple.getEnvironment() == TargetTuple::EABI ||
+            TheTargetTuple.getEnvironment() == TargetTuple::GNUEABI ||
+            TheTargetTuple.getEnvironment() == TargetTuple::EABIHF ||
+            TheTargetTuple.getEnvironment() == TargetTuple::GNUEABIHF ||
+            TheTargetTuple.getEnvironment() == TargetTuple::Android) &&
            !isTargetDarwin() && !isTargetWindows();
   }
 
   bool isTargetHardFloat() const {
     // FIXME: this is invalid for WindowsCE
-    return TargetTriple.getEnvironment() == Triple::GNUEABIHF ||
-           TargetTriple.getEnvironment() == Triple::EABIHF ||
+    return TheTargetTuple.getEnvironment() == TargetTuple::GNUEABIHF ||
+           TheTargetTuple.getEnvironment() == TargetTuple::EABIHF ||
            isTargetWindows();
   }
   bool isTargetAndroid() const {
-    return TargetTriple.getEnvironment() == Triple::Android;
+    return TheTargetTuple.getEnvironment() == TargetTuple::Android;
   }
 
   bool isAPCS_ABI() const;

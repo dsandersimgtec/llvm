@@ -52,7 +52,7 @@ public:
   /// This constructor initializes the data members to match that
   /// of the specified module.
   ///
-  NVPTXSubtarget(const Triple &TT, const std::string &CPU,
+  NVPTXSubtarget(const TargetTuple &TT, const std::string &CPU,
                  const std::string &FS, const NVPTXTargetMachine &TM);
 
   const TargetFrameLowering *getFrameLowering() const override {

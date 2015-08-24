@@ -2819,7 +2819,7 @@ X86TargetLowering::LowerFormalArguments(SDValue Chain,
     FuncInfo->setBytesToPopOnReturn(0); // Callee pops nothing.
     // If this is an sret function, the return should pop the hidden pointer.
     if (!Is64Bit && !IsTailCallConvention(CallConv) &&
-        !Subtarget->getTargetTriple().isOSMSVCRT() &&
+        !Subtarget->getTargetTuple().isOSMSVCRT() &&
         argsAreStructReturn(Ins) == StackStructReturn)
       FuncInfo->setBytesToPopOnReturn(4);
   }
@@ -3288,8 +3288,8 @@ X86TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
         OpFlags = X86II::MO_PLT;
       } else if (Subtarget->isPICStyleStubAny() &&
                  !GV->isStrongDefinitionForLinker() &&
-                 (!Subtarget->getTargetTriple().isMacOSX() ||
-                  Subtarget->getTargetTriple().isMacOSXVersionLT(10, 5))) {
+                 (!Subtarget->getTargetTuple().isMacOSX() ||
+                  Subtarget->getTargetTuple().isMacOSXVersionLT(10, 5))) {
         // PC-relative references to external symbols should go through $stub,
         // unless we're building with the leopard linker or later, which
         // automatically synthesizes these stubs.
@@ -3327,8 +3327,8 @@ X86TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
         DAG.getTarget().getRelocationModel() == Reloc::PIC_) {
       OpFlags = X86II::MO_PLT;
     } else if (Subtarget->isPICStyleStubAny() &&
-               (!Subtarget->getTargetTriple().isMacOSX() ||
-                Subtarget->getTargetTriple().isMacOSXVersionLT(10, 5))) {
+               (!Subtarget->getTargetTuple().isMacOSX() ||
+                Subtarget->getTargetTuple().isMacOSXVersionLT(10, 5))) {
       // PC-relative references to external symbols should go through $stub,
       // unless we're building with the leopard linker or later, which
       // automatically synthesizes these stubs.
@@ -3410,8 +3410,7 @@ X86TargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
                        DAG.getTarget().Options.GuaranteedTailCallOpt))
     NumBytesForCalleeToPop = NumBytes;    // Callee pops everything
   else if (!Is64Bit && !IsTailCallConvention(CallConv) &&
-           !Subtarget->getTargetTriple().isOSMSVCRT() &&
-           SR == StackStructReturn)
+           !Subtarget->getTargetTuple().isOSMSVCRT() && SR == StackStructReturn)
     // If this is a call to a struct-return function, the callee
     // pops the hidden struct pointer, so we have to push it back.
     // This is common for Darwin/X86, Linux & Mingw32 targets.

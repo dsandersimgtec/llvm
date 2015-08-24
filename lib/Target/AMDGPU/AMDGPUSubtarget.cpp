@@ -32,7 +32,7 @@ using namespace llvm;
 #include "AMDGPUGenSubtargetInfo.inc"
 
 AMDGPUSubtarget &
-AMDGPUSubtarget::initializeSubtargetDependencies(const Triple &TT,
+AMDGPUSubtarget::initializeSubtargetDependencies(const TargetTuple &TT,
                                                  StringRef GPU, StringRef FS) {
   // Determine default and user-specified characteristics
   // On SI+, we want FP64 denormals to be on by default. FP32 denormals can be
@@ -46,7 +46,7 @@ AMDGPUSubtarget::initializeSubtargetDependencies(const Triple &TT,
   SmallString<256> FullFS("+promote-alloca,+fp64-denormals,");
   FullFS += FS;
 
-  if (GPU == "" && TT.getArch() == Triple::amdgcn)
+  if (GPU == "" && TT.getArch() == TargetTuple::amdgcn)
     GPU = "SI";
 
   ParseSubtargetFeatures(GPU, FullFS);
@@ -61,8 +61,8 @@ AMDGPUSubtarget::initializeSubtargetDependencies(const Triple &TT,
   return *this;
 }
 
-AMDGPUSubtarget::AMDGPUSubtarget(const Triple &TT, StringRef GPU, StringRef FS,
-                                 TargetMachine &TM)
+AMDGPUSubtarget::AMDGPUSubtarget(const TargetTuple &TT, StringRef GPU,
+                                 StringRef FS, TargetMachine &TM)
     : AMDGPUGenSubtargetInfo(TargetTuple(TT), GPU, FS), DevName(GPU),
       Is64bit(false), DumpCode(false), R600ALUInst(false),
       HasVertexCache(false), TexVTXClauseSize(0), Gen(AMDGPUSubtarget::R600),
@@ -77,7 +77,7 @@ AMDGPUSubtarget::AMDGPUSubtarget(const Triple &TT, StringRef GPU, StringRef FS,
       FrameLowering(TargetFrameLowering::StackGrowsUp,
                     64 * 16, // Maximum stack alignment (long16)
                     0),
-      InstrItins(getInstrItineraryForCPU(GPU)), TargetTriple(TT) {
+      InstrItins(getInstrItineraryForCPU(GPU)), TheTargetTuple(TT) {
 
   initializeSubtargetDependencies(TT, GPU, FS);
 

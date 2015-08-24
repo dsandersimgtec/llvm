@@ -78,12 +78,12 @@ ARMFrameLowering *ARMSubtarget::initializeFrameLowering(StringRef CPU,
   return new ARMFrameLowering(STI);
 }
 
-ARMSubtarget::ARMSubtarget(const Triple &TT, const std::string &CPU,
+ARMSubtarget::ARMSubtarget(const TargetTuple &TT, const std::string &CPU,
                            const std::string &FS,
                            const ARMBaseTargetMachine &TM, bool IsLittle)
     : ARMGenSubtargetInfo(TargetTuple(TT), CPU, FS), ARMProcFamily(Others),
       ARMProcClass(None), stackAlignment(4), CPUString(CPU), IsLittle(IsLittle),
-      TargetTriple(TT), Options(TM.Options), TM(TM),
+      TheTargetTuple(TT), Options(TM.Options), TM(TM),
       FrameLowering(initializeFrameLowering(CPU, FS)),
       // At this point initializeSubtargetDependencies has been called so
       // we can query directly.
@@ -149,7 +149,7 @@ void ARMSubtarget::initializeEnvironment() {
 
 void ARMSubtarget::initSubtargetFeatures(StringRef CPU, StringRef FS) {
   if (CPUString.empty()) {
-    if (isTargetDarwin() && TargetTriple.getArchName().endswith("v7s"))
+    if (isTargetDarwin() && TheTargetTuple.getArchName().endswith("v7s"))
       // Default to the Swift CPU when targeting armv7s/thumbv7s.
       CPUString = "swift";
     else
@@ -160,7 +160,7 @@ void ARMSubtarget::initSubtargetFeatures(StringRef CPU, StringRef FS) {
   // feature string. This is important for setting features that are implied
   // based on the architecture version.
   std::string ArchFS =
-      ARM_MC::ParseARMTargetTuple(TargetTuple(TargetTriple), CPUString);
+      ARM_MC::ParseARMTargetTuple(TargetTuple(TheTargetTuple), CPUString);
   if (!FS.empty()) {
     if (!ArchFS.empty())
       ArchFS = (Twine(ArchFS) + "," + FS).str();
@@ -189,7 +189,7 @@ void ARMSubtarget::initSubtargetFeatures(StringRef CPU, StringRef FS) {
     stackAlignment = 16;
 
   if (isTargetMachO())
-    SupportsTailCall = !isTargetIOS() || !getTargetTriple().isOSVersionLT(5, 0);
+    SupportsTailCall = !isTargetIOS() || !getTargetTuple().isOSVersionLT(5, 0);
   else
     SupportsTailCall = !isThumb1Only();
 
@@ -263,7 +263,7 @@ unsigned ARMSubtarget::getMispredictionPenalty() const {
 }
 
 bool ARMSubtarget::hasSinCos() const {
-  return getTargetTriple().isiOS() && !getTargetTriple().isOSVersionLT(7, 0);
+  return getTargetTuple().isiOS() && !getTargetTuple().isOSVersionLT(7, 0);
 }
 
 bool ARMSubtarget::enableMachineScheduler() const {

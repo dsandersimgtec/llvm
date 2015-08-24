@@ -810,7 +810,7 @@ bool NVPTXAsmPrinter::doInitialization(Module &M) {
   StringRef CPU = TM.getTargetCPU();
   StringRef FS = TM.getTargetFeatureString();
   const NVPTXTargetMachine &NTM = static_cast<const NVPTXTargetMachine &>(TM);
-  const NVPTXSubtarget STI(TT, CPU, FS, NTM);
+  const NVPTXSubtarget STI(TargetTuple(TT), CPU, FS, NTM);
 
   SmallString<128> Str1;
   raw_svector_ostream OS1(Str1);

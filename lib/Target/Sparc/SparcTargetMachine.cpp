@@ -62,7 +62,7 @@ SparcTargetMachine::SparcTargetMachine(const Target &T, const Triple &TT,
     : LLVMTargetMachine(T, computeDataLayout(TT, is64bit), TT, CPU, FS, Options,
                         RM, CM, OL),
       TLOF(make_unique<SparcELFTargetObjectFile>()),
-      Subtarget(TT, CPU, FS, *this, is64bit) {
+      Subtarget(TargetTuple(TT), CPU, FS, *this, is64bit) {
   initAsmInfo();
 }
 

@@ -4120,8 +4120,8 @@ unsigned PrepareCall(SelectionDAG &DAG, SDValue &Callee, SDValue &InFlag,
     // thread-specific pointer.
     unsigned OpFlags = 0;
     if ((DAG.getTarget().getRelocationModel() != Reloc::Static &&
-         (Subtarget.getTargetTriple().isMacOSX() &&
-          Subtarget.getTargetTriple().isMacOSXVersionLT(10, 5)) &&
+         (Subtarget.getTargetTuple().isMacOSX() &&
+          Subtarget.getTargetTuple().isMacOSXVersionLT(10, 5)) &&
          !G->getGlobal()->isStrongDefinitionForLinker()) ||
         (Subtarget.isTargetELF() && !isPPC64 &&
          !G->getGlobal()->hasLocalLinkage() &&
@@ -4144,8 +4144,8 @@ unsigned PrepareCall(SelectionDAG &DAG, SDValue &Callee, SDValue &InFlag,
     unsigned char OpFlags = 0;
 
     if ((DAG.getTarget().getRelocationModel() != Reloc::Static &&
-         (Subtarget.getTargetTriple().isMacOSX() &&
-          Subtarget.getTargetTriple().isMacOSXVersionLT(10, 5))) ||
+         (Subtarget.getTargetTuple().isMacOSX() &&
+          Subtarget.getTargetTuple().isMacOSXVersionLT(10, 5))) ||
         (Subtarget.isTargetELF() && !isPPC64 &&
          DAG.getTarget().getRelocationModel() == Reloc::PIC_)) {
       // PC-relative references to external symbols should go through $stub,

@@ -1225,7 +1225,7 @@ ARMBaseInstrInfo::expandPostRAPseudo(MachineBasicBlock::iterator MI) const {
   Reloc::Model RM = MF.getTarget().getRelocationModel();
 
   if (MI->getOpcode() == TargetOpcode::LOAD_STACK_GUARD) {
-    assert(getSubtarget().getTargetTriple().isOSBinFormatMachO() &&
+    assert(getSubtarget().getTargetTuple().isOSBinFormatMachO() &&
            "LOAD_STACK_GUARD currently supported only for MachO.");
     expandLoadStackGuard(MI, RM);
     MI->getParent()->erase(MI);

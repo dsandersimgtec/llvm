@@ -151,17 +151,15 @@ ClassifyGlobalReference(const GlobalValue *GV, const TargetMachine &TM) const {
 /// passed as the second argument. Otherwise it returns null.
 const char *X86Subtarget::getBZeroEntry() const {
   // Darwin 10 has a __bzero entry point for this purpose.
-  if (getTargetTriple().isMacOSX() &&
-      !getTargetTriple().isMacOSXVersionLT(10, 6))
+  if (getTargetTuple().isMacOSX() && !getTargetTuple().isMacOSXVersionLT(10, 6))
     return "__bzero";
 
   return nullptr;
 }
 
 bool X86Subtarget::hasSinCos() const {
-  return getTargetTriple().isMacOSX() &&
-    !getTargetTriple().isMacOSXVersionLT(10, 9) &&
-    is64Bit();
+  return getTargetTuple().isMacOSX() &&
+         !getTargetTuple().isMacOSXVersionLT(10, 9) && is64Bit();
 }
 
 /// Return true if the subtarget allows calls to immediate address.
@@ -287,17 +285,17 @@ X86Subtarget &X86Subtarget::initializeSubtargetDependencies(StringRef CPU,
   return *this;
 }
 
-X86Subtarget::X86Subtarget(const Triple &TT, const std::string &CPU,
+X86Subtarget::X86Subtarget(const TargetTuple &TT, const std::string &CPU,
                            const std::string &FS, const X86TargetMachine &TM,
                            unsigned StackAlignOverride)
     : X86GenSubtargetInfo(TargetTuple(TT), CPU, FS), X86ProcFamily(Others),
-      PICStyle(PICStyles::None), TargetTriple(TT),
+      PICStyle(PICStyles::None), TheTargetTuple(TT),
       StackAlignOverride(StackAlignOverride),
-      In64BitMode(TargetTriple.getArch() == Triple::x86_64),
-      In32BitMode(TargetTriple.getArch() == Triple::x86 &&
-                  TargetTriple.getEnvironment() != Triple::CODE16),
-      In16BitMode(TargetTriple.getArch() == Triple::x86 &&
-                  TargetTriple.getEnvironment() == Triple::CODE16),
+      In64BitMode(TheTargetTuple.getArch() == TargetTuple::x86_64),
+      In32BitMode(TheTargetTuple.getArch() == TargetTuple::x86 &&
+                  TheTargetTuple.getEnvironment() != TargetTuple::CODE16),
+      In16BitMode(TheTargetTuple.getArch() == TargetTuple::x86 &&
+                  TheTargetTuple.getEnvironment() == TargetTuple::CODE16),
       TSInfo(), InstrInfo(initializeSubtargetDependencies(CPU, FS)),
       TLInfo(TM, *this), FrameLowering(*this, getStackAlignment()) {
   // Determine the PICStyle based on the target selected.

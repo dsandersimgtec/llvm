@@ -42,15 +42,16 @@ AArch64Subtarget::initializeSubtargetDependencies(StringRef FS) {
   return *this;
 }
 
-AArch64Subtarget::AArch64Subtarget(const Triple &TT, const std::string &CPU,
+AArch64Subtarget::AArch64Subtarget(const TargetTuple &TT,
+                                   const std::string &CPU,
                                    const std::string &FS,
                                    const TargetMachine &TM, bool LittleEndian)
     : AArch64GenSubtargetInfo(TargetTuple(TT), CPU, FS), ARMProcFamily(Others),
       HasV8_1aOps(false), HasFPARMv8(false), HasNEON(false), HasCrypto(false),
       HasCRC(false), HasPerfMon(false), HasZeroCycleRegMove(false),
       HasZeroCycleZeroing(false), StrictAlign(false), ReserveX18(false),
-      IsLittle(LittleEndian), CPUString(CPU), TargetTriple(TT), FrameLowering(),
-      InstrInfo(initializeSubtargetDependencies(FS)), TSInfo(),
+      IsLittle(LittleEndian), CPUString(CPU), TheTargetTuple(TT),
+      FrameLowering(), InstrInfo(initializeSubtargetDependencies(FS)), TSInfo(),
       TLInfo(TM, *this) {}
 
 /// ClassifyGlobalReference - Find the target operand flags that describe

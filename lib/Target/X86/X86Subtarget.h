@@ -18,7 +18,7 @@
 #include "X86ISelLowering.h"
 #include "X86InstrInfo.h"
 #include "X86SelectionDAGInfo.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/CallingConv.h"
 #include "llvm/Target/TargetSubtargetInfo.h"
 #include <string>
@@ -223,7 +223,7 @@ protected:
   unsigned MaxInlineSizeThreshold;
 
   /// What processor and OS we're targeting.
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
 
   /// Instruction itineraries for scheduling
   InstrItineraryData InstrItins;
@@ -253,8 +253,9 @@ public:
   /// This constructor initializes the data members to match that
   /// of the specified triple.
   ///
-  X86Subtarget(const Triple &TT, const std::string &CPU, const std::string &FS,
-               const X86TargetMachine &TM, unsigned StackAlignOverride);
+  X86Subtarget(const TargetTuple &TT, const std::string &CPU,
+               const std::string &FS, const X86TargetMachine &TM,
+               unsigned StackAlignOverride);
 
   const X86TargetLowering *getTargetLowering() const override {
     return &TLInfo;
@@ -305,14 +306,16 @@ public:
 
   /// Is this x86_64 with the ILP32 programming model (x32 ABI)?
   bool isTarget64BitILP32() const {
-    return In64BitMode && (TargetTriple.getEnvironment() == Triple::GNUX32 ||
-                           TargetTriple.isOSNaCl());
+    return In64BitMode &&
+           (TheTargetTuple.getEnvironment() == TargetTuple::GNUX32 ||
+            TheTargetTuple.isOSNaCl());
   }
 
   /// Is this x86_64 with the LP64 programming model (standard AMD64, no x32)?
   bool isTarget64BitLP64() const {
-    return In64BitMode && (TargetTriple.getEnvironment() != Triple::GNUX32 &&
-                           !TargetTriple.isOSNaCl());
+    return In64BitMode &&
+           (TheTargetTuple.getEnvironment() != TargetTuple::GNUX32 &&
+            !TheTargetTuple.isOSNaCl());
   }
 
   PICStyles::Style getPICStyle() const { return PICStyle; }
@@ -381,53 +384,53 @@ public:
   bool isSLM() const { return X86ProcFamily == IntelSLM; }
   bool useSoftFloat() const { return UseSoftFloat; }
 
-  const Triple &getTargetTriple() const { return TargetTriple; }
+  const TargetTuple &getTargetTuple() const { return TheTargetTuple; }
 
-  bool isTargetDarwin() const { return TargetTriple.isOSDarwin(); }
-  bool isTargetFreeBSD() const { return TargetTriple.isOSFreeBSD(); }
-  bool isTargetDragonFly() const { return TargetTriple.isOSDragonFly(); }
-  bool isTargetSolaris() const { return TargetTriple.isOSSolaris(); }
-  bool isTargetPS4() const { return TargetTriple.isPS4(); }
+  bool isTargetDarwin() const { return TheTargetTuple.isOSDarwin(); }
+  bool isTargetFreeBSD() const { return TheTargetTuple.isOSFreeBSD(); }
+  bool isTargetDragonFly() const { return TheTargetTuple.isOSDragonFly(); }
+  bool isTargetSolaris() const { return TheTargetTuple.isOSSolaris(); }
+  bool isTargetPS4() const { return TheTargetTuple.isPS4(); }
 
-  bool isTargetELF() const { return TargetTriple.isOSBinFormatELF(); }
-  bool isTargetCOFF() const { return TargetTriple.isOSBinFormatCOFF(); }
-  bool isTargetMachO() const { return TargetTriple.isOSBinFormatMachO(); }
+  bool isTargetELF() const { return TheTargetTuple.isOSBinFormatELF(); }
+  bool isTargetCOFF() const { return TheTargetTuple.isOSBinFormatCOFF(); }
+  bool isTargetMachO() const { return TheTargetTuple.isOSBinFormatMachO(); }
 
-  bool isTargetLinux() const { return TargetTriple.isOSLinux(); }
-  bool isTargetNaCl() const { return TargetTriple.isOSNaCl(); }
+  bool isTargetLinux() const { return TheTargetTuple.isOSLinux(); }
+  bool isTargetNaCl() const { return TheTargetTuple.isOSNaCl(); }
   bool isTargetNaCl32() const { return isTargetNaCl() && !is64Bit(); }
   bool isTargetNaCl64() const { return isTargetNaCl() && is64Bit(); }
 
   bool isTargetWindowsMSVC() const {
-    return TargetTriple.isWindowsMSVCEnvironment();
+    return TheTargetTuple.isWindowsMSVCEnvironment();
   }
 
   bool isTargetKnownWindowsMSVC() const {
-    return TargetTriple.isKnownWindowsMSVCEnvironment();
+    return TheTargetTuple.isKnownWindowsMSVCEnvironment();
   }
 
   bool isTargetWindowsCoreCLR() const {
-    return TargetTriple.isWindowsCoreCLREnvironment();
+    return TheTargetTuple.isWindowsCoreCLREnvironment();
   }
 
   bool isTargetWindowsCygwin() const {
-    return TargetTriple.isWindowsCygwinEnvironment();
+    return TheTargetTuple.isWindowsCygwinEnvironment();
   }
 
   bool isTargetWindowsGNU() const {
-    return TargetTriple.isWindowsGNUEnvironment();
+    return TheTargetTuple.isWindowsGNUEnvironment();
   }
 
   bool isTargetWindowsItanium() const {
-    return TargetTriple.isWindowsItaniumEnvironment();
+    return TheTargetTuple.isWindowsItaniumEnvironment();
   }
 
-  bool isTargetCygMing() const { return TargetTriple.isOSCygMing(); }
+  bool isTargetCygMing() const { return TheTargetTuple.isOSCygMing(); }
 
-  bool isOSWindows() const { return TargetTriple.isOSWindows(); }
+  bool isOSWindows() const { return TheTargetTuple.isOSWindows(); }
 
   bool isTargetWin64() const {
-    return In64BitMode && TargetTriple.isOSWindows();
+    return In64BitMode && TheTargetTuple.isOSWindows();
   }
 
   bool isTargetWin32() const {
