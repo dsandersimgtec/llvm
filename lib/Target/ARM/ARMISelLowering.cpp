@@ -6681,11 +6681,11 @@ SDValue ARMTargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const {
   case ISD::GlobalAddress:
     switch (Subtarget->getTargetTuple().getObjectFormat()) {
     default: llvm_unreachable("unknown object format");
-    case Triple::COFF:
+    case TargetTuple::COFF:
       return LowerGlobalAddressWindows(Op, DAG);
-    case Triple::ELF:
+    case TargetTuple::ELF:
       return LowerGlobalAddressELF(Op, DAG);
-    case Triple::MachO:
+    case TargetTuple::MachO:
       return LowerGlobalAddressDarwin(Op, DAG);
     }
   case ISD::GlobalTLSAddress: return LowerGlobalTLSAddress(Op, DAG);
