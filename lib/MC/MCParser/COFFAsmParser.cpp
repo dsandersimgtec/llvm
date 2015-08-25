@@ -386,8 +386,8 @@ bool COFFAsmParser::ParseDirectiveSection(StringRef, SMLoc) {
 
   SectionKind Kind = computeSectionKind(Flags);
   if (Kind.isText()) {
-    const Triple &T = getContext().getObjectFileInfo()->getTargetTriple();
-    if (T.getArch() == Triple::arm || T.getArch() == Triple::thumb)
+    const TargetTuple &TT = getContext().getObjectFileInfo()->getTargetTuple();
+    if (TT.getArch() == TargetTuple::arm || TT.getArch() == TargetTuple::thumb)
       Flags |= COFF::IMAGE_SCN_MEM_16BIT;
   }
   ParseSectionSwitch(SectionName, Flags, Kind, COMDATSymName, Type);

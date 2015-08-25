@@ -9,7 +9,7 @@
 
 #include "llvm/MC/MCObjectFileInfo.h"
 #include "llvm/ADT/StringExtras.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCSection.h"
@@ -19,32 +19,32 @@
 #include "llvm/Support/COFF.h"
 using namespace llvm;
 
-static bool useCompactUnwind(const Triple &T) {
+static bool useCompactUnwind(const TargetTuple &TT) {
   // Only on darwin.
-  if (!T.isOSDarwin())
+  if (!TT.isOSDarwin())
     return false;
 
   // aarch64 always has it.
-  if (T.getArch() == Triple::aarch64)
+  if (TT.getArch() == TargetTuple::aarch64)
     return true;
 
   // Use it on newer version of OS X.
-  if (T.isMacOSX() && !T.isMacOSXVersionLT(10, 6))
+  if (TT.isMacOSX() && !TT.isMacOSXVersionLT(10, 6))
     return true;
 
   // And the iOS simulator.
-  if (T.isiOS() &&
-      (T.getArch() == Triple::x86_64 || T.getArch() == Triple::x86))
+  if (TT.isiOS() &&
+      (TT.getArch() == TargetTuple::x86_64 || TT.getArch() == TargetTuple::x86))
     return true;
 
   return false;
 }
 
-void MCObjectFileInfo::initMachOMCObjectFileInfo(Triple T) {
+void MCObjectFileInfo::initMachOMCObjectFileInfo(const TargetTuple &TT) {
   // MachO
   SupportsWeakOmittedEHFrame = false;
 
-  if (T.isOSDarwin() && T.getArch() == Triple::aarch64)
+  if (TT.isOSDarwin() && TT.getArch() == TargetTuple::aarch64)
     SupportsCompactUnwindWithoutEHFrame = true;
 
   PersonalityEncoding = dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel
@@ -54,7 +54,7 @@ void MCObjectFileInfo::initMachOMCObjectFileInfo(Triple T) {
     dwarf::DW_EH_PE_sdata4;
 
   // .comm doesn't support alignment before Leopard.
-  if (T.isMacOSX() && T.isMacOSXVersionLT(10, 5))
+  if (TT.isMacOSX() && TT.isMacOSXVersionLT(10, 5))
     CommDirectiveSupportsAlignment = false;
 
   TextSection // .text
@@ -171,14 +171,14 @@ void MCObjectFileInfo::initMachOMCObjectFileInfo(Triple T) {
 
   COFFDebugSymbolsSection = nullptr;
 
-  if (useCompactUnwind(T)) {
+  if (useCompactUnwind(TT)) {
     CompactUnwindSection =
         Ctx->getMachOSection("__LD", "__compact_unwind", MachO::S_ATTR_DEBUG,
                              SectionKind::getReadOnly());
 
-    if (T.getArch() == Triple::x86_64 || T.getArch() == Triple::x86)
+    if (TT.getArch() == TargetTuple::x86_64 || TT.getArch() == TargetTuple::x86)
       CompactUnwindDwarfEHFrameOnly = 0x04000000;
-    else if (T.getArch() == Triple::aarch64)
+    else if (TT.getArch() == TargetTuple::aarch64)
       CompactUnwindDwarfEHFrameOnly = 0x03000000;
   }
 
@@ -245,17 +245,17 @@ void MCObjectFileInfo::initMachOMCObjectFileInfo(Triple T) {
   TLSExtraDataSection = TLSTLVSection;
 }
 
-void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
-  switch (T.getArch()) {
-  case Triple::mips:
-  case Triple::mipsel:
+void MCObjectFileInfo::initELFMCObjectFileInfo(const TargetTuple &TT) {
+  switch (TT.getArch()) {
+  case TargetTuple::mips:
+  case TargetTuple::mipsel:
     FDECFIEncoding = dwarf::DW_EH_PE_sdata4;
     break;
-  case Triple::mips64:
-  case Triple::mips64el:
+  case TargetTuple::mips64:
+  case TargetTuple::mips64el:
     FDECFIEncoding = dwarf::DW_EH_PE_sdata8;
     break;
-  case Triple::x86_64:
+  case TargetTuple::x86_64:
     FDECFIEncoding = dwarf::DW_EH_PE_pcrel |
                      ((CMModel == CodeModel::Large) ? dwarf::DW_EH_PE_sdata8
                                                     : dwarf::DW_EH_PE_sdata4);
@@ -266,16 +266,16 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
     break;
   }
 
-  switch (T.getArch()) {
-  case Triple::arm:
-  case Triple::armeb:
-  case Triple::thumb:
-  case Triple::thumbeb:
+  switch (TT.getArch()) {
+  case TargetTuple::arm:
+  case TargetTuple::armeb:
+  case TargetTuple::thumb:
+  case TargetTuple::thumbeb:
     if (Ctx->getAsmInfo()->getExceptionHandlingType() == ExceptionHandling::ARM)
       break;
     // Fallthrough if not using EHABI
-  case Triple::ppc:
-  case Triple::x86:
+  case TargetTuple::ppc:
+  case TargetTuple::x86:
     PersonalityEncoding = (RelocM == Reloc::PIC_)
      ? dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel | dwarf::DW_EH_PE_sdata4
      : dwarf::DW_EH_PE_absptr;
@@ -286,7 +286,7 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
      ? dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel | dwarf::DW_EH_PE_sdata4
      : dwarf::DW_EH_PE_absptr;
     break;
-  case Triple::x86_64:
+  case TargetTuple::x86_64:
     if (RelocM == Reloc::PIC_) {
       PersonalityEncoding = dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel |
         ((CMModel == CodeModel::Small || CMModel == CodeModel::Medium)
@@ -307,8 +307,8 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
         ? dwarf::DW_EH_PE_udata4 : dwarf::DW_EH_PE_absptr;
     }
     break;
-  case Triple::aarch64:
-  case Triple::aarch64_be:
+  case TargetTuple::aarch64:
+  case TargetTuple::aarch64_be:
     // The small model guarantees static code/data size < 4GB, but not where it
     // will be in memory. Most of these could end up >2GB away so even a signed
     // pc-relative 32-bit address is insufficient, theoretically.
@@ -324,10 +324,10 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
       TTypeEncoding = dwarf::DW_EH_PE_absptr;
     }
     break;
-  case Triple::mips:
-  case Triple::mipsel:
-  case Triple::mips64:
-  case Triple::mips64el:
+  case TargetTuple::mips:
+  case TargetTuple::mipsel:
+  case TargetTuple::mips64:
+  case TargetTuple::mips64el:
     // MIPS uses indirect pointer to refer personality functions and types, so
     // that the eh_frame section can be read-only. DW.ref.personality will be
     // generated for relocation.
@@ -339,16 +339,16 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
     // We don't support PC-relative LSDA references in GAS so we use the default
     // DW_EH_PE_absptr for those.
     break;
-  case Triple::ppc64:
-  case Triple::ppc64le:
+  case TargetTuple::ppc64:
+  case TargetTuple::ppc64le:
     PersonalityEncoding = dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel |
       dwarf::DW_EH_PE_udata8;
     LSDAEncoding = dwarf::DW_EH_PE_pcrel | dwarf::DW_EH_PE_udata8;
     TTypeEncoding = dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel |
       dwarf::DW_EH_PE_udata8;
     break;
-  case Triple::sparcel:
-  case Triple::sparc:
+  case TargetTuple::sparcel:
+  case TargetTuple::sparc:
     if (RelocM == Reloc::PIC_) {
       LSDAEncoding = dwarf::DW_EH_PE_pcrel | dwarf::DW_EH_PE_sdata4;
       PersonalityEncoding = dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel |
@@ -361,7 +361,7 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
       TTypeEncoding = dwarf::DW_EH_PE_absptr;
     }
     break;
-  case Triple::sparcv9:
+  case TargetTuple::sparcv9:
     LSDAEncoding = dwarf::DW_EH_PE_pcrel | dwarf::DW_EH_PE_sdata4;
     if (RelocM == Reloc::PIC_) {
       PersonalityEncoding = dwarf::DW_EH_PE_indirect | dwarf::DW_EH_PE_pcrel |
@@ -373,7 +373,7 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
       TTypeEncoding = dwarf::DW_EH_PE_absptr;
     }
     break;
-  case Triple::systemz:
+  case TargetTuple::systemz:
     // All currently-defined code models guarantee that 4-byte PC-relative
     // values will be in range.
     if (RelocM == Reloc::PIC_) {
@@ -396,8 +396,8 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
   // platform.
   EHSectionType = ELF::SHT_PROGBITS;
   EHSectionFlags = ELF::SHF_ALLOC;
-  if (T.isOSSolaris()) {
-    if (T.getArch() == Triple::x86_64)
+  if (TT.isOSSolaris()) {
+    if (TT.getArch() == TargetTuple::x86_64)
       EHSectionType = ELF::SHT_X86_64_UNWIND;
     else
       EHSectionFlags |= ELF::SHF_WRITE;
@@ -527,8 +527,9 @@ void MCObjectFileInfo::initELFMCObjectFileInfo(Triple T) {
       Ctx->getELFSection(".llvm_faultmaps", ELF::SHT_PROGBITS, ELF::SHF_ALLOC);
 }
 
-void MCObjectFileInfo::initCOFFMCObjectFileInfo(Triple T) {
-  bool IsWoA = T.getArch() == Triple::arm || T.getArch() == Triple::thumb;
+void MCObjectFileInfo::initCOFFMCObjectFileInfo(const TargetTuple &TT) {
+  bool IsWoA =
+      TT.getArch() == TargetTuple::arm || TT.getArch() == TargetTuple::thumb;
 
   CommDirectiveSupportsAlignment = true;
 
@@ -551,7 +552,7 @@ void MCObjectFileInfo::initCOFFMCObjectFileInfo(Triple T) {
       ".rdata", COFF::IMAGE_SCN_CNT_INITIALIZED_DATA | COFF::IMAGE_SCN_MEM_READ,
       SectionKind::getReadOnly());
 
-  if (T.isKnownWindowsMSVCEnvironment() || T.isWindowsItaniumEnvironment()) {
+  if (TT.isKnownWindowsMSVCEnvironment() || TT.isWindowsItaniumEnvironment()) {
     StaticCtorSection =
         Ctx->getCOFFSection(".CRT$XCU", COFF::IMAGE_SCN_CNT_INITIALIZED_DATA |
                                             COFF::IMAGE_SCN_MEM_READ,
@@ -575,8 +576,8 @@ void MCObjectFileInfo::initCOFFMCObjectFileInfo(Triple T) {
   // though it contains relocatable pointers.  In PIC mode, this is probably a
   // big runtime hit for C++ apps.  Either the contents of the LSDA need to be
   // adjusted or this should be a data section.
-  assert(T.isOSWindows() && "Windows is the only supported COFF target");
-  if (T.getArch() == Triple::x86_64) {
+  assert(TT.isOSWindows() && "Windows is the only supported COFF target");
+  if (TT.getArch() == TargetTuple::x86_64) {
     // On Windows 64 with SEH, the LSDA is emitted into the .xdata section
     LSDASection = 0;
   } else {
@@ -741,7 +742,7 @@ void MCObjectFileInfo::initCOFFMCObjectFileInfo(Triple T) {
                                         SectionKind::getReadOnly());	
 }
 
-void MCObjectFileInfo::InitMCObjectFileInfo(const Triple &TheTriple,
+void MCObjectFileInfo::InitMCObjectFileInfo(const TargetTuple &TT,
                                             Reloc::Model relocm,
                                             CodeModel::Model cm,
                                             MCContext &ctx) {
@@ -766,22 +767,21 @@ void MCObjectFileInfo::InitMCObjectFileInfo(const Triple &TheTriple,
   DwarfAccelNamespaceSection = nullptr; // Used only by selected targets.
   DwarfAccelTypesSection = nullptr;     // Used only by selected targets.
 
-  TT = TheTriple;
+  TheTargetTuple = TT;
 
-  Triple::ArchType Arch = TT.getArch();
+  TargetTuple::ArchType Arch = TT.getArch();
   // FIXME: Checking for Arch here to filter out bogus triples such as
-  // cellspu-apple-darwin. Perhaps we should fix in Triple?
-  if ((Arch == Triple::x86 || Arch == Triple::x86_64 ||
-       Arch == Triple::arm || Arch == Triple::thumb ||
-       Arch == Triple::aarch64 ||
-       Arch == Triple::ppc || Arch == Triple::ppc64 ||
-       Arch == Triple::UnknownArch) &&
+  // cellspu-apple-darwin. Perhaps we should fix in TargetTuple?
+  if ((Arch == TargetTuple::x86 || Arch == TargetTuple::x86_64 ||
+       Arch == TargetTuple::arm || Arch == TargetTuple::thumb ||
+       Arch == TargetTuple::aarch64 || Arch == TargetTuple::ppc ||
+       Arch == TargetTuple::ppc64 || Arch == TargetTuple::UnknownArch) &&
       TT.isOSBinFormatMachO()) {
     Env = IsMachO;
     initMachOMCObjectFileInfo(TT);
-  } else if ((Arch == Triple::x86 || Arch == Triple::x86_64 ||
-              Arch == Triple::arm || Arch == Triple::thumb) &&
-             (TT.isOSWindows() && TT.getObjectFormat() == Triple::COFF)) {
+  } else if ((Arch == TargetTuple::x86 || Arch == TargetTuple::x86_64 ||
+              Arch == TargetTuple::arm || Arch == TargetTuple::thumb) &&
+             (TT.isOSWindows() && TT.getObjectFormat() == TargetTuple::COFF)) {
     Env = IsCOFF;
     initCOFFMCObjectFileInfo(TT);
   } else {
@@ -793,7 +793,7 @@ void MCObjectFileInfo::InitMCObjectFileInfo(const Triple &TheTriple,
 void MCObjectFileInfo::InitMCObjectFileInfo(StringRef TT, Reloc::Model RM,
                                             CodeModel::Model CM,
                                             MCContext &ctx) {
-  InitMCObjectFileInfo(Triple(TT), RM, CM, ctx);
+  InitMCObjectFileInfo(TargetTuple(Triple(TT)), RM, CM, ctx);
 }
 
 MCSection *MCObjectFileInfo::getDwarfTypesSection(uint64_t Hash) const {

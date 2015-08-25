@@ -492,7 +492,7 @@ MCStreamer *llvm::createMachOStreamer(MCContext &Context, MCAsmBackend &MAB,
                                       bool LabelSections) {
   MCMachOStreamer *S = new MCMachOStreamer(Context, MAB, OS, CE,
                                            DWARFMustBeAtTheEnd, LabelSections);
-  const Triple &TT = Context.getObjectFileInfo()->getTargetTriple();
+  const TargetTuple &TT = Context.getObjectFileInfo()->getTargetTuple();
   if (TT.isOSDarwin()) {
     unsigned Major, Minor, Update;
     TT.getOSVersion(Major, Minor, Update);
