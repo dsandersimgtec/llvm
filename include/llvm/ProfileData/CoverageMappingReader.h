@@ -17,7 +17,6 @@
 
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/StringRef.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/Object/ObjectFile.h"
 #include "llvm/ProfileData/CoverageMapping.h"
 #include "llvm/ProfileData/InstrProf.h"
