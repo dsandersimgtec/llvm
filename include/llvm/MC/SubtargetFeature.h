@@ -19,13 +19,13 @@
 #define LLVM_MC_SUBTARGETFEATURE_H
 
 #include "llvm/ADT/ArrayRef.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/StringRef.h"
 #include "llvm/Support/DataTypes.h"
 #include <bitset>
 
 namespace llvm {
-  class raw_ostream;
-  class StringRef;
+class raw_ostream;
+class TargetTuple;
 
 // A container class for subtarget features.
 // This is convenient because std::bitset does not have a constructor
@@ -119,7 +119,7 @@ public:
   void dump() const;
 
   /// Adds the default features for the specified target triple.
-  void getDefaultSubtargetFeatures(const Triple& Triple);
+  void getDefaultSubtargetFeatures(const TargetTuple &TT);
 };
 
 } // End namespace llvm

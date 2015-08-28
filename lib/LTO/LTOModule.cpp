@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/LTO/LTOModule.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/Bitcode/ReaderWriter.h"
 #include "llvm/CodeGen/Analysis.h"
@@ -209,6 +210,7 @@ LTOModule *LTOModule::makeLTOModule(MemoryBufferRef Buffer,
   if (TripleStr.empty())
     TripleStr = sys::getDefaultTargetTriple();
   llvm::Triple Triple(TripleStr);
+  llvm::TargetTuple TT(Triple);
 
   // find machine architecture for this module
   const Target *march = TargetRegistry::lookupTarget(TripleStr, errMsg);
@@ -217,16 +219,16 @@ LTOModule *LTOModule::makeLTOModule(MemoryBufferRef Buffer,
 
   // construct LTOModule, hand over ownership of module and target
   SubtargetFeatures Features;
-  Features.getDefaultSubtargetFeatures(Triple);
+  Features.getDefaultSubtargetFeatures(TT);
   std::string FeatureStr = Features.getString();
   // Set a default CPU for Darwin triples.
   std::string CPU;
-  if (Triple.isOSDarwin()) {
-    if (Triple.getArch() == llvm::Triple::x86_64)
+  if (TT.isOSDarwin()) {
+    if (TT.getArch() == llvm::TargetTuple::x86_64)
       CPU = "core2";
-    else if (Triple.getArch() == llvm::Triple::x86)
+    else if (TT.getArch() == llvm::TargetTuple::x86)
       CPU = "yonah";
-    else if (Triple.getArch() == llvm::Triple::aarch64)
+    else if (TT.getArch() == llvm::TargetTuple::aarch64)
       CPU = "cyclone";
   }
 

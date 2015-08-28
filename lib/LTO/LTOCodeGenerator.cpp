@@ -288,6 +288,7 @@ bool LTOCodeGenerator::determineTarget(std::string &ErrMsg) {
     MergedModule->setTargetTriple(TripleStr);
   }
   llvm::Triple Triple(TripleStr);
+  llvm::TargetTuple TT(Triple);
 
   // create target machine from info for merged modules
   const Target *march = TargetRegistry::lookupTarget(TripleStr, ErrMsg);
@@ -297,15 +298,15 @@ bool LTOCodeGenerator::determineTarget(std::string &ErrMsg) {
   // Construct LTOModule, hand over ownership of module and target. Use MAttr as
   // the default set of features.
   SubtargetFeatures Features(MAttr);
-  Features.getDefaultSubtargetFeatures(Triple);
+  Features.getDefaultSubtargetFeatures(TT);
   FeatureStr = Features.getString();
   // Set a default CPU for Darwin triples.
-  if (MCpu.empty() && Triple.isOSDarwin()) {
-    if (Triple.getArch() == llvm::Triple::x86_64)
+  if (MCpu.empty() && TT.isOSDarwin()) {
+    if (TT.getArch() == llvm::TargetTuple::x86_64)
       MCpu = "core2";
-    else if (Triple.getArch() == llvm::Triple::x86)
+    else if (TT.getArch() == llvm::TargetTuple::x86)
       MCpu = "yonah";
-    else if (Triple.getArch() == llvm::Triple::aarch64)
+    else if (TT.getArch() == llvm::TargetTuple::aarch64)
       MCpu = "cyclone";
   }
 

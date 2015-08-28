@@ -13,6 +13,7 @@
 
 #include "llvm/MC/SubtargetFeature.h"
 #include "llvm/ADT/StringExtras.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/Format.h"
 #include "llvm/Support/raw_ostream.h"
@@ -305,12 +306,12 @@ void SubtargetFeatures::dump() const {
 /// subtarget. It would be better if we could encode this information
 /// into the IR. See <rdar://5972456>.
 ///
-void SubtargetFeatures::getDefaultSubtargetFeatures(const Triple& Triple) {
-  if (Triple.getVendor() == Triple::Apple) {
-    if (Triple.getArch() == Triple::ppc) {
+void SubtargetFeatures::getDefaultSubtargetFeatures(const TargetTuple &TT) {
+  if (TT.getVendor() == TargetTuple::Apple) {
+    if (TT.getArch() == TargetTuple::ppc) {
       // powerpc-apple-*
       AddFeature("altivec");
-    } else if (Triple.getArch() == Triple::ppc64) {
+    } else if (TT.getArch() == TargetTuple::ppc64) {
       // powerpc64-apple-*
       AddFeature("64bit");
       AddFeature("altivec");
