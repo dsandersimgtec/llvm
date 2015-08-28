@@ -23,7 +23,7 @@ namespace llvm {
 class formatted_raw_ostream;
 
 struct CPPTargetMachine : public TargetMachine {
-  CPPTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  CPPTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                    StringRef FS, const TargetOptions &Options, Reloc::Model RM,
                    CodeModel::Model CM, CodeGenOpt::Level OL)
       : TargetMachine(T, "", TT, CPU, FS, Options) {}

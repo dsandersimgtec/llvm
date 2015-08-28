@@ -100,8 +100,9 @@ namespace llvm {
 
 /// Hexagon_TODO: Do I need an aggregate alignment?
 ///
-HexagonTargetMachine::HexagonTargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+HexagonTargetMachine::HexagonTargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)
@@ -132,8 +133,7 @@ HexagonTargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = llvm::make_unique<HexagonSubtarget>(TargetTuple(TargetTriple), CPU, FS,
-                                            *this);
+    I = llvm::make_unique<HexagonSubtarget>(TheTargetTuple, CPU, FS, *this);
   }
   return I.get();
 }

@@ -496,7 +496,7 @@ void PPCAsmPrinter::EmitTlsCall(const MachineInstr *MI,
 void PPCAsmPrinter::EmitInstruction(const MachineInstr *MI) {
   MCInst TmpInst;
   bool isPPC64 = Subtarget->isPPC64();
-  bool isDarwin = TM.getTargetTriple().isOSDarwin();
+  bool isDarwin = TM.getTargetTuple().isOSDarwin();
   const Module *M = MF->getFunction()->getParent();
   PICLevel::Level PL = M->getPICLevel();
   
@@ -1332,7 +1332,7 @@ EmitFunctionStubs(const MachineModuleInfoMachO::SymbolListTy &Stubs) {
   // freed) and since we're at the global level we can use the default
   // constructed subtarget.
   std::unique_ptr<MCSubtargetInfo> STI(TM.getTarget().createMCSubtargetInfo(
-      TM.getTargetTriple().str(), TM.getTargetCPU(),
+      TM.getTargetTuple().getTargetTriple().str(), TM.getTargetCPU(),
       TM.getTargetFeatureString()));
   auto EmitToStreamer = [&STI] (MCStreamer &S, const MCInst &Inst) {
     S.EmitInstruction(Inst, *STI);
@@ -1567,7 +1567,7 @@ bool PPCDarwinAsmPrinter::doFinalization(Module &M) {
 static AsmPrinter *
 createPPCAsmPrinterPass(TargetMachine &tm,
                         std::unique_ptr<MCStreamer> &&Streamer) {
-  if (tm.getTargetTriple().isMacOSX())
+  if (tm.getTargetTuple().isMacOSX())
     return new PPCDarwinAsmPrinter(tm, std::move(Streamer));
   return new PPCLinuxAsmPrinter(tm, std::move(Streamer));
 }

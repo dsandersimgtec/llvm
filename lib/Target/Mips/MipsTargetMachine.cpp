@@ -44,7 +44,7 @@ extern "C" void LLVMInitializeMipsTarget() {
   RegisterTargetMachine<MipselTargetMachine> B(TheMips64elTarget);
 }
 
-static std::string computeDataLayout(const Triple &TT, StringRef CPU,
+static std::string computeDataLayout(const TargetTuple &TT, StringRef CPU,
                                      const TargetOptions &Options,
                                      bool isLittle) {
   std::string Ret = "";
@@ -83,7 +83,7 @@ static std::string computeDataLayout(const Triple &TT, StringRef CPU,
 // offset from the stack/frame pointer, using StackGrowsUp enables
 // an easier handling.
 // Using CodeModel::Large enables different CALL behavior.
-MipsTargetMachine::MipsTargetMachine(const Target &T, const Triple &TT,
+MipsTargetMachine::MipsTargetMachine(const Target &T, const TargetTuple &TT,
                                      StringRef CPU, StringRef FS,
                                      const TargetOptions &Options,
                                      Reloc::Model RM, CodeModel::Model CM,
@@ -109,7 +109,7 @@ MipsTargetMachine::~MipsTargetMachine() {}
 
 void MipsebTargetMachine::anchor() { }
 
-MipsebTargetMachine::MipsebTargetMachine(const Target &T, const Triple &TT,
+MipsebTargetMachine::MipsebTargetMachine(const Target &T, const TargetTuple &TT,
                                          StringRef CPU, StringRef FS,
                                          const TargetOptions &Options,
                                          Reloc::Model RM, CodeModel::Model CM,
@@ -118,7 +118,7 @@ MipsebTargetMachine::MipsebTargetMachine(const Target &T, const Triple &TT,
 
 void MipselTargetMachine::anchor() { }
 
-MipselTargetMachine::MipselTargetMachine(const Target &T, const Triple &TT,
+MipselTargetMachine::MipselTargetMachine(const Target &T, const TargetTuple &TT,
                                          StringRef CPU, StringRef FS,
                                          const TargetOptions &Options,
                                          Reloc::Model RM, CodeModel::Model CM,
@@ -161,8 +161,8 @@ MipsTargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = llvm::make_unique<MipsSubtarget>(TargetTuple(TargetTriple), CPU, FS,
-                                         isLittle, *this);
+    I = llvm::make_unique<MipsSubtarget>(getTargetTuple(), CPU, FS, isLittle,
+                                         *this);
   }
   return I.get();
 }

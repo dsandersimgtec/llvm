@@ -25,9 +25,9 @@ extern "C" void LLVMInitializeSparcTarget() {
   RegisterTargetMachine<SparcelTargetMachine> Z(TheSparcelTarget);
 }
 
-static std::string computeDataLayout(const Triple &T, bool is64Bit) {
+static std::string computeDataLayout(const TargetTuple &T, bool is64Bit) {
   // Sparc is typically big endian, but some are little.
-  std::string Ret = T.getArch() == Triple::sparcel ? "e" : "E";
+  std::string Ret = T.getArch() == TargetTuple::sparcel ? "e" : "E";
   Ret += "-m:e";
 
   // Some ABIs have 32bit pointers.
@@ -54,7 +54,7 @@ static std::string computeDataLayout(const Triple &T, bool is64Bit) {
 
 /// SparcTargetMachine ctor - Create an ILP32 architecture model
 ///
-SparcTargetMachine::SparcTargetMachine(const Target &T, const Triple &TT,
+SparcTargetMachine::SparcTargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -106,8 +106,9 @@ void SparcPassConfig::addPreEmitPass(){
 
 void SparcV8TargetMachine::anchor() { }
 
-SparcV8TargetMachine::SparcV8TargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+SparcV8TargetMachine::SparcV8TargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)
@@ -115,8 +116,9 @@ SparcV8TargetMachine::SparcV8TargetMachine(const Target &T, const Triple &TT,
 
 void SparcV9TargetMachine::anchor() { }
 
-SparcV9TargetMachine::SparcV9TargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+SparcV9TargetMachine::SparcV9TargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)
@@ -124,8 +126,9 @@ SparcV9TargetMachine::SparcV9TargetMachine(const Target &T, const Triple &TT,
 
 void SparcelTargetMachine::anchor() {}
 
-SparcelTargetMachine::SparcelTargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+SparcelTargetMachine::SparcelTargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)

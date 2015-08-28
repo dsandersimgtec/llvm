@@ -460,7 +460,7 @@ bool GlobalMerge::doMerge(const SmallVectorImpl<GlobalVariable *> &Globals,
       // It's not safe on Mach-O as the alias (and thus the portion of the
       // MergedGlobals variable) may be dead stripped at link time.
       if (Linkage != GlobalValue::InternalLinkage ||
-          !TM->getTargetTriple().isOSBinFormatMachO()) {
+          !TM->getTargetTuple().isOSBinFormatMachO()) {
         auto *PTy = cast<PointerType>(GEP->getType());
         GlobalAlias::create(PTy, Linkage, Name, GEP, &M);
       }

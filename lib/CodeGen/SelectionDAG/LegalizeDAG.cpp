@@ -16,7 +16,7 @@
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/ADT/SmallSet.h"
 #include "llvm/ADT/SmallVector.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/CodeGen/Analysis.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineJumpTableInfo.h"
@@ -2346,7 +2346,7 @@ static bool canCombineSinCosLibcall(SDNode *Node, const TargetLowering &TLI,
     return false;
   // GNU sin/cos functions set errno while sincos does not. Therefore
   // combining sin and cos is only safe if unsafe-fpmath is enabled.
-  bool isGNU = Triple(TM.getTargetTriple()).getEnvironment() == Triple::GNU;
+  bool isGNU = TM.getTargetTuple().getEnvironment() == TargetTuple::GNU;
   if (isGNU && !TM.Options.UnsafeFPMath)
     return false;
   return true;

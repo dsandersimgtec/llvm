@@ -77,7 +77,7 @@ public:
   WinEHPrepare(const TargetMachine *TM = nullptr)
       : FunctionPass(ID) {
     if (TM)
-      TheTriple = TM->getTargetTriple();
+      TheTriple = TM->getTargetTuple().getTargetTriple();
   }
 
   bool runOnFunction(Function &Fn) override;

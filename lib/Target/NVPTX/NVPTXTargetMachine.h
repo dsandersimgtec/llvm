@@ -34,7 +34,7 @@ class NVPTXTargetMachine : public LLVMTargetMachine {
   ManagedStringPool ManagedStrPool;
 
 public:
-  NVPTXTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  NVPTXTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM, CodeGenOpt::Level OP,
                      bool is64bit);
@@ -68,7 +68,7 @@ public:
 class NVPTXTargetMachine32 : public NVPTXTargetMachine {
   virtual void anchor();
 public:
-  NVPTXTargetMachine32(const Target &T, const Triple &TT, StringRef CPU,
+  NVPTXTargetMachine32(const Target &T, const TargetTuple &TT, StringRef CPU,
                        StringRef FS, const TargetOptions &Options,
                        Reloc::Model RM, CodeModel::Model CM,
                        CodeGenOpt::Level OL);
@@ -77,7 +77,7 @@ public:
 class NVPTXTargetMachine64 : public NVPTXTargetMachine {
   virtual void anchor();
 public:
-  NVPTXTargetMachine64(const Target &T, const Triple &TT, StringRef CPU,
+  NVPTXTargetMachine64(const Target &T, const TargetTuple &TT, StringRef CPU,
                        StringRef FS, const TargetOptions &Options,
                        Reloc::Model RM, CodeModel::Model CM,
                        CodeGenOpt::Level OL);

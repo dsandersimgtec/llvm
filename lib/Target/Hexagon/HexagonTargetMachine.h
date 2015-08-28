@@ -27,7 +27,7 @@ class HexagonTargetMachine : public LLVMTargetMachine {
   mutable StringMap<std::unique_ptr<HexagonSubtarget>> SubtargetMap;
 
 public:
-  HexagonTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  HexagonTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                        StringRef FS, const TargetOptions &Options,
                        Reloc::Model RM, CodeModel::Model CM,
                        CodeGenOpt::Level OL);

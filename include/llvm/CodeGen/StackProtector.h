@@ -110,8 +110,8 @@ public:
     initializeStackProtectorPass(*PassRegistry::getPassRegistry());
   }
   StackProtector(const TargetMachine *TM)
-      : FunctionPass(ID), TM(TM), TLI(nullptr), Trip(TM->getTargetTriple()),
-        SSPBufferSize(8) {
+      : FunctionPass(ID), TM(TM), TLI(nullptr),
+        Trip(TM->getTargetTuple().getTargetTriple()), SSPBufferSize(8) {
     initializeStackProtectorPass(*PassRegistry::getPassRegistry());
   }
 

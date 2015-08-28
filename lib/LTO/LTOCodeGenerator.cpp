@@ -408,7 +408,7 @@ void LTOCodeGenerator::applyScopeRestrictions() {
   std::vector<const char*> MustPreserveList;
   SmallPtrSet<GlobalValue*, 8> AsmUsed;
   std::vector<StringRef> Libcalls;
-  TargetLibraryInfoImpl TLII(Triple(TargetMach->getTargetTriple()));
+  TargetLibraryInfoImpl TLII(TargetMach->getTargetTuple().getTargetTriple());
   TargetLibraryInfo TLI(TLII);
 
   accumulateAndSortLibcalls(Libcalls, TLI, *MergedModule, *TargetMach);
@@ -471,14 +471,14 @@ bool LTOCodeGenerator::optimize(bool DisableInline, bool DisableGVNLoadPRE,
   passes.add(
       createTargetTransformInfoWrapperPass(TargetMach->getTargetIRAnalysis()));
 
-  Triple TargetTriple(TargetMach->getTargetTriple());
+  const TargetTuple &TT = TargetMach->getTargetTuple();
   PassManagerBuilder PMB;
   PMB.DisableGVNLoadPRE = DisableGVNLoadPRE;
   PMB.LoopVectorize = !DisableVectorization;
   PMB.SLPVectorize = !DisableVectorization;
   if (!DisableInline)
     PMB.Inliner = createFunctionInliningPass();
-  PMB.LibraryInfo = new TargetLibraryInfoImpl(TargetTriple);
+  PMB.LibraryInfo = new TargetLibraryInfoImpl(TT.getTargetTriple());
   PMB.OptLevel = OptLevel;
   PMB.VerifyInput = true;
   PMB.VerifyOutput = true;

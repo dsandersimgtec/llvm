@@ -87,7 +87,7 @@ static std::string computeDataLayout(bool is64Bit) {
   return Ret;
 }
 
-NVPTXTargetMachine::NVPTXTargetMachine(const Target &T, const Triple &TT,
+NVPTXTargetMachine::NVPTXTargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -96,7 +96,7 @@ NVPTXTargetMachine::NVPTXTargetMachine(const Target &T, const Triple &TT,
                         CM, OL),
       is64bit(is64bit), TLOF(make_unique<NVPTXTargetObjectFile>()),
       Subtarget(TargetTuple(TT), CPU, FS, *this) {
-  if (TT.getOS() == Triple::NVCL)
+  if (TT.getOS() == TargetTuple::NVCL)
     drvInterface = NVPTX::NVCL;
   else
     drvInterface = NVPTX::CUDA;
@@ -107,8 +107,9 @@ NVPTXTargetMachine::~NVPTXTargetMachine() {}
 
 void NVPTXTargetMachine32::anchor() {}
 
-NVPTXTargetMachine32::NVPTXTargetMachine32(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+NVPTXTargetMachine32::NVPTXTargetMachine32(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)
@@ -116,8 +117,9 @@ NVPTXTargetMachine32::NVPTXTargetMachine32(const Target &T, const Triple &TT,
 
 void NVPTXTargetMachine64::anchor() {}
 
-NVPTXTargetMachine64::NVPTXTargetMachine64(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+NVPTXTargetMachine64::NVPTXTargetMachine64(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)

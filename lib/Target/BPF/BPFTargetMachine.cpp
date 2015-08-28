@@ -29,14 +29,14 @@ extern "C" void LLVMInitializeBPFTarget() {
 }
 
 // DataLayout: little or big endian
-static std::string computeDataLayout(const Triple &TT) {
-  if (TT.getArch() == Triple::bpfeb)
+static std::string computeDataLayout(const TargetTuple &TT) {
+  if (TT.getArch() == TargetTuple::bpfeb)
     return "E-m:e-p:64:64-i64:64-n32:64-S128";
   else
     return "e-m:e-p:64:64-i64:64-n32:64-S128";
 }
 
-BPFTargetMachine::BPFTargetMachine(const Target &T, const Triple &TT,
+BPFTargetMachine::BPFTargetMachine(const Target &T, const TargetTuple &TT,
                                    StringRef CPU, StringRef FS,
                                    const TargetOptions &Options,
                                    Reloc::Model RM, CodeModel::Model CM,

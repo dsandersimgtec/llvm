@@ -511,7 +511,7 @@ bool X86AsmPrinter::PrintAsmMemoryOperand(const MachineInstr *MI,
 }
 
 void X86AsmPrinter::EmitStartOfAsmFile(Module &M) {
-  const TargetTuple TT = TargetTuple(TM.getTargetTriple());
+  const TargetTuple &TT = TM.getTargetTuple();
 
   if (TT.isOSBinFormatMachO())
     OutStreamer->SwitchSection(getObjFileLowering().getTextSection());
@@ -584,7 +584,7 @@ MCSymbol *X86AsmPrinter::GetCPISymbol(unsigned CPID) const {
 }
 
 void X86AsmPrinter::EmitEndOfAsmFile(Module &M) {
-  const TargetTuple TT = TargetTuple(TM.getTargetTriple());
+  const TargetTuple &TT = TM.getTargetTuple();
 
   if (TT.isOSBinFormatMachO()) {
     // All darwin targets use mach-o.

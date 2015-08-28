@@ -780,7 +780,7 @@ TargetLoweringBase::TargetLoweringBase(const TargetMachine &tm) : TM(tm) {
   InsertFencesForAtomic = false;
   MinimumJumpTableEntries = 4;
 
-  InitLibcallNames(LibcallRoutineNames, TM.getTargetTriple());
+  InitLibcallNames(LibcallRoutineNames, TM.getTargetTuple().getTargetTriple());
   InitCmpLibcallCCs(CmpLibcallCCs);
   InitLibcallCallingConvs(LibcallCallingConvs);
 }

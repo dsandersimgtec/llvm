@@ -51,10 +51,10 @@ static MachineSchedRegistry
 SchedCustomRegistry("r600", "Run R600's custom scheduler",
                     createR600MachineScheduler);
 
-static std::string computeDataLayout(const Triple &TT) {
+static std::string computeDataLayout(const TargetTuple &TT) {
   std::string Ret = "e-p:32:32";
 
-  if (TT.getArch() == Triple::amdgcn) {
+  if (TT.getArch() == TargetTuple::amdgcn) {
     // 32-bit private, local, and region pointers. 64-bit global and constant.
     Ret += "-p1:64:64-p2:64:64-p3:32:32-p4:64:64-p5:32:32-p24:64:64";
   }
@@ -65,7 +65,7 @@ static std::string computeDataLayout(const Triple &TT) {
   return Ret;
 }
 
-AMDGPUTargetMachine::AMDGPUTargetMachine(const Target &T, const Triple &TT,
+AMDGPUTargetMachine::AMDGPUTargetMachine(const Target &T, const TargetTuple &TT,
                                          StringRef CPU, StringRef FS,
                                          TargetOptions Options, Reloc::Model RM,
                                          CodeModel::Model CM,
@@ -86,7 +86,7 @@ AMDGPUTargetMachine::~AMDGPUTargetMachine() {
 // R600 Target Machine (R600 -> Cayman)
 //===----------------------------------------------------------------------===//
 
-R600TargetMachine::R600TargetMachine(const Target &T, const Triple &TT,
+R600TargetMachine::R600TargetMachine(const Target &T, const TargetTuple &TT,
                                      StringRef FS, StringRef CPU,
                                      TargetOptions Options, Reloc::Model RM,
                                      CodeModel::Model CM, CodeGenOpt::Level OL)
@@ -96,7 +96,7 @@ R600TargetMachine::R600TargetMachine(const Target &T, const Triple &TT,
 // GCN Target Machine (SI+)
 //===----------------------------------------------------------------------===//
 
-GCNTargetMachine::GCNTargetMachine(const Target &T, const Triple &TT,
+GCNTargetMachine::GCNTargetMachine(const Target &T, const TargetTuple &TT,
                                    StringRef FS, StringRef CPU,
                                    TargetOptions Options, Reloc::Model RM,
                                    CodeModel::Model CM, CodeGenOpt::Level OL)

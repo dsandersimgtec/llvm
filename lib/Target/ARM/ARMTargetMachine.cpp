@@ -55,7 +55,8 @@ extern "C" void LLVMInitializeARMTarget() {
   RegisterTargetMachine<ThumbBETargetMachine> B(TheThumbBETarget);
 }
 
-static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
+static std::unique_ptr<TargetLoweringObjectFile>
+createTLOF(const TargetTuple &TT) {
   if (TT.isOSBinFormatMachO())
     return make_unique<TargetLoweringObjectFileMachO>();
   if (TT.isOSWindows())
@@ -64,7 +65,7 @@ static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
 }
 
 static ARMBaseTargetMachine::ARMABI
-computeTargetABI(const Triple &TT, StringRef CPU,
+computeTargetABI(const TargetTuple &TT, StringRef CPU,
                  const TargetOptions &Options) {
   if (Options.MCOptions.getABIName().startswith("aapcs"))
     return ARMBaseTargetMachine::ARM_ABI_AAPCS;
@@ -79,8 +80,9 @@ computeTargetABI(const Triple &TT, StringRef CPU,
 
   // FIXME: This is duplicated code from the front end and should be unified.
   if (TT.isOSBinFormatMachO()) {
-    if (TT.getEnvironment() == llvm::Triple::EABI ||
-        (TT.getOS() == llvm::Triple::UnknownOS && TT.isOSBinFormatMachO()) ||
+    if (TT.getEnvironment() == llvm::TargetTuple::EABI ||
+        (TT.getOS() == llvm::TargetTuple::UnknownOS &&
+         TT.isOSBinFormatMachO()) ||
         CPU.startswith("cortex-m")) {
       TargetABI = ARMBaseTargetMachine::ARM_ABI_AAPCS;
     } else {
@@ -92,14 +94,14 @@ computeTargetABI(const Triple &TT, StringRef CPU,
   } else {
     // Select the default based on the platform.
     switch (TT.getEnvironment()) {
-    case llvm::Triple::Android:
-    case llvm::Triple::GNUEABI:
-    case llvm::Triple::GNUEABIHF:
-    case llvm::Triple::EABIHF:
-    case llvm::Triple::EABI:
+    case llvm::TargetTuple::Android:
+    case llvm::TargetTuple::GNUEABI:
+    case llvm::TargetTuple::GNUEABIHF:
+    case llvm::TargetTuple::EABIHF:
+    case llvm::TargetTuple::EABI:
       TargetABI = ARMBaseTargetMachine::ARM_ABI_AAPCS;
       break;
-    case llvm::Triple::GNU:
+    case llvm::TargetTuple::GNU:
       TargetABI = ARMBaseTargetMachine::ARM_ABI_APCS;
       break;
     default:
@@ -114,7 +116,7 @@ computeTargetABI(const Triple &TT, StringRef CPU,
   return TargetABI;
 }
 
-static std::string computeDataLayout(const Triple &TT, StringRef CPU,
+static std::string computeDataLayout(const TargetTuple &TT, StringRef CPU,
                                      const TargetOptions &Options,
                                      bool isLittle) {
   auto ABI = computeTargetABI(TT, CPU, Options);
@@ -127,7 +129,7 @@ static std::string computeDataLayout(const Triple &TT, StringRef CPU,
     // Big endian.
     Ret += "E";
 
-  Ret += DataLayout::getManglingComponent(TT);
+  Ret += DataLayout::getManglingComponent(TT.getTargetTriple());
 
   // Pointers are 32 bits and aligned to 32 bits.
   Ret += "-p:32:32";
@@ -169,15 +171,16 @@ static std::string computeDataLayout(const Triple &TT, StringRef CPU,
 
 /// TargetMachine ctor - Create an ARM architecture model.
 ///
-ARMBaseTargetMachine::ARMBaseTargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+ARMBaseTargetMachine::ARMBaseTargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL, bool isLittle)
     : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options, isLittle), TT,
                         CPU, FS, Options, RM, CM, OL),
       TargetABI(computeTargetABI(TT, CPU, Options)),
-      TLOF(createTLOF(getTargetTriple())),
+      TLOF(createTLOF(getTargetTuple())),
       Subtarget(TargetTuple(TT), CPU, FS, *this, isLittle), isLittle(isLittle) {
 
   // Default to triple-appropriate float ABI
@@ -219,8 +222,8 @@ ARMBaseTargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = llvm::make_unique<ARMSubtarget>(TargetTuple(TargetTriple), CPU, FS,
-                                        *this, isLittle);
+    I = llvm::make_unique<ARMSubtarget>(getTargetTuple(), CPU, FS, *this,
+                                        isLittle);
   }
   return I.get();
 }
@@ -233,7 +236,7 @@ TargetIRAnalysis ARMBaseTargetMachine::getTargetIRAnalysis() {
 
 void ARMTargetMachine::anchor() { }
 
-ARMTargetMachine::ARMTargetMachine(const Target &T, const Triple &TT,
+ARMTargetMachine::ARMTargetMachine(const Target &T, const TargetTuple &TT,
                                    StringRef CPU, StringRef FS,
                                    const TargetOptions &Options,
                                    Reloc::Model RM, CodeModel::Model CM,
@@ -247,7 +250,7 @@ ARMTargetMachine::ARMTargetMachine(const Target &T, const Triple &TT,
 
 void ARMLETargetMachine::anchor() { }
 
-ARMLETargetMachine::ARMLETargetMachine(const Target &T, const Triple &TT,
+ARMLETargetMachine::ARMLETargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -256,7 +259,7 @@ ARMLETargetMachine::ARMLETargetMachine(const Target &T, const Triple &TT,
 
 void ARMBETargetMachine::anchor() { }
 
-ARMBETargetMachine::ARMBETargetMachine(const Target &T, const Triple &TT,
+ARMBETargetMachine::ARMBETargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -265,7 +268,7 @@ ARMBETargetMachine::ARMBETargetMachine(const Target &T, const Triple &TT,
 
 void ThumbTargetMachine::anchor() { }
 
-ThumbTargetMachine::ThumbTargetMachine(const Target &T, const Triple &TT,
+ThumbTargetMachine::ThumbTargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -276,8 +279,9 @@ ThumbTargetMachine::ThumbTargetMachine(const Target &T, const Triple &TT,
 
 void ThumbLETargetMachine::anchor() { }
 
-ThumbLETargetMachine::ThumbLETargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+ThumbLETargetMachine::ThumbLETargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)
@@ -285,8 +289,9 @@ ThumbLETargetMachine::ThumbLETargetMachine(const Target &T, const Triple &TT,
 
 void ThumbBETargetMachine::anchor() { }
 
-ThumbBETargetMachine::ThumbBETargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+ThumbBETargetMachine::ThumbBETargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)
@@ -353,7 +358,7 @@ bool ARMPassConfig::addPreISel() {
     // expect it to be generally either beneficial or harmless. On Mach-O it
     // is disabled as we emit the .subsections_via_symbols directive which
     // means that merging extern globals is not safe.
-    bool MergeExternalByDefault = !TM->getTargetTriple().isOSBinFormatMachO();
+    bool MergeExternalByDefault = !TM->getTargetTuple().isOSBinFormatMachO();
     addPass(createGlobalMergePass(TM, 127, OnlyOptimizeForSize,
                                   MergeExternalByDefault));
   }
@@ -364,7 +369,7 @@ bool ARMPassConfig::addPreISel() {
 bool ARMPassConfig::addInstSelector() {
   addPass(createARMISelDag(getARMTargetMachine(), getOptLevel()));
 
-  if (TM->getTargetTriple().isOSBinFormatELF() && TM->Options.EnableFastISel)
+  if (TM->getTargetTuple().isOSBinFormatELF() && TM->Options.EnableFastISel)
     addPass(createARMGlobalBaseRegPass());
   return false;
 }

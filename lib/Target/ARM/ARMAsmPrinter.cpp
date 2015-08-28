@@ -420,7 +420,7 @@ void ARMAsmPrinter::emitInlineAsmEnd(const MCSubtargetInfo &StartInfo,
 }
 
 void ARMAsmPrinter::EmitStartOfAsmFile(Module &M) {
-  const Triple &TT = TM.getTargetTriple();
+  const TargetTuple &TT = TM.getTargetTuple();
   // Use unified assembler syntax.
   OutStreamer->EmitAssemblerFlag(MCAF_SyntaxUnified);
 
@@ -431,10 +431,10 @@ void ARMAsmPrinter::EmitStartOfAsmFile(Module &M) {
   // Use the triple's architecture and subarchitecture to determine
   // if we're thumb for the purposes of the top level code16 assembler
   // flag.
-  bool isThumb = TT.getArch() == Triple::thumb ||
-                 TT.getArch() == Triple::thumbeb ||
-                 TT.getSubArch() == Triple::ARMSubArch_v7m ||
-                 TT.getSubArch() == Triple::ARMSubArch_v6m;
+  bool isThumb = TT.getArch() == TargetTuple::thumb ||
+                 TT.getArch() == TargetTuple::thumbeb ||
+                 TT.getSubArch() == TargetTuple::ARMSubArch_v7m ||
+                 TT.getSubArch() == TargetTuple::ARMSubArch_v6m;
   if (!M.getModuleInlineAsm().empty() && isThumb)
     OutStreamer->EmitAssemblerFlag(MCAF_Code16);
 }
@@ -464,7 +464,7 @@ emitNonLazySymbolPointer(MCStreamer &OutStreamer, MCSymbol *StubLabel,
 
 
 void ARMAsmPrinter::EmitEndOfAsmFile(Module &M) {
-  const Triple &TT = TM.getTargetTriple();
+  const TargetTuple &TT = TM.getTargetTuple();
   if (TT.isOSBinFormatMachO()) {
     // All darwin targets use mach-o.
     const TargetLoweringObjectFileMachO &TLOFMacho =
@@ -555,7 +555,7 @@ void ARMAsmPrinter::emitAttributes() {
   // anyhow.
   // FIXME: For ifunc related functions we could iterate over and look
   // for a feature string that doesn't match the default one.
-  const Triple &TT = TM.getTargetTriple();
+  const TargetTuple &TT = TM.getTargetTuple();
   StringRef CPU = TM.getTargetCPU();
   StringRef FS = TM.getTargetFeatureString();
   std::string ArchFS = ARM_MC::ParseARMTargetTuple(TargetTuple(TT), CPU);

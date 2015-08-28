@@ -34,7 +34,7 @@ private:
   mutable StringMap<std::unique_ptr<PPCSubtarget>> SubtargetMap;
 
 public:
-  PPCTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  PPCTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                    StringRef FS, const TargetOptions &Options, Reloc::Model RM,
                    CodeModel::Model CM, CodeGenOpt::Level OL);
 
@@ -52,8 +52,9 @@ public:
   }
   bool isELFv2ABI() const { return TargetABI == PPC_ABI_ELFv2; }
   bool isPPC64() const {
-    const Triple &TT = getTargetTriple();
-    return (TT.getArch() == Triple::ppc64 || TT.getArch() == Triple::ppc64le);
+    const TargetTuple &TT = getTargetTuple();
+    return (TT.getArch() == TargetTuple::ppc64 ||
+            TT.getArch() == TargetTuple::ppc64le);
   };
 };
 
@@ -62,7 +63,7 @@ public:
 class PPC32TargetMachine : public PPCTargetMachine {
   virtual void anchor();
 public:
-  PPC32TargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  PPC32TargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM,
                      CodeGenOpt::Level OL);
@@ -73,7 +74,7 @@ public:
 class PPC64TargetMachine : public PPCTargetMachine {
   virtual void anchor();
 public:
-  PPC64TargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  PPC64TargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM,
                      CodeGenOpt::Level OL);

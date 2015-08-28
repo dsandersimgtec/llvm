@@ -36,7 +36,7 @@ protected:
   mutable StringMap<std::unique_ptr<ARMSubtarget>> SubtargetMap;
 
 public:
-  ARMBaseTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  ARMBaseTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                        StringRef FS, const TargetOptions &Options,
                        Reloc::Model RM, CodeModel::Model CM,
                        CodeGenOpt::Level OL, bool isLittle);
@@ -62,7 +62,7 @@ public:
 class ARMTargetMachine : public ARMBaseTargetMachine {
   virtual void anchor();
  public:
-   ARMTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+   ARMTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                     StringRef FS, const TargetOptions &Options, Reloc::Model RM,
                     CodeModel::Model CM, CodeGenOpt::Level OL, bool isLittle);
 };
@@ -72,7 +72,7 @@ class ARMTargetMachine : public ARMBaseTargetMachine {
 class ARMLETargetMachine : public ARMTargetMachine {
   void anchor() override;
 public:
-  ARMLETargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  ARMLETargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM,
                      CodeGenOpt::Level OL);
@@ -83,7 +83,7 @@ public:
 class ARMBETargetMachine : public ARMTargetMachine {
   void anchor() override;
 public:
-  ARMBETargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  ARMBETargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM,
                      CodeGenOpt::Level OL);
@@ -96,7 +96,7 @@ public:
 class ThumbTargetMachine : public ARMBaseTargetMachine {
   virtual void anchor();
 public:
-  ThumbTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  ThumbTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM, CodeGenOpt::Level OL,
                      bool isLittle);
@@ -107,7 +107,7 @@ public:
 class ThumbLETargetMachine : public ThumbTargetMachine {
   void anchor() override;
 public:
-  ThumbLETargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  ThumbLETargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                        StringRef FS, const TargetOptions &Options,
                        Reloc::Model RM, CodeModel::Model CM,
                        CodeGenOpt::Level OL);
@@ -118,7 +118,7 @@ public:
 class ThumbBETargetMachine : public ThumbTargetMachine {
   void anchor() override;
 public:
-  ThumbBETargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  ThumbBETargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                        StringRef FS, const TargetOptions &Options,
                        Reloc::Model RM, CodeModel::Model CM,
                        CodeGenOpt::Level OL);

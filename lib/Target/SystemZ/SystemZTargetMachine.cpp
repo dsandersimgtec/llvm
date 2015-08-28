@@ -43,7 +43,7 @@ static bool UsesVectorABI(StringRef CPU, StringRef FS) {
   return VectorABI;
 }
 
-static std::string computeDataLayout(const Triple &TT, StringRef CPU,
+static std::string computeDataLayout(const TargetTuple &TT, StringRef CPU,
                                      StringRef FS) {
   bool VectorABI = UsesVectorABI(CPU, FS);
   std::string Ret = "";
@@ -52,7 +52,7 @@ static std::string computeDataLayout(const Triple &TT, StringRef CPU,
   Ret += "E";
 
   // Data mangling.
-  Ret += DataLayout::getManglingComponent(TT);
+  Ret += DataLayout::getManglingComponent(TT.getTargetTriple());
 
   // Make sure that global data has at least 16 bits of alignment by
   // default, so that we can refer to it using LARL.  We don't have any
@@ -78,8 +78,9 @@ static std::string computeDataLayout(const Triple &TT, StringRef CPU,
   return Ret;
 }
 
-SystemZTargetMachine::SystemZTargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
+SystemZTargetMachine::SystemZTargetMachine(const Target &T,
+                                           const TargetTuple &TT, StringRef CPU,
+                                           StringRef FS,
                                            const TargetOptions &Options,
                                            Reloc::Model RM, CodeModel::Model CM,
                                            CodeGenOpt::Level OL)

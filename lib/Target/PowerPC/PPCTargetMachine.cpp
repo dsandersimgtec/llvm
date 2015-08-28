@@ -70,21 +70,22 @@ extern "C" void LLVMInitializePowerPCTarget() {
 }
 
 /// Return the datalayout string of a subtarget.
-static std::string getDataLayoutString(const Triple &T) {
-  bool is64Bit = T.getArch() == Triple::ppc64 || T.getArch() == Triple::ppc64le;
+static std::string getDataLayoutString(const TargetTuple &T) {
+  bool is64Bit =
+      T.getArch() == TargetTuple::ppc64 || T.getArch() == TargetTuple::ppc64le;
   std::string Ret;
 
   // Most PPC* platforms are big endian, PPC64LE is little endian.
-  if (T.getArch() == Triple::ppc64le)
+  if (T.getArch() == TargetTuple::ppc64le)
     Ret = "e";
   else
     Ret = "E";
 
-  Ret += DataLayout::getManglingComponent(T);
+  Ret += DataLayout::getManglingComponent(T.getTargetTriple());
 
   // PPC32 has 32 bit pointers. The PS3 (OS Lv2) is a PPC64 machine with 32 bit
   // pointers.
-  if (!is64Bit || T.getOS() == Triple::Lv2)
+  if (!is64Bit || T.getOS() == TargetTuple::Lv2)
     Ret += "-p:32:32";
 
   // Note, the alignment values for f64 and i64 on ppc64 in Darwin
@@ -104,11 +105,12 @@ static std::string getDataLayoutString(const Triple &T) {
 }
 
 static std::string computeFSAdditions(StringRef FS, CodeGenOpt::Level OL,
-                                      const Triple &TT) {
+                                      const TargetTuple &TT) {
   std::string FullFS = FS;
 
   // Make sure 64-bit features are available when CPUname is generic
-  if (TT.getArch() == Triple::ppc64 || TT.getArch() == Triple::ppc64le) {
+  if (TT.getArch() == TargetTuple::ppc64 ||
+      TT.getArch() == TargetTuple::ppc64le) {
     if (!FullFS.empty())
       FullFS = "+64bit," + FullFS;
     else
@@ -132,7 +134,8 @@ static std::string computeFSAdditions(StringRef FS, CodeGenOpt::Level OL,
   return FullFS;
 }
 
-static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
+static std::unique_ptr<TargetLoweringObjectFile>
+createTLOF(const TargetTuple &TT) {
   // If it isn't a Mach-O file then it's going to be a linux ELF
   // object file.
   if (TT.isOSDarwin())
@@ -141,7 +144,7 @@ static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
   return make_unique<PPC64LinuxTargetObjectFile>();
 }
 
-static PPCTargetMachine::PPCABI computeTargetABI(const Triple &TT,
+static PPCTargetMachine::PPCABI computeTargetABI(const TargetTuple &TT,
                                                  const TargetOptions &Options) {
   if (Options.MCOptions.getABIName().startswith("elfv1"))
     return PPCTargetMachine::PPC_ABI_ELFv1;
@@ -153,9 +156,9 @@ static PPCTargetMachine::PPCABI computeTargetABI(const Triple &TT,
 
   if (!TT.isMacOSX()) {
     switch (TT.getArch()) {
-    case Triple::ppc64le:
+    case TargetTuple::ppc64le:
       return PPCTargetMachine::PPC_ABI_ELFv2;
-    case Triple::ppc64:
+    case TargetTuple::ppc64:
       return PPCTargetMachine::PPC_ABI_ELFv1;
     default:
       // Fallthrough.
@@ -169,14 +172,14 @@ static PPCTargetMachine::PPCABI computeTargetABI(const Triple &TT,
 // with what are (currently) non-function specific overrides as it goes into the
 // LLVMTargetMachine constructor and then using the stored value in the
 // Subtarget constructor below it.
-PPCTargetMachine::PPCTargetMachine(const Target &T, const Triple &TT,
+PPCTargetMachine::PPCTargetMachine(const Target &T, const TargetTuple &TT,
                                    StringRef CPU, StringRef FS,
                                    const TargetOptions &Options,
                                    Reloc::Model RM, CodeModel::Model CM,
                                    CodeGenOpt::Level OL)
     : LLVMTargetMachine(T, getDataLayoutString(TT), TT, CPU,
                         computeFSAdditions(FS, OL, TT), Options, RM, CM, OL),
-      TLOF(createTLOF(getTargetTriple())),
+      TLOF(createTLOF(getTargetTuple())),
       TargetABI(computeTargetABI(TT, Options)),
       Subtarget(TargetTuple(TT), CPU, computeFSAdditions(FS, OL, TT), *this) {
 
@@ -204,7 +207,7 @@ PPCTargetMachine::~PPCTargetMachine() {}
 
 void PPC32TargetMachine::anchor() { }
 
-PPC32TargetMachine::PPC32TargetMachine(const Target &T, const Triple &TT,
+PPC32TargetMachine::PPC32TargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -213,7 +216,7 @@ PPC32TargetMachine::PPC32TargetMachine(const Target &T, const Triple &TT,
 
 void PPC64TargetMachine::anchor() { }
 
-PPC64TargetMachine::PPC64TargetMachine(const Target &T, const Triple &TT,
+PPC64TargetMachine::PPC64TargetMachine(const Target &T, const TargetTuple &TT,
                                        StringRef CPU, StringRef FS,
                                        const TargetOptions &Options,
                                        Reloc::Model RM, CodeModel::Model CM,
@@ -239,14 +242,14 @@ PPCTargetMachine::getSubtargetImpl(const Function &F) const {
     // function that reside in TargetOptions.
     resetTargetOptions(F);
     I = llvm::make_unique<PPCSubtarget>(
-        TargetTuple(TargetTriple), CPU,
+        getTargetTuple(), CPU,
         // FIXME: It would be good to have the subtarget additions here
         // not necessary. Anything that turns them on/off (overrides) ends
         // up being put at the end of the feature string, but the defaults
         // shouldn't require adding them. Fixing this means pulling Feature64Bit
         // out of most of the target cpus in the .td file and making it set only
         // as part of initialization via the TargetTriple.
-        computeFSAdditions(FS, getOptLevel(), getTargetTriple()), *this);
+        computeFSAdditions(FS, getOptLevel(), getTargetTuple()), *this);
   }
   return I.get();
 }
@@ -286,7 +289,7 @@ void PPCPassConfig::addIRPasses() {
 
   // For the BG/Q (or if explicitly requested), add explicit data prefetch
   // intrinsics.
-  bool UsePrefetching = TM->getTargetTriple().getVendor() == Triple::BGQ &&
+  bool UsePrefetching = TM->getTargetTuple().getVendor() == TargetTuple::BGQ &&
                         getOptLevel() != CodeGenOpt::None;
   if (EnablePrefetch.getNumOccurrences() > 0)
     UsePrefetching = EnablePrefetch;
@@ -345,7 +348,7 @@ void PPCPassConfig::addMachineSSAOptimization() {
   TargetPassConfig::addMachineSSAOptimization();
   // For little endian, remove where possible the vector swap instructions
   // introduced at code generation to normalize vector element order.
-  if (TM->getTargetTriple().getArch() == Triple::ppc64le &&
+  if (TM->getTargetTuple().getArch() == TargetTuple::ppc64le &&
       !DisableVSXSwapRemoval)
     addPass(createPPCVSXSwapRemovalPass());
 }

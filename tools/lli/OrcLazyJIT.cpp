@@ -125,14 +125,14 @@ int llvm::runOrcLazyJIT(std::unique_ptr<Module> M, int ArgC, char* ArgV[]) {
   auto TM = std::unique_ptr<TargetMachine>(EB.selectTarget());
   M->setDataLayout(TM->createDataLayout());
   auto &Context = getGlobalContext();
-  auto CallbackMgrBuilder =
-    OrcLazyJIT::createCallbackManagerBuilder(Triple(TM->getTargetTriple()));
+  auto CallbackMgrBuilder = OrcLazyJIT::createCallbackManagerBuilder(
+      TM->getTargetTuple().getTargetTriple());
 
   // If we couldn't build the factory function then there must not be a callback
   // manager for this target. Bail out.
   if (!CallbackMgrBuilder) {
     errs() << "No callback manager available for target '"
-           << TM->getTargetTriple().str() << "'.\n";
+           << TM->getTargetTuple().getTargetTriple().str() << "'.\n";
     return 1;
   }
 

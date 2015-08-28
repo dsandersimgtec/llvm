@@ -23,7 +23,7 @@ class XCoreTargetMachine : public LLVMTargetMachine {
   std::unique_ptr<TargetLoweringObjectFile> TLOF;
   XCoreSubtarget Subtarget;
 public:
-  XCoreTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  XCoreTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                      StringRef FS, const TargetOptions &Options,
                      Reloc::Model RM, CodeModel::Model CM,
                      CodeGenOpt::Level OL);

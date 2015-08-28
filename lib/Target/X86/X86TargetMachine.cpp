@@ -41,9 +41,10 @@ extern "C" void LLVMInitializeX86Target() {
   initializeWinEHStatePassPass(PR);
 }
 
-static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
+static std::unique_ptr<TargetLoweringObjectFile>
+createTLOF(const TargetTuple &TT) {
   if (TT.isOSBinFormatMachO()) {
-    if (TT.getArch() == Triple::x86_64)
+    if (TT.getArch() == TargetTuple::x86_64)
       return make_unique<X86_64MachoTargetObjectFile>();
     return make_unique<TargetLoweringObjectFileMachO>();
   }
@@ -59,14 +60,14 @@ static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
   llvm_unreachable("unknown subtarget type");
 }
 
-static std::string computeDataLayout(const Triple &TT) {
+static std::string computeDataLayout(const TargetTuple &TT) {
   // X86 is little endian
   std::string Ret = "e";
 
-  Ret += DataLayout::getManglingComponent(TT);
+  Ret += DataLayout::getManglingComponent(TT.getTargetTriple());
   // X86 and x32 have 32 bit pointers.
   if ((TT.isArch64Bit() &&
-       (TT.getEnvironment() == Triple::GNUX32 || TT.isOSNaCl())) ||
+       (TT.getEnvironment() == TargetTuple::GNUX32 || TT.isOSNaCl())) ||
       !TT.isArch64Bit())
     Ret += "-p:32:32";
 
@@ -101,14 +102,14 @@ static std::string computeDataLayout(const Triple &TT) {
 
 /// X86TargetMachine ctor - Create an X86 target.
 ///
-X86TargetMachine::X86TargetMachine(const Target &T, const Triple &TT,
+X86TargetMachine::X86TargetMachine(const Target &T, const TargetTuple &TT,
                                    StringRef CPU, StringRef FS,
                                    const TargetOptions &Options,
                                    Reloc::Model RM, CodeModel::Model CM,
                                    CodeGenOpt::Level OL)
     : LLVMTargetMachine(T, computeDataLayout(TT), TT, CPU, FS, Options, RM, CM,
                         OL),
-      TLOF(createTLOF(getTargetTriple())),
+      TLOF(createTLOF(getTargetTuple())),
       Subtarget(TargetTuple(TT), CPU, FS, *this,
                 Options.StackAlignmentOverride) {
   // Windows stack unwinder gets confused when execution flow "falls through"
@@ -164,8 +165,8 @@ X86TargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = llvm::make_unique<X86Subtarget>(TargetTuple(TargetTriple), CPU, FS,
-                                        *this, Options.StackAlignmentOverride);
+    I = llvm::make_unique<X86Subtarget>(getTargetTuple(), CPU, FS, *this,
+                                        Options.StackAlignmentOverride);
   }
   return I.get();
 }
@@ -229,7 +230,7 @@ bool X86PassConfig::addInstSelector() {
   addPass(createX86ISelDag(getX86TargetMachine(), getOptLevel()));
 
   // For ELF, cleanup any local-dynamic TLS accesses.
-  if (TM->getTargetTriple().isOSBinFormatELF() &&
+  if (TM->getTargetTuple().isOSBinFormatELF() &&
       getOptLevel() != CodeGenOpt::None)
     addPass(createCleanupLocalDynamicTLSPass());
 
@@ -247,8 +248,8 @@ bool X86PassConfig::addILPOpts() {
 
 bool X86PassConfig::addPreISel() {
   // Only add this pass for 32-bit x86 Windows.
-  const Triple &TT = TM->getTargetTriple();
-  if (TT.isOSWindows() && TT.getArch() == Triple::x86)
+  const TargetTuple &TT = TM->getTargetTuple();
+  if (TT.isOSWindows() && TT.getArch() == TargetTuple::x86)
     addPass(createX86WinEHStatePass());
   return true;
 }

@@ -37,7 +37,7 @@ protected:
   AMDGPUIntrinsicInfo IntrinsicInfo;
 
 public:
-  AMDGPUTargetMachine(const Target &T, const Triple &TT, StringRef FS,
+  AMDGPUTargetMachine(const Target &T, const TargetTuple &TT, StringRef FS,
                       StringRef CPU, TargetOptions Options, Reloc::Model RM,
                       CodeModel::Model CM, CodeGenOpt::Level OL);
   ~AMDGPUTargetMachine();
@@ -63,7 +63,7 @@ public:
 class R600TargetMachine : public AMDGPUTargetMachine {
 
 public:
-  R600TargetMachine(const Target &T, const Triple &TT, StringRef FS,
+  R600TargetMachine(const Target &T, const TargetTuple &TT, StringRef FS,
                     StringRef CPU, TargetOptions Options, Reloc::Model RM,
                     CodeModel::Model CM, CodeGenOpt::Level OL);
 
@@ -77,7 +77,7 @@ public:
 class GCNTargetMachine : public AMDGPUTargetMachine {
 
 public:
-  GCNTargetMachine(const Target &T, const Triple &TT, StringRef FS,
+  GCNTargetMachine(const Target &T, const TargetTuple &TT, StringRef FS,
                    StringRef CPU, TargetOptions Options, Reloc::Model RM,
                    CodeModel::Model CM, CodeGenOpt::Level OL);
 

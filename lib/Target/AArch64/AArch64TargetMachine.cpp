@@ -102,7 +102,8 @@ extern "C" void LLVMInitializeAArch64Target() {
 //===----------------------------------------------------------------------===//
 // AArch64 Lowering public interface.
 //===----------------------------------------------------------------------===//
-static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
+static std::unique_ptr<TargetLoweringObjectFile>
+createTLOF(const TargetTuple &TT) {
   if (TT.isOSBinFormatMachO())
     return make_unique<AArch64_MachoTargetObjectFile>();
 
@@ -110,7 +111,7 @@ static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
 }
 
 // Helper function to build a DataLayout string
-static std::string computeDataLayout(const Triple &TT, bool LittleEndian) {
+static std::string computeDataLayout(const TargetTuple &TT, bool LittleEndian) {
   if (TT.isOSBinFormatMachO())
     return "e-m:o-i64:64-i128:128-n32:64-S128";
   if (LittleEndian)
@@ -120,17 +121,15 @@ static std::string computeDataLayout(const Triple &TT, bool LittleEndian) {
 
 /// TargetMachine ctor - Create an AArch64 architecture model.
 ///
-AArch64TargetMachine::AArch64TargetMachine(const Target &T, const Triple &TT,
-                                           StringRef CPU, StringRef FS,
-                                           const TargetOptions &Options,
-                                           Reloc::Model RM, CodeModel::Model CM,
-                                           CodeGenOpt::Level OL,
-                                           bool LittleEndian)
+AArch64TargetMachine::AArch64TargetMachine(
+    const Target &T, const TargetTuple &TT, StringRef CPU, StringRef FS,
+    const TargetOptions &Options, Reloc::Model RM, CodeModel::Model CM,
+    CodeGenOpt::Level OL, bool LittleEndian)
     // This nested ternary is horrible, but DL needs to be properly
     // initialized before TLInfo is constructed.
     : LLVMTargetMachine(T, computeDataLayout(TT, LittleEndian), TT, CPU, FS,
                         Options, RM, CM, OL),
-      TLOF(createTLOF(getTargetTriple())),
+      TLOF(createTLOF(getTargetTuple())),
       isLittle(LittleEndian) {
   initAsmInfo();
 }
@@ -155,8 +154,8 @@ AArch64TargetMachine::getSubtargetImpl(const Function &F) const {
     // creation will depend on the TM and the code generation flags on the
     // function that reside in TargetOptions.
     resetTargetOptions(F);
-    I = llvm::make_unique<AArch64Subtarget>(TargetTuple(TargetTriple), CPU, FS,
-                                            *this, isLittle);
+    I = llvm::make_unique<AArch64Subtarget>(getTargetTuple(), CPU, FS, *this,
+                                            isLittle);
   }
   return I.get();
 }
@@ -164,7 +163,7 @@ AArch64TargetMachine::getSubtargetImpl(const Function &F) const {
 void AArch64leTargetMachine::anchor() { }
 
 AArch64leTargetMachine::AArch64leTargetMachine(
-    const Target &T, const Triple &TT, StringRef CPU, StringRef FS,
+    const Target &T, const TargetTuple &TT, StringRef CPU, StringRef FS,
     const TargetOptions &Options, Reloc::Model RM, CodeModel::Model CM,
     CodeGenOpt::Level OL)
     : AArch64TargetMachine(T, TT, CPU, FS, Options, RM, CM, OL, true) {}
@@ -172,7 +171,7 @@ AArch64leTargetMachine::AArch64leTargetMachine(
 void AArch64beTargetMachine::anchor() { }
 
 AArch64beTargetMachine::AArch64beTargetMachine(
-    const Target &T, const Triple &TT, StringRef CPU, StringRef FS,
+    const Target &T, const TargetTuple &TT, StringRef CPU, StringRef FS,
     const TargetOptions &Options, Reloc::Model RM, CodeModel::Model CM,
     CodeGenOpt::Level OL)
     : AArch64TargetMachine(T, TT, CPU, FS, Options, RM, CM, OL, false) {}
@@ -271,7 +270,7 @@ bool AArch64PassConfig::addInstSelector() {
 
   // For ELF, cleanup any local-dynamic TLS accesses (i.e. combine as many
   // references to _TLS_MODULE_BASE_ as possible.
-  if (TM->getTargetTriple().isOSBinFormatELF() &&
+  if (TM->getTargetTuple().isOSBinFormatELF() &&
       getOptLevel() != CodeGenOpt::None)
     addPass(createAArch64CleanupLocalDynamicTLSPass());
 
@@ -326,6 +325,6 @@ void AArch64PassConfig::addPreEmitPass() {
   // range of their destination.
   addPass(createAArch64BranchRelaxation());
   if (TM->getOptLevel() != CodeGenOpt::None && EnableCollectLOH &&
-      TM->getTargetTriple().isOSBinFormatMachO())
+      TM->getTargetTuple().isOSBinFormatMachO())
     addPass(createAArch64CollectLOHPass());
 }

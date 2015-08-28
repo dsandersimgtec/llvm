@@ -40,7 +40,7 @@ static MCSymbol *GetSymbolFromOperand(const MachineOperand &MO, AsmPrinter &AP){
   Mangler *Mang = AP.Mang;
   const DataLayout &DL = AP.getDataLayout();
   MCContext &Ctx = AP.OutContext;
-  bool isDarwin = TM.getTargetTriple().isOSDarwin();
+  bool isDarwin = TM.getTargetTuple().isOSDarwin();
 
   SmallString<128> Name;
   StringRef Suffix;

@@ -16,7 +16,6 @@
 
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/TargetTuple.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CodeGen.h"
@@ -71,7 +70,7 @@ class TargetMachine {
   void operator=(const TargetMachine &) = delete;
 protected: // Can only create subclasses.
   TargetMachine(const Target &T, StringRef DataLayoutString,
-                const Triple &TargetTriple, StringRef CPU, StringRef FS,
+                const TargetTuple &TT, StringRef CPU, StringRef FS,
                 const TargetOptions &Options);
 
   /// The Target that this machine was created for.
@@ -85,9 +84,9 @@ protected: // Can only create subclasses.
   /// internal cache that is context specific.
   const DataLayout DL;
 
-  /// Triple string, CPU name, and target feature strings the TargetMachine
+  /// Target tuple, CPU name, and target feature strings the TargetMachine
   /// instance is created with.
-  Triple TargetTriple;
+  TargetTuple TheTargetTuple;
   std::string TargetCPU;
   std::string TargetFS;
 
@@ -116,9 +115,7 @@ public:
 
   const Target &getTarget() const { return TheTarget; }
 
-  const Triple &getTargetTriple() const { return TargetTriple; }
-  // FIXME: Return a reference once we store a TargetTuple
-  const TargetTuple getTargetTuple() const { return TargetTuple(TargetTriple); }
+  const TargetTuple &getTargetTuple() const { return TheTargetTuple; }
   StringRef getTargetCPU() const { return TargetCPU; }
   StringRef getTargetFeatureString() const { return TargetFS; }
 
@@ -266,7 +263,7 @@ public:
 class LLVMTargetMachine : public TargetMachine {
 protected: // Can only create subclasses.
   LLVMTargetMachine(const Target &T, StringRef DataLayoutString,
-                    const Triple &TargetTriple, StringRef CPU, StringRef FS,
+                    const TargetTuple &TT, StringRef CPU, StringRef FS,
                     TargetOptions Options, Reloc::Model RM, CodeModel::Model CM,
                     CodeGenOpt::Level OL);
 

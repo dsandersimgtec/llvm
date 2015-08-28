@@ -23,7 +23,7 @@ class BPFTargetMachine : public LLVMTargetMachine {
   BPFSubtarget Subtarget;
 
 public:
-  BPFTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  BPFTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                    StringRef FS, const TargetOptions &Options, Reloc::Model RM,
                    CodeModel::Model CM, CodeGenOpt::Level OL);
 

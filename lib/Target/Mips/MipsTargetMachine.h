@@ -39,7 +39,7 @@ class MipsTargetMachine : public LLVMTargetMachine {
   mutable StringMap<std::unique_ptr<MipsSubtarget>> SubtargetMap;
 
 public:
-  MipsTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  MipsTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                     StringRef FS, const TargetOptions &Options, Reloc::Model RM,
                     CodeModel::Model CM, CodeGenOpt::Level OL, bool isLittle);
   ~MipsTargetMachine() override;
@@ -73,7 +73,7 @@ public:
 class MipsebTargetMachine : public MipsTargetMachine {
   virtual void anchor();
 public:
-  MipsebTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  MipsebTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                       StringRef FS, const TargetOptions &Options,
                       Reloc::Model RM, CodeModel::Model CM,
                       CodeGenOpt::Level OL);
@@ -84,7 +84,7 @@ public:
 class MipselTargetMachine : public MipsTargetMachine {
   virtual void anchor();
 public:
-  MipselTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+  MipselTargetMachine(const Target &T, const TargetTuple &TT, StringRef CPU,
                       StringRef FS, const TargetOptions &Options,
                       Reloc::Model RM, CodeModel::Model CM,
                       CodeGenOpt::Level OL);

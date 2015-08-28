@@ -4221,7 +4221,7 @@ static bool FindOptimalMemOpLowering(std::vector<EVT> &MemOps,
 static bool shouldLowerMemFuncForSize(const MachineFunction &MF) {
   // On Darwin, -Os means optimize for size without hurting performance, so
   // only really optimize for size when -Oz (MinSize) is used.
-  if (MF.getTarget().getTargetTriple().isOSDarwin())
+  if (MF.getTarget().getTargetTuple().isOSDarwin())
     return MF.getFunction()->optForMinSize();
   return MF.getFunction()->optForSize();
 }

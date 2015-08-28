@@ -161,7 +161,7 @@ LLVMTargetRef LLVMGetTargetMachineTarget(LLVMTargetMachineRef T) {
 }
 
 char* LLVMGetTargetMachineTriple(LLVMTargetMachineRef T) {
-  std::string StringRep = unwrap(T)->getTargetTriple().str();
+  std::string StringRep = unwrap(T)->getTargetTuple().getTargetTriple().str();
   return strdup(StringRep.c_str());
 }
 
