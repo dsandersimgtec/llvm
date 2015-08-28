@@ -29,7 +29,8 @@ using namespace llvm;
 extern cl::opt<bool> EnableAArch64ELFLocalDynamicTLSGeneration;
 
 AArch64MCInstLower::AArch64MCInstLower(MCContext &ctx, AsmPrinter &printer)
-    : Ctx(ctx), Printer(printer), TargetTriple(printer.getTargetTriple()) {}
+    : Ctx(ctx), Printer(printer),
+      TargetTriple(printer.getTargetTuple().getTargetTriple()) {}
 
 MCSymbol *
 AArch64MCInstLower::GetGlobalAddressSymbol(const MachineOperand &MO) const {

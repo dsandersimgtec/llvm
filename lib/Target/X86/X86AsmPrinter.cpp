@@ -511,7 +511,7 @@ bool X86AsmPrinter::PrintAsmMemoryOperand(const MachineInstr *MI,
 }
 
 void X86AsmPrinter::EmitStartOfAsmFile(Module &M) {
-  const Triple &TT = TM.getTargetTriple();
+  const TargetTuple TT = TargetTuple(TM.getTargetTriple());
 
   if (TT.isOSBinFormatMachO())
     OutStreamer->SwitchSection(getObjFileLowering().getTextSection());
@@ -519,7 +519,7 @@ void X86AsmPrinter::EmitStartOfAsmFile(Module &M) {
   if (TT.isOSBinFormatCOFF()) {
     // Emit an absolute @feat.00 symbol.  This appears to be some kind of
     // compiler features bitfield read by link.exe.
-    if (TT.getArch() == Triple::x86) {
+    if (TT.getArch() == TargetTuple::x86) {
       MCSymbol *S = MMI->getContext().getOrCreateSymbol(StringRef("@feat.00"));
       OutStreamer->BeginCOFFSymbolDef(S);
       OutStreamer->EmitCOFFSymbolStorageClass(COFF::IMAGE_SYM_CLASS_STATIC);
@@ -584,7 +584,7 @@ MCSymbol *X86AsmPrinter::GetCPISymbol(unsigned CPID) const {
 }
 
 void X86AsmPrinter::EmitEndOfAsmFile(Module &M) {
-  const Triple &TT = TM.getTargetTriple();
+  const TargetTuple TT = TargetTuple(TM.getTargetTriple());
 
   if (TT.isOSBinFormatMachO()) {
     // All darwin targets use mach-o.
@@ -660,7 +660,7 @@ void X86AsmPrinter::EmitEndOfAsmFile(Module &M) {
 
   if (TT.isKnownWindowsMSVCEnvironment() && MMI->usesVAFloatArgument()) {
     StringRef SymbolName =
-        (TT.getArch() == Triple::x86_64) ? "_fltused" : "__fltused";
+        (TT.getArch() == TargetTuple::x86_64) ? "_fltused" : "__fltused";
     MCSymbol *S = MMI->getContext().getOrCreateSymbol(SymbolName);
     OutStreamer->EmitSymbolAttribute(S, MCSA_Global);
   }

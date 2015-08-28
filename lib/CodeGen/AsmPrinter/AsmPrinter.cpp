@@ -152,8 +152,8 @@ void AsmPrinter::EmitToStreamer(MCStreamer &S, const MCInst &Inst) {
   S.EmitInstruction(Inst, getSubtargetInfo());
 }
 
-StringRef AsmPrinter::getTargetTriple() const {
-  return TM.getTargetTriple().str();
+const TargetTuple AsmPrinter::getTargetTuple() const {
+  return TargetTuple(TM.getTargetTriple());
 }
 
 /// getCurrentSection() - Return the current section we are emitting to.
@@ -191,7 +191,7 @@ bool AsmPrinter::doInitialization(Module &M) {
   // alternative is duplicated code in each of the target asm printers that
   // use the directive, where it would need the same conditionalization
   // anyway.
-  Triple TT(getTargetTriple());
+  const TargetTuple &TT = getTargetTuple();
   if (TT.isOSDarwin()) {
     unsigned Major, Minor, Update;
     TT.getOSVersion(Major, Minor, Update);

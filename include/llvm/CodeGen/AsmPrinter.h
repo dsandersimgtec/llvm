@@ -59,6 +59,7 @@ class MDNode;
 class DwarfDebug;
 class Mangler;
 class TargetLoweringObjectFile;
+class TargetTuple;
 class DataLayout;
 class TargetMachine;
 
@@ -173,8 +174,9 @@ public:
 
   void EmitToStreamer(MCStreamer &S, const MCInst &Inst);
 
-  /// Return the target triple string.
-  StringRef getTargetTriple() const;
+  /// Return the target tuple.
+  // FIXME: Return a reference.
+  const TargetTuple getTargetTuple() const;
 
   /// Return the current section we are emitting to.
   const MCSection *getCurrentSection() const;

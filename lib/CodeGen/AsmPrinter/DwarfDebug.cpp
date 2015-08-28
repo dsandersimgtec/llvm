@@ -216,7 +216,7 @@ DwarfDebug::DwarfDebug(AsmPrinter *A, Module *M)
       PrevLabel(nullptr), InfoHolder(A, "info_string", DIEValueAllocator),
       UsedNonDefaultText(false),
       SkeletonHolder(A, "skel_string", DIEValueAllocator),
-      IsDarwin(Triple(A->getTargetTriple()).isOSDarwin()),
+      IsDarwin(A->getTargetTuple().isOSDarwin()),
       AccelNames(DwarfAccelTable::Atom(dwarf::DW_ATOM_die_offset,
                                        dwarf::DW_FORM_data4)),
       AccelObjC(DwarfAccelTable::Atom(dwarf::DW_ATOM_die_offset,
@@ -227,7 +227,7 @@ DwarfDebug::DwarfDebug(AsmPrinter *A, Module *M)
 
   CurFn = nullptr;
   CurMI = nullptr;
-  Triple TT(Asm->getTargetTriple());
+  const TargetTuple &TT = Asm->getTargetTuple();
 
   // Make sure we know our "debugger tuning."  The command-line option takes
   // precedence; fall back to triple-based defaults.
