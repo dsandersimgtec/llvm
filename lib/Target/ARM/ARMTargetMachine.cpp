@@ -129,7 +129,7 @@ static std::string computeDataLayout(const TargetTuple &TT, StringRef CPU,
     // Big endian.
     Ret += "E";
 
-  Ret += DataLayout::getManglingComponent(TT.getTargetTriple());
+  Ret += DataLayout::getManglingComponent(TT);
 
   // Pointers are 32 bits and aligned to 32 bits.
   Ret += "-p:32:32";

@@ -52,7 +52,7 @@ static std::string computeDataLayout(const TargetTuple &TT, StringRef CPU,
   Ret += "E";
 
   // Data mangling.
-  Ret += DataLayout::getManglingComponent(TT.getTargetTriple());
+  Ret += DataLayout::getManglingComponent(TT);
 
   // Make sure that global data has at least 16 bits of alignment by
   // default, so that we can refer to it using LARL.  We don't have any

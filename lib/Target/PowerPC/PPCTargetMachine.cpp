@@ -81,7 +81,7 @@ static std::string getDataLayoutString(const TargetTuple &T) {
   else
     Ret = "E";
 
-  Ret += DataLayout::getManglingComponent(T.getTargetTriple());
+  Ret += DataLayout::getManglingComponent(T);
 
   // PPC32 has 32 bit pointers. The PS3 (OS Lv2) is a PPC64 machine with 32 bit
   // pointers.

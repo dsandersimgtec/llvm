@@ -38,7 +38,7 @@ class Type;
 class IntegerType;
 class StructType;
 class StructLayout;
-class Triple;
+class TargetTuple;
 class GlobalVariable;
 class LLVMContext;
 template<typename T>
@@ -294,7 +294,7 @@ public:
     llvm_unreachable("invalid mangling mode");
   }
 
-  static const char *getManglingComponent(const Triple &T);
+  static const char *getManglingComponent(const TargetTuple &T);
 
   /// \brief Returns true if the specified type fits in a native integer type
   /// supported by the CPU.

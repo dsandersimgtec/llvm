@@ -19,7 +19,7 @@
 #include "llvm/IR/DataLayout.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/STLExtras.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/GetElementPtrTypeIterator.h"
@@ -147,11 +147,11 @@ DataLayout::InvalidPointerElem = { 0U, 0U, 0U, ~0U };
 //                       DataLayout Class Implementation
 //===----------------------------------------------------------------------===//
 
-const char *DataLayout::getManglingComponent(const Triple &T) {
-  if (T.isOSBinFormatMachO())
+const char *DataLayout::getManglingComponent(const TargetTuple &TT) {
+  if (TT.isOSBinFormatMachO())
     return "-m:o";
-  if (T.isOSWindows() && T.isOSBinFormatCOFF())
-    return T.getArch() == Triple::x86 ? "-m:x" : "-m:w";
+  if (TT.isOSWindows() && TT.isOSBinFormatCOFF())
+    return TT.getArch() == TargetTuple::x86 ? "-m:x" : "-m:w";
   return "-m:e";
 }
 

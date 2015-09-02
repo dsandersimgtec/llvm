@@ -64,7 +64,7 @@ static std::string computeDataLayout(const TargetTuple &TT) {
   // X86 is little endian
   std::string Ret = "e";
 
-  Ret += DataLayout::getManglingComponent(TT.getTargetTriple());
+  Ret += DataLayout::getManglingComponent(TT);
   // X86 and x32 have 32 bit pointers.
   if ((TT.isArch64Bit() &&
        (TT.getEnvironment() == TargetTuple::GNUX32 || TT.isOSNaCl())) ||
