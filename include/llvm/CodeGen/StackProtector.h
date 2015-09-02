@@ -18,7 +18,7 @@
 #define LLVM_CODEGEN_STACKPROTECTOR_H
 
 #include "llvm/ADT/SmallPtrSet.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/Dominators.h"
 #include "llvm/IR/ValueMap.h"
 #include "llvm/Pass.h"
@@ -53,7 +53,7 @@ private:
   /// TLI - Keep a pointer of a TargetLowering to consult for determining
   /// target type sizes.
   const TargetLoweringBase *TLI;
-  const Triple Trip;
+  const TargetTuple TheTargetTuple;
 
   Function *F;
   Module *M;
@@ -111,7 +111,7 @@ public:
   }
   StackProtector(const TargetMachine *TM)
       : FunctionPass(ID), TM(TM), TLI(nullptr),
-        Trip(TM->getTargetTuple().getTargetTriple()), SSPBufferSize(8) {
+        TheTargetTuple(TM->getTargetTuple()), SSPBufferSize(8) {
     initializeStackProtectorPass(*PassRegistry::getPassRegistry());
   }
 

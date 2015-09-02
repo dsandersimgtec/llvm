@@ -116,7 +116,7 @@ bool StackProtector::ContainsProtectableArray(Type *Ty, bool &IsLarge,
       // add stack protectors unless the array is a character array.
       // However, in strong mode any array, regardless of type and size,
       // triggers a protector.
-      if (!Strong && (InStruct || !Trip.isOSDarwin()))
+      if (!Strong && (InStruct || !TheTargetTuple.isOSDarwin()))
         return false;
     }
 
@@ -329,7 +329,7 @@ static CallInst *FindPotentialTailCall(BasicBlock *BB, ReturnInst *RI,
 /// Returns true if the platform/triple supports the stackprotectorcreate pseudo
 /// node.
 static bool CreatePrologue(Function *F, Module *M, ReturnInst *RI,
-                           const TargetLoweringBase *TLI, const Triple &TT,
+                           const TargetLoweringBase *TLI, const TargetTuple &TT,
                            AllocaInst *&AI, Value *&StackGuardVar) {
   bool SupportsSelectionDAGSP = false;
   PointerType *PtrTy = Type::getInt8PtrTy(RI->getContext());
@@ -381,7 +381,7 @@ bool StackProtector::InsertStackProtectors() {
     if (!HasPrologue) {
       HasPrologue = true;
       SupportsSelectionDAGSP &=
-          CreatePrologue(F, M, RI, TLI, Trip, AI, StackGuardVar);
+          CreatePrologue(F, M, RI, TLI, TheTargetTuple, AI, StackGuardVar);
     }
 
     if (SupportsSelectionDAGSP) {
@@ -477,7 +477,7 @@ BasicBlock *StackProtector::CreateFailBB() {
   LLVMContext &Context = F->getContext();
   BasicBlock *FailBB = BasicBlock::Create(Context, "CallStackCheckFailBlk", F);
   IRBuilder<> B(FailBB);
-  if (Trip.isOSOpenBSD()) {
+  if (TheTargetTuple.isOSOpenBSD()) {
     Constant *StackChkFail =
         M->getOrInsertFunction("__stack_smash_handler",
                                Type::getVoidTy(Context),
