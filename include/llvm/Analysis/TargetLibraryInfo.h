@@ -13,7 +13,7 @@
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/Optional.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
@@ -84,7 +84,7 @@ public:
   };
 
   TargetLibraryInfoImpl();
-  explicit TargetLibraryInfoImpl(const Triple &T);
+  explicit TargetLibraryInfoImpl(const TargetTuple &T);
 
   // Provide value semantics.
   TargetLibraryInfoImpl(const TargetLibraryInfoImpl &TLI);
@@ -304,7 +304,7 @@ private:
 
   StringMap<std::unique_ptr<TargetLibraryInfoImpl>> Impls;
 
-  TargetLibraryInfoImpl &lookupInfoImpl(Triple T);
+  TargetLibraryInfoImpl &lookupInfoImpl(TargetTuple T);
 };
 
 class TargetLibraryInfoWrapperPass : public ImmutablePass {
@@ -316,7 +316,7 @@ class TargetLibraryInfoWrapperPass : public ImmutablePass {
 public:
   static char ID;
   TargetLibraryInfoWrapperPass();
-  explicit TargetLibraryInfoWrapperPass(const Triple &T);
+  explicit TargetLibraryInfoWrapperPass(const TargetTuple &T);
   explicit TargetLibraryInfoWrapperPass(const TargetLibraryInfoImpl &TLI);
 
   TargetLibraryInfo &getTLI() { return TLI; }

@@ -16,6 +16,8 @@
 #define LLVM_IR_MODULE_H
 
 #include "llvm/ADT/iterator_range.h"
+#include "llvm/ADT/TargetTuple.h"
+#include "llvm/ADT/Triple.h"
 #include "llvm/IR/Comdat.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Function.h"
@@ -259,6 +261,10 @@ public:
   /// Get the target triple which is a string describing the target host.
   /// @returns a string containing the target triple.
   const std::string &getTargetTriple() const { return TargetTriple; }
+  // FIXME: Return a reference once we have one.
+  const TargetTuple getTargetTuple() const {
+    return TargetTuple(Triple(TargetTriple));
+  }
 
   /// Get the global data context.
   /// @returns LLVMContext - a container for LLVM's global information

@@ -30,19 +30,19 @@ const char *const TargetLibraryInfoImpl::StandardNames[LibFunc::NumLibFuncs] = {
 #include "llvm/Analysis/TargetLibraryInfo.def"
 };
 
-static bool hasSinCosPiStret(const Triple &T) {
+static bool hasSinCosPiStret(const TargetTuple &TT) {
   // Only Darwin variants have _stret versions of combined trig functions.
-  if (!T.isOSDarwin())
+  if (!TT.isOSDarwin())
     return false;
 
   // The ABI is rather complicated on x86, so don't do anything special there.
-  if (T.getArch() == Triple::x86)
+  if (TT.getArch() == TargetTuple::x86)
     return false;
 
-  if (T.isMacOSX() && T.isMacOSXVersionLT(10, 9))
+  if (TT.isMacOSX() && TT.isMacOSXVersionLT(10, 9))
     return false;
 
-  if (T.isiOS() && T.isOSVersionLT(7, 0))
+  if (TT.isiOS() && TT.isOSVersionLT(7, 0))
     return false;
 
   return true;
@@ -51,7 +51,7 @@ static bool hasSinCosPiStret(const Triple &T) {
 /// initialize - Initialize the set of available library functions based on the
 /// specified target triple.  This should be carefully written so that a missing
 /// target triple gets a sane set of defaults.
-static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
+static void initialize(TargetLibraryInfoImpl &TLI, const TargetTuple &TT,
                        const char *const *StandardNames) {
 #ifndef NDEBUG
   // Verify that the StandardNames array is in alphabetical order.
@@ -63,8 +63,8 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
 
   // There are no library implementations of mempcy and memset for AMD gpus and
   // these can be difficult to lower in the backend.
-  if (T.getArch() == Triple::r600 ||
-      T.getArch() == Triple::amdgcn) {
+  if (TT.getArch() == TargetTuple::r600 ||
+      TT.getArch() == TargetTuple::amdgcn) {
     TLI.setUnavailable(LibFunc::memcpy);
     TLI.setUnavailable(LibFunc::memset);
     TLI.setUnavailable(LibFunc::memset_pattern16);
@@ -72,17 +72,17 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
   }
 
   // memset_pattern16 is only available on iOS 3.0 and Mac OS X 10.5 and later.
-  if (T.isMacOSX()) {
-    if (T.isMacOSXVersionLT(10, 5))
+  if (TT.isMacOSX()) {
+    if (TT.isMacOSXVersionLT(10, 5))
       TLI.setUnavailable(LibFunc::memset_pattern16);
-  } else if (T.isiOS()) {
-    if (T.isOSVersionLT(3, 0))
+  } else if (TT.isiOS()) {
+    if (TT.isOSVersionLT(3, 0))
       TLI.setUnavailable(LibFunc::memset_pattern16);
   } else {
     TLI.setUnavailable(LibFunc::memset_pattern16);
   }
 
-  if (!hasSinCosPiStret(T)) {
+  if (!hasSinCosPiStret(TT)) {
     TLI.setUnavailable(LibFunc::sinpi);
     TLI.setUnavailable(LibFunc::sinpif);
     TLI.setUnavailable(LibFunc::cospi);
@@ -91,8 +91,8 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
     TLI.setUnavailable(LibFunc::sincospif_stret);
   }
 
-  if (T.isMacOSX() && T.getArch() == Triple::x86 &&
-      !T.isMacOSXVersionLT(10, 7)) {
+  if (TT.isMacOSX() && TT.getArch() == TargetTuple::x86 &&
+      !TT.isMacOSXVersionLT(10, 7)) {
     // x86-32 OSX has a scheme where fwrite and fputs (and some other functions
     // we don't care about) have two versions; on recent OSX, the one we want
     // has a $UNIX2003 suffix. The two implementations are identical except
@@ -103,13 +103,13 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
   }
 
   // iprintf and friends are only available on XCore and TCE.
-  if (T.getArch() != Triple::xcore && T.getArch() != Triple::tce) {
+  if (TT.getArch() != TargetTuple::xcore && TT.getArch() != TargetTuple::tce) {
     TLI.setUnavailable(LibFunc::iprintf);
     TLI.setUnavailable(LibFunc::siprintf);
     TLI.setUnavailable(LibFunc::fiprintf);
   }
 
-  if (T.isOSWindows() && !T.isOSCygMing()) {
+  if (TT.isOSWindows() && !TT.isOSCygMing()) {
     // Win32 does not support long double
     TLI.setUnavailable(LibFunc::acosl);
     TLI.setUnavailable(LibFunc::asinl);
@@ -182,7 +182,7 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
     // Win32 provides some C99 math with mangled names
     TLI.setAvailableWithName(LibFunc::copysign, "_copysign");
 
-    if (T.getArch() == Triple::x86) {
+    if (TT.getArch() == TargetTuple::x86) {
       // Win32 on x86 implements single-precision math functions as macros
       TLI.setUnavailable(LibFunc::acosf);
       TLI.setUnavailable(LibFunc::asinf);
@@ -271,13 +271,13 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
     TLI.setUnavailable(LibFunc::llabs);
   }
 
-  switch (T.getOS()) {
-  case Triple::MacOSX:
+  switch (TT.getOS()) {
+  case TargetTuple::MacOSX:
     // exp10 and exp10f are not available on OS X until 10.9 and iOS until 7.0
     // and their names are __exp10 and __exp10f. exp10l is not available on
     // OS X or iOS.
     TLI.setUnavailable(LibFunc::exp10l);
-    if (T.isMacOSXVersionLT(10, 9)) {
+    if (TT.isMacOSXVersionLT(10, 9)) {
       TLI.setUnavailable(LibFunc::exp10);
       TLI.setUnavailable(LibFunc::exp10f);
     } else {
@@ -285,9 +285,9 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
       TLI.setAvailableWithName(LibFunc::exp10f, "__exp10f");
     }
     break;
-  case Triple::IOS:
+  case TargetTuple::IOS:
     TLI.setUnavailable(LibFunc::exp10l);
-    if (T.isOSVersionLT(7, 0)) {
+    if (TT.isOSVersionLT(7, 0)) {
       TLI.setUnavailable(LibFunc::exp10);
       TLI.setUnavailable(LibFunc::exp10f);
     } else {
@@ -295,7 +295,7 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
       TLI.setAvailableWithName(LibFunc::exp10f, "__exp10f");
     }
     break;
-  case Triple::Linux:
+  case TargetTuple::Linux:
     // exp10, exp10f, exp10l is available on Linux (GLIBC) but are extremely
     // buggy prior to glibc version 2.18. Until this version is widely deployed
     // or we have a reasonable detection strategy, we cannot use exp10 reliably
@@ -313,12 +313,12 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
   // http://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man3/ffsl.3.html
   // http://svn.freebsd.org/base/user/eri/pf45/head/lib/libc/string/ffsl.c
   // http://www.gnu.org/software/gnulib/manual/html_node/ffsl.html
-  switch (T.getOS()) {
-  case Triple::Darwin:
-  case Triple::MacOSX:
-  case Triple::IOS:
-  case Triple::FreeBSD:
-  case Triple::Linux:
+  switch (TT.getOS()) {
+  case TargetTuple::Darwin:
+  case TargetTuple::MacOSX:
+  case TargetTuple::IOS:
+  case TargetTuple::FreeBSD:
+  case TargetTuple::Linux:
     break;
   default:
     TLI.setUnavailable(LibFunc::ffsl);
@@ -327,16 +327,16 @@ static void initialize(TargetLibraryInfoImpl &TLI, const Triple &T,
   // ffsll is available on at least FreeBSD and Linux (GLIBC):
   // http://svn.freebsd.org/base/user/eri/pf45/head/lib/libc/string/ffsll.c
   // http://www.gnu.org/software/gnulib/manual/html_node/ffsll.html
-  switch (T.getOS()) {
-  case Triple::FreeBSD:
-  case Triple::Linux:
+  switch (TT.getOS()) {
+  case TargetTuple::FreeBSD:
+  case TargetTuple::Linux:
     break;
   default:
     TLI.setUnavailable(LibFunc::ffsll);
   }
 
   // The following functions are available on at least Linux:
-  if (!T.isOSLinux()) {
+  if (!TT.isOSLinux()) {
     TLI.setUnavailable(LibFunc::dunder_strdup);
     TLI.setUnavailable(LibFunc::dunder_strtok_r);
     TLI.setUnavailable(LibFunc::dunder_isoc99_scanf);
@@ -363,14 +363,14 @@ TargetLibraryInfoImpl::TargetLibraryInfoImpl() {
   // Default to everything being available.
   memset(AvailableArray, -1, sizeof(AvailableArray));
 
-  initialize(*this, Triple(), StandardNames);
+  initialize(*this, TargetTuple(), StandardNames);
 }
 
-TargetLibraryInfoImpl::TargetLibraryInfoImpl(const Triple &T) {
+TargetLibraryInfoImpl::TargetLibraryInfoImpl(const TargetTuple &TT) {
   // Default to everything being available.
   memset(AvailableArray, -1, sizeof(AvailableArray));
 
-  initialize(*this, T, StandardNames);
+  initialize(*this, TT, StandardNames);
 }
 
 TargetLibraryInfoImpl::TargetLibraryInfoImpl(const TargetLibraryInfoImpl &TLI)
@@ -556,22 +556,21 @@ TargetLibraryInfo TargetLibraryAnalysis::run(Module &M) {
   if (PresetInfoImpl)
     return TargetLibraryInfo(*PresetInfoImpl);
 
-  return TargetLibraryInfo(lookupInfoImpl(Triple(M.getTargetTriple())));
+  return TargetLibraryInfo(lookupInfoImpl(M.getTargetTuple()));
 }
 
 TargetLibraryInfo TargetLibraryAnalysis::run(Function &F) {
   if (PresetInfoImpl)
     return TargetLibraryInfo(*PresetInfoImpl);
 
-  return TargetLibraryInfo(
-      lookupInfoImpl(Triple(F.getParent()->getTargetTriple())));
+  return TargetLibraryInfo(lookupInfoImpl(F.getParent()->getTargetTuple()));
 }
 
-TargetLibraryInfoImpl &TargetLibraryAnalysis::lookupInfoImpl(Triple T) {
+TargetLibraryInfoImpl &TargetLibraryAnalysis::lookupInfoImpl(TargetTuple TT) {
   std::unique_ptr<TargetLibraryInfoImpl> &Impl =
-      Impls[T.normalize()];
+      Impls[TT.getTargetTriple().normalize()];
   if (!Impl)
-    Impl.reset(new TargetLibraryInfoImpl(T));
+    Impl.reset(new TargetLibraryInfoImpl(TargetTuple(TT)));
 
   return *Impl;
 }
@@ -582,8 +581,9 @@ TargetLibraryInfoWrapperPass::TargetLibraryInfoWrapperPass()
   initializeTargetLibraryInfoWrapperPassPass(*PassRegistry::getPassRegistry());
 }
 
-TargetLibraryInfoWrapperPass::TargetLibraryInfoWrapperPass(const Triple &T)
-    : ImmutablePass(ID), TLIImpl(T), TLI(TLIImpl) {
+TargetLibraryInfoWrapperPass::TargetLibraryInfoWrapperPass(
+    const TargetTuple &TT)
+    : ImmutablePass(ID), TLIImpl(TT), TLI(TLIImpl) {
   initializeTargetLibraryInfoWrapperPassPass(*PassRegistry::getPassRegistry());
 }
 

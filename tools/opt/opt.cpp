@@ -15,6 +15,7 @@
 #include "BreakpointPrinter.h"
 #include "NewPMDriver.h"
 #include "PassPrinters.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/Analysis/CallGraph.h"
 #include "llvm/Analysis/CallGraphSCCPass.h"
@@ -383,15 +384,16 @@ int main(int argc, char **argv) {
     }
   }
 
-  Triple ModuleTriple(M->getTargetTriple());
+  TargetTuple ModuleTuple(M->getTargetTuple());
   std::string CPUStr, FeaturesStr;
   TargetMachine *Machine = nullptr;
   const TargetOptions Options = InitTargetOptionsFromCodeGenFlags();
 
-  if (ModuleTriple.getArch()) {
+  if (ModuleTuple.getArch()) {
     CPUStr = getCPUStr();
     FeaturesStr = getFeaturesStr();
-    Machine = GetTargetMachine(ModuleTriple, CPUStr, FeaturesStr, Options);
+    Machine = GetTargetMachine(ModuleTuple.getTargetTriple(), CPUStr,
+                               FeaturesStr, Options);
   }
 
   std::unique_ptr<TargetMachine> TM(Machine);
@@ -434,7 +436,7 @@ int main(int argc, char **argv) {
   legacy::PassManager Passes;
 
   // Add an appropriate TargetLibraryInfo pass for the module's triple.
-  TargetLibraryInfoImpl TLII(ModuleTriple);
+  TargetLibraryInfoImpl TLII(ModuleTuple);
 
   // The -disable-simplify-libcalls flag actually disables all builtin optzns.
   if (DisableSimplifyLibCalls)
