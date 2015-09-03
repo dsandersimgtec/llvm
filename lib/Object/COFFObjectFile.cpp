@@ -15,7 +15,6 @@
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/StringSwitch.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/Support/COFF.h"
 #include "llvm/Support/Debug.h"
@@ -745,7 +744,7 @@ base_reloc_iterator COFFObjectFile::base_reloc_end() const {
 }
 
 uint8_t COFFObjectFile::getBytesInAddress() const {
-  return getArch() == Triple::x86_64 ? 8 : 4;
+  return getArch() == TargetTuple::x86_64 ? 8 : 4;
 }
 
 StringRef COFFObjectFile::getFileFormatName() const {
@@ -763,18 +762,18 @@ StringRef COFFObjectFile::getFileFormatName() const {
   }
 }
 
-Triple::ArchType COFFObjectFile::getArch() const {
+TargetTuple::ArchType COFFObjectFile::getArch() const {
   switch (getMachine()) {
   case COFF::IMAGE_FILE_MACHINE_I386:
-    return Triple::x86;
+    return TargetTuple::x86;
   case COFF::IMAGE_FILE_MACHINE_AMD64:
-    return Triple::x86_64;
+    return TargetTuple::x86_64;
   case COFF::IMAGE_FILE_MACHINE_ARMNT:
-    return Triple::thumb;
+    return TargetTuple::thumb;
   case COFF::IMAGE_FILE_MACHINE_ARM64:
-    return Triple::aarch64;
+    return TargetTuple::aarch64;
   default:
-    return Triple::UnknownArch;
+    return TargetTuple::UnknownArch;
   }
 }
 

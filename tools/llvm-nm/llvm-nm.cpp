@@ -906,17 +906,17 @@ static bool checkMachOAndArchFlags(SymbolicFile *O, std::string &Filename) {
 
   MachO::mach_header H;
   MachO::mach_header_64 H_64;
-  Triple T;
+  TargetTuple TT;
   if (MachO->is64Bit()) {
     H_64 = MachO->MachOObjectFile::getHeader64();
-    T = MachOObjectFile::getArch(H_64.cputype, H_64.cpusubtype);
+    TT = MachOObjectFile::getArch(H_64.cputype, H_64.cpusubtype);
   } else {
     H = MachO->MachOObjectFile::getHeader();
-    T = MachOObjectFile::getArch(H.cputype, H.cpusubtype);
+    TT = MachOObjectFile::getArch(H.cputype, H.cpusubtype);
   }
   if (std::none_of(
           ArchFlags.begin(), ArchFlags.end(),
-          [&](const std::string &Name) { return Name == T.getArchName(); })) {
+          [&](const std::string &Name) { return Name == TT.getArchName(); })) {
     error("No architecture specified", Filename);
     return false;
   }

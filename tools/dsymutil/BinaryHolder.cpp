@@ -20,12 +20,13 @@ namespace llvm {
 namespace dsymutil {
 
 Triple BinaryHolder::getTriple(const object::MachOObjectFile &Obj) {
-  // If a ThumbTriple is returned, use it instead of the standard
+  // If a ThumbTuple is returned, use it instead of the standard
   // one. This is because the thumb triple always allows to create a
   // target, whereas the non-thumb one might not.
-  Triple ThumbTriple;
-  Triple T = Obj.getArch(nullptr, &ThumbTriple);
-  return ThumbTriple.getArch() ? ThumbTriple : T;
+  TargetTuple ThumbTuple;
+  TargetTuple T = Obj.getArch(nullptr, &ThumbTuple);
+  return ThumbTuple.getArch() ? ThumbTuple.getTargetTriple()
+                              : T.getTargetTriple();
 }
 
 static std::vector<MemoryBufferRef>

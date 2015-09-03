@@ -260,7 +260,7 @@ public:
   virtual uint8_t getBytesInAddress() const = 0;
 
   virtual StringRef getFileFormatName() const = 0;
-  virtual Triple::ArchType getArch() const = 0;
+  virtual TargetTuple::ArchType getArch() const = 0;
 
   /// Returns platform-specific object flags, if any.
   virtual std::error_code getPlatformFlags(unsigned &Result) const {

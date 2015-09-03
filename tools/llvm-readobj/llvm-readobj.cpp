@@ -322,7 +322,7 @@ static void dumpObject(const ObjectFile *Obj) {
     Dumper->printProgramHeaders();
   if (opts::HashTable)
     Dumper->printHashTable();
-  if (Obj->getArch() == llvm::Triple::arm && Obj->isELF())
+  if (Obj->getArch() == llvm::TargetTuple::arm && Obj->isELF())
     if (opts::ARMAttributes)
       Dumper->printAttributes();
   if (isMipsArch(Obj->getArch()) && Obj->isELF()) {

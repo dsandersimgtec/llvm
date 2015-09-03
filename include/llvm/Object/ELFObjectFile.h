@@ -18,7 +18,6 @@
 #include "llvm/ADT/PointerIntPair.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringSwitch.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/Object/ELF.h"
 #include "llvm/Object/ObjectFile.h"
 #include "llvm/Support/Casting.h"
@@ -323,7 +322,7 @@ public:
 
   uint8_t getBytesInAddress() const override;
   StringRef getFileFormatName() const override;
-  Triple::ArchType getArch() const override;
+  TargetTuple::ArchType getArch() const override;
 
   std::error_code getPlatformFlags(unsigned &Result) const override {
     Result = EF.getHeader()->e_flags;
@@ -866,43 +865,44 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
   }
 }
 
-template <class ELFT> Triple::ArchType ELFObjectFile<ELFT>::getArch() const {
+template <class ELFT>
+TargetTuple::ArchType ELFObjectFile<ELFT>::getArch() const {
   bool IsLittleEndian = ELFT::TargetEndianness == support::little;
   switch (EF.getHeader()->e_machine) {
   case ELF::EM_386:
-    return Triple::x86;
+    return TargetTuple::x86;
   case ELF::EM_X86_64:
-    return Triple::x86_64;
+    return TargetTuple::x86_64;
   case ELF::EM_AARCH64:
-    return Triple::aarch64;
+    return TargetTuple::aarch64;
   case ELF::EM_ARM:
-    return Triple::arm;
+    return TargetTuple::arm;
   case ELF::EM_HEXAGON:
-    return Triple::hexagon;
+    return TargetTuple::hexagon;
   case ELF::EM_MIPS:
     switch (EF.getHeader()->e_ident[ELF::EI_CLASS]) {
     case ELF::ELFCLASS32:
-      return IsLittleEndian ? Triple::mipsel : Triple::mips;
+      return IsLittleEndian ? TargetTuple::mipsel : TargetTuple::mips;
     case ELF::ELFCLASS64:
-      return IsLittleEndian ? Triple::mips64el : Triple::mips64;
+      return IsLittleEndian ? TargetTuple::mips64el : TargetTuple::mips64;
     default:
       report_fatal_error("Invalid ELFCLASS!");
     }
   case ELF::EM_PPC:
-    return Triple::ppc;
+    return TargetTuple::ppc;
   case ELF::EM_PPC64:
-    return IsLittleEndian ? Triple::ppc64le : Triple::ppc64;
+    return IsLittleEndian ? TargetTuple::ppc64le : TargetTuple::ppc64;
   case ELF::EM_S390:
-    return Triple::systemz;
+    return TargetTuple::systemz;
 
   case ELF::EM_SPARC:
   case ELF::EM_SPARC32PLUS:
-    return IsLittleEndian ? Triple::sparcel : Triple::sparc;
+    return IsLittleEndian ? TargetTuple::sparcel : TargetTuple::sparc;
   case ELF::EM_SPARCV9:
-    return Triple::sparcv9;
+    return TargetTuple::sparcv9;
 
   default:
-    return Triple::UnknownArch;
+    return TargetTuple::UnknownArch;
   }
 }
 

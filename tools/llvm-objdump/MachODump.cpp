@@ -142,11 +142,11 @@ static const Target *GetTarget(const MachOObjectFile *MachOObj,
                                const Target **ThumbTarget) {
   // Figure out the target triple.
   if (TripleName.empty()) {
-    llvm::Triple TT("unknown-unknown-unknown");
-    llvm::Triple ThumbTriple = Triple();
-    TT = MachOObj->getArch(McpuDefault, &ThumbTriple);
-    TripleName = TT.str();
-    ThumbTripleName = ThumbTriple.str();
+    llvm::TargetTuple TT(llvm::Triple("unknown-unknown-unknown"));
+    llvm::TargetTuple ThumbTuple = TargetTuple();
+    TT = MachOObj->getArch(McpuDefault, &ThumbTuple);
+    TripleName = TT.getTargetTriple().str();
+    ThumbTripleName = ThumbTuple.getTargetTriple().str();
   }
 
   // Get the target specific parser.
@@ -1129,17 +1129,17 @@ static bool checkMachOAndArchFlags(ObjectFile *O, StringRef Filename) {
     bool ArchFound = false;
     MachO::mach_header H;
     MachO::mach_header_64 H_64;
-    Triple T;
+    TargetTuple TT;
     if (MachO->is64Bit()) {
       H_64 = MachO->MachOObjectFile::getHeader64();
-      T = MachOObjectFile::getArch(H_64.cputype, H_64.cpusubtype);
+      TT = MachOObjectFile::getArch(H_64.cputype, H_64.cpusubtype);
     } else {
       H = MachO->MachOObjectFile::getHeader();
-      T = MachOObjectFile::getArch(H.cputype, H.cpusubtype);
+      TT = MachOObjectFile::getArch(H.cputype, H.cpusubtype);
     }
     unsigned i;
     for (i = 0; i < ArchFlags.size(); ++i) {
-      if (ArchFlags[i] == T.getArchName())
+      if (ArchFlags[i] == TT.getArchName())
         ArchFound = true;
       break;
     }
@@ -5734,7 +5734,7 @@ static const char *SymbolizerSymbolLookUp(void *DisInfo,
     // If this is arm64 and the reference is an adrp instruction save the
     // instruction, passed in ReferenceValue and the address of the instruction
     // for use later if we see and add immediate instruction.
-  } else if (info->O->getArch() == Triple::aarch64 &&
+  } else if (info->O->getArch() == TargetTuple::aarch64 &&
              *ReferenceType == LLVMDisassembler_ReferenceType_In_ARM64_ADRP) {
     info->adrp_inst = ReferenceValue;
     info->adrp_addr = ReferencePC;
@@ -5748,7 +5748,7 @@ static const char *SymbolizerSymbolLookUp(void *DisInfo,
     // this add's Xn register reconstruct the value being referenced and look to
     // see if it is a literal pointer.  Note the add immediate instruction is
     // passed in ReferenceValue.
-  } else if (info->O->getArch() == Triple::aarch64 &&
+  } else if (info->O->getArch() == TargetTuple::aarch64 &&
              *ReferenceType == LLVMDisassembler_ReferenceType_In_ARM64_ADDXri &&
              ReferencePC - 4 == info->adrp_addr &&
              (info->adrp_inst & 0x9f000000) == 0x90000000 &&
@@ -5778,7 +5778,7 @@ static const char *SymbolizerSymbolLookUp(void *DisInfo,
     // matches this add's Xn register reconstruct the value being referenced and
     // look to see if it is a literal pointer.  Note the load register
     // instruction is passed in ReferenceValue.
-  } else if (info->O->getArch() == Triple::aarch64 &&
+  } else if (info->O->getArch() == TargetTuple::aarch64 &&
              *ReferenceType == LLVMDisassembler_ReferenceType_In_ARM64_LDRXui &&
              ReferencePC - 4 == info->adrp_addr &&
              (info->adrp_inst & 0x9f000000) == 0x90000000 &&
@@ -5804,7 +5804,7 @@ static const char *SymbolizerSymbolLookUp(void *DisInfo,
   }
   // If this arm64 and is an load register (PC-relative) instruction the
   // ReferenceValue is the PC plus the immediate value.
-  else if (info->O->getArch() == Triple::aarch64 &&
+  else if (info->O->getArch() == TargetTuple::aarch64 &&
            (*ReferenceType == LLVMDisassembler_ReferenceType_In_ARM64_LDRXl ||
             *ReferenceType == LLVMDisassembler_ReferenceType_In_ARM64_ADR)) {
     *ReferenceName =

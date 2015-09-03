@@ -65,7 +65,7 @@ ModuleInfo::ModuleInfo(ObjectFile *Obj, DIContext *DICtx)
   uint64_t OpdAddress = 0;
   // Find the .opd (function descriptor) section if any, for big-endian
   // PowerPC64 ELF.
-  if (Module->getArch() == Triple::ppc64) {
+  if (Module->getArch() == TargetTuple::ppc64) {
     for (section_iterator Section : Module->sections()) {
       StringRef Name;
       if (!error(Section->getName(Name)) && Name == ".opd") {

@@ -70,7 +70,7 @@ private:
   RelocToApply visitELF(uint32_t RelocType, RelocationRef R, uint64_t Value) {
     if (ObjToVisit.getBytesInAddress() == 8) { // 64-bit object file
       switch (ObjToVisit.getArch()) {
-      case Triple::x86_64:
+      case TargetTuple::x86_64:
         switch (RelocType) {
         case llvm::ELF::R_X86_64_NONE:
           return visitELF_X86_64_NONE(R);
@@ -86,7 +86,7 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::aarch64:
+      case TargetTuple::aarch64:
         switch (RelocType) {
         case llvm::ELF::R_AARCH64_ABS32:
           return visitELF_AARCH64_ABS32(R, Value);
@@ -96,8 +96,8 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::mips64el:
-      case Triple::mips64:
+      case TargetTuple::mips64el:
+      case TargetTuple::mips64:
         switch (RelocType) {
         case llvm::ELF::R_MIPS_32:
           return visitELF_MIPS64_32(R, Value);
@@ -107,8 +107,8 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::ppc64le:
-      case Triple::ppc64:
+      case TargetTuple::ppc64le:
+      case TargetTuple::ppc64:
         switch (RelocType) {
         case llvm::ELF::R_PPC64_ADDR32:
           return visitELF_PPC64_ADDR32(R, Value);
@@ -118,7 +118,7 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::systemz:
+      case TargetTuple::systemz:
         switch (RelocType) {
         case llvm::ELF::R_390_32:
           return visitELF_390_32(R, Value);
@@ -128,7 +128,7 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::sparcv9:
+      case TargetTuple::sparcv9:
         switch (RelocType) {
         case llvm::ELF::R_SPARC_32:
         case llvm::ELF::R_SPARC_UA32:
@@ -146,7 +146,7 @@ private:
       }
     } else if (ObjToVisit.getBytesInAddress() == 4) { // 32-bit object file
       switch (ObjToVisit.getArch()) {
-      case Triple::x86:
+      case TargetTuple::x86:
         switch (RelocType) {
         case llvm::ELF::R_386_NONE:
           return visitELF_386_NONE(R);
@@ -158,7 +158,7 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::ppc:
+      case TargetTuple::ppc:
         switch (RelocType) {
         case llvm::ELF::R_PPC_ADDR32:
           return visitELF_PPC_ADDR32(R, Value);
@@ -166,8 +166,8 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::arm:
-      case Triple::armeb:
+      case TargetTuple::arm:
+      case TargetTuple::armeb:
         switch (RelocType) {
         default:
           HasError = true;
@@ -175,8 +175,8 @@ private:
         case llvm::ELF::R_ARM_ABS32:
           return visitELF_ARM_ABS32(R, Value);
         }
-      case Triple::mipsel:
-      case Triple::mips:
+      case TargetTuple::mipsel:
+      case TargetTuple::mips:
         switch (RelocType) {
         case llvm::ELF::R_MIPS_32:
           return visitELF_MIPS_32(R, Value);
@@ -184,7 +184,7 @@ private:
           HasError = true;
           return RelocToApply();
         }
-      case Triple::sparc:
+      case TargetTuple::sparc:
         switch (RelocType) {
         case llvm::ELF::R_SPARC_32:
         case llvm::ELF::R_SPARC_UA32:
@@ -206,7 +206,7 @@ private:
     switch (ObjToVisit.getArch()) {
     default:
       break;
-    case Triple::x86:
+    case TargetTuple::x86:
       switch (RelocType) {
       case COFF::IMAGE_REL_I386_SECREL:
         return visitCOFF_I386_SECREL(R, Value);
@@ -214,7 +214,7 @@ private:
         return visitCOFF_I386_DIR32(R, Value);
       }
       break;
-    case Triple::x86_64:
+    case TargetTuple::x86_64:
       switch (RelocType) {
       case COFF::IMAGE_REL_AMD64_SECREL:
         return visitCOFF_AMD64_SECREL(R, Value);
@@ -230,7 +230,7 @@ private:
   RelocToApply visitMachO(uint32_t RelocType, RelocationRef R, uint64_t Value) {
     switch (ObjToVisit.getArch()) {
     default: break;
-    case Triple::x86_64:
+    case TargetTuple::x86_64:
       switch (RelocType) {
         default: break;
         case MachO::X86_64_RELOC_UNSIGNED:

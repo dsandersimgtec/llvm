@@ -271,7 +271,7 @@ static const Target *getTarget(const ObjectFile *Obj = nullptr) {
 
       if (Obj->isCOFF()) {
         const auto COFFObj = dyn_cast<COFFObjectFile>(Obj);
-        if (COFFObj->getArch() == Triple::thumb)
+        if (COFFObj->getArch() == TargetTuple::thumb)
           TheTriple.setTriple("thumbv7-windows");
       }
     }

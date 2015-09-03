@@ -624,103 +624,85 @@ void MachOObjectFile::getRelocationTypeName(
   unsigned Arch = this->getArch();
 
   switch (Arch) {
-    case Triple::x86: {
-      static const char *const Table[] =  {
-        "GENERIC_RELOC_VANILLA",
-        "GENERIC_RELOC_PAIR",
-        "GENERIC_RELOC_SECTDIFF",
-        "GENERIC_RELOC_PB_LA_PTR",
-        "GENERIC_RELOC_LOCAL_SECTDIFF",
-        "GENERIC_RELOC_TLV" };
+  case TargetTuple::x86: {
+    static const char *const Table[] = {
+        "GENERIC_RELOC_VANILLA",        "GENERIC_RELOC_PAIR",
+        "GENERIC_RELOC_SECTDIFF",       "GENERIC_RELOC_PB_LA_PTR",
+        "GENERIC_RELOC_LOCAL_SECTDIFF", "GENERIC_RELOC_TLV"};
 
-      if (RType > 5)
-        res = "Unknown";
-      else
-        res = Table[RType];
-      break;
-    }
-    case Triple::x86_64: {
-      static const char *const Table[] =  {
-        "X86_64_RELOC_UNSIGNED",
-        "X86_64_RELOC_SIGNED",
-        "X86_64_RELOC_BRANCH",
-        "X86_64_RELOC_GOT_LOAD",
-        "X86_64_RELOC_GOT",
-        "X86_64_RELOC_SUBTRACTOR",
-        "X86_64_RELOC_SIGNED_1",
-        "X86_64_RELOC_SIGNED_2",
-        "X86_64_RELOC_SIGNED_4",
-        "X86_64_RELOC_TLV" };
-
-      if (RType > 9)
-        res = "Unknown";
-      else
-        res = Table[RType];
-      break;
-    }
-    case Triple::arm: {
-      static const char *const Table[] =  {
-        "ARM_RELOC_VANILLA",
-        "ARM_RELOC_PAIR",
-        "ARM_RELOC_SECTDIFF",
-        "ARM_RELOC_LOCAL_SECTDIFF",
-        "ARM_RELOC_PB_LA_PTR",
-        "ARM_RELOC_BR24",
-        "ARM_THUMB_RELOC_BR22",
-        "ARM_THUMB_32BIT_BRANCH",
-        "ARM_RELOC_HALF",
-        "ARM_RELOC_HALF_SECTDIFF" };
-
-      if (RType > 9)
-        res = "Unknown";
-      else
-        res = Table[RType];
-      break;
-    }
-    case Triple::aarch64: {
-      static const char *const Table[] = {
-        "ARM64_RELOC_UNSIGNED",           "ARM64_RELOC_SUBTRACTOR",
-        "ARM64_RELOC_BRANCH26",           "ARM64_RELOC_PAGE21",
-        "ARM64_RELOC_PAGEOFF12",          "ARM64_RELOC_GOT_LOAD_PAGE21",
-        "ARM64_RELOC_GOT_LOAD_PAGEOFF12", "ARM64_RELOC_POINTER_TO_GOT",
-        "ARM64_RELOC_TLVP_LOAD_PAGE21",   "ARM64_RELOC_TLVP_LOAD_PAGEOFF12",
-        "ARM64_RELOC_ADDEND"
-      };
-
-      if (RType >= array_lengthof(Table))
-        res = "Unknown";
-      else
-        res = Table[RType];
-      break;
-    }
-    case Triple::ppc: {
-      static const char *const Table[] =  {
-        "PPC_RELOC_VANILLA",
-        "PPC_RELOC_PAIR",
-        "PPC_RELOC_BR14",
-        "PPC_RELOC_BR24",
-        "PPC_RELOC_HI16",
-        "PPC_RELOC_LO16",
-        "PPC_RELOC_HA16",
-        "PPC_RELOC_LO14",
-        "PPC_RELOC_SECTDIFF",
-        "PPC_RELOC_PB_LA_PTR",
-        "PPC_RELOC_HI16_SECTDIFF",
-        "PPC_RELOC_LO16_SECTDIFF",
-        "PPC_RELOC_HA16_SECTDIFF",
-        "PPC_RELOC_JBSR",
-        "PPC_RELOC_LO14_SECTDIFF",
-        "PPC_RELOC_LOCAL_SECTDIFF" };
-
-      if (RType > 15)
-        res = "Unknown";
-      else
-        res = Table[RType];
-      break;
-    }
-    case Triple::UnknownArch:
+    if (RType > 5)
       res = "Unknown";
-      break;
+    else
+      res = Table[RType];
+    break;
+  }
+  case TargetTuple::x86_64: {
+    static const char *const Table[] = {
+        "X86_64_RELOC_UNSIGNED", "X86_64_RELOC_SIGNED",
+        "X86_64_RELOC_BRANCH",   "X86_64_RELOC_GOT_LOAD",
+        "X86_64_RELOC_GOT",      "X86_64_RELOC_SUBTRACTOR",
+        "X86_64_RELOC_SIGNED_1", "X86_64_RELOC_SIGNED_2",
+        "X86_64_RELOC_SIGNED_4", "X86_64_RELOC_TLV"};
+
+    if (RType > 9)
+      res = "Unknown";
+    else
+      res = Table[RType];
+    break;
+  }
+  case TargetTuple::arm: {
+    static const char *const Table[] = {
+        "ARM_RELOC_VANILLA",    "ARM_RELOC_PAIR",
+        "ARM_RELOC_SECTDIFF",   "ARM_RELOC_LOCAL_SECTDIFF",
+        "ARM_RELOC_PB_LA_PTR",  "ARM_RELOC_BR24",
+        "ARM_THUMB_RELOC_BR22", "ARM_THUMB_32BIT_BRANCH",
+        "ARM_RELOC_HALF",       "ARM_RELOC_HALF_SECTDIFF"};
+
+    if (RType > 9)
+      res = "Unknown";
+    else
+      res = Table[RType];
+    break;
+  }
+  case TargetTuple::aarch64: {
+    static const char *const Table[] = {"ARM64_RELOC_UNSIGNED",
+                                        "ARM64_RELOC_SUBTRACTOR",
+                                        "ARM64_RELOC_BRANCH26",
+                                        "ARM64_RELOC_PAGE21",
+                                        "ARM64_RELOC_PAGEOFF12",
+                                        "ARM64_RELOC_GOT_LOAD_PAGE21",
+                                        "ARM64_RELOC_GOT_LOAD_PAGEOFF12",
+                                        "ARM64_RELOC_POINTER_TO_GOT",
+                                        "ARM64_RELOC_TLVP_LOAD_PAGE21",
+                                        "ARM64_RELOC_TLVP_LOAD_PAGEOFF12",
+                                        "ARM64_RELOC_ADDEND"};
+
+    if (RType >= array_lengthof(Table))
+      res = "Unknown";
+    else
+      res = Table[RType];
+    break;
+  }
+  case TargetTuple::ppc: {
+    static const char *const Table[] = {
+        "PPC_RELOC_VANILLA",       "PPC_RELOC_PAIR",
+        "PPC_RELOC_BR14",          "PPC_RELOC_BR24",
+        "PPC_RELOC_HI16",          "PPC_RELOC_LO16",
+        "PPC_RELOC_HA16",          "PPC_RELOC_LO14",
+        "PPC_RELOC_SECTDIFF",      "PPC_RELOC_PB_LA_PTR",
+        "PPC_RELOC_HI16_SECTDIFF", "PPC_RELOC_LO16_SECTDIFF",
+        "PPC_RELOC_HA16_SECTDIFF", "PPC_RELOC_JBSR",
+        "PPC_RELOC_LO14_SECTDIFF", "PPC_RELOC_LOCAL_SECTDIFF"};
+
+    if (RType > 15)
+      res = "Unknown";
+    else
+      res = Table[RType];
+    break;
+  }
+  case TargetTuple::UnknownArch:
+    res = "Unknown";
+    break;
   }
   Result.append(res.begin(), res.end());
 }
@@ -991,27 +973,27 @@ StringRef MachOObjectFile::getFileFormatName() const {
   }
 }
 
-Triple::ArchType MachOObjectFile::getArch(uint32_t CPUType) {
+TargetTuple::ArchType MachOObjectFile::getArch(uint32_t CPUType) {
   switch (CPUType) {
   case llvm::MachO::CPU_TYPE_I386:
-    return Triple::x86;
+    return TargetTuple::x86;
   case llvm::MachO::CPU_TYPE_X86_64:
-    return Triple::x86_64;
+    return TargetTuple::x86_64;
   case llvm::MachO::CPU_TYPE_ARM:
-    return Triple::arm;
+    return TargetTuple::arm;
   case llvm::MachO::CPU_TYPE_ARM64:
-    return Triple::aarch64;
+    return TargetTuple::aarch64;
   case llvm::MachO::CPU_TYPE_POWERPC:
-    return Triple::ppc;
+    return TargetTuple::ppc;
   case llvm::MachO::CPU_TYPE_POWERPC64:
-    return Triple::ppc64;
+    return TargetTuple::ppc64;
   default:
-    return Triple::UnknownArch;
+    return TargetTuple::UnknownArch;
   }
 }
 
-Triple MachOObjectFile::getArch(uint32_t CPUType, uint32_t CPUSubType,
-                                const char **McpuDefault) {
+TargetTuple MachOObjectFile::getArch(uint32_t CPUType, uint32_t CPUSubType,
+                                     const char **McpuDefault) {
   if (McpuDefault)
     *McpuDefault = nullptr;
 
@@ -1019,78 +1001,78 @@ Triple MachOObjectFile::getArch(uint32_t CPUType, uint32_t CPUSubType,
   case MachO::CPU_TYPE_I386:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_I386_ALL:
-      return Triple("i386-apple-darwin");
+      return TargetTuple(Triple("i386-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   case MachO::CPU_TYPE_X86_64:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_X86_64_ALL:
-      return Triple("x86_64-apple-darwin");
+      return TargetTuple(Triple("x86_64-apple-darwin"));
     case MachO::CPU_SUBTYPE_X86_64_H:
-      return Triple("x86_64h-apple-darwin");
+      return TargetTuple(Triple("x86_64h-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   case MachO::CPU_TYPE_ARM:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_ARM_V4T:
-      return Triple("armv4t-apple-darwin");
+      return TargetTuple(Triple("armv4t-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V5TEJ:
-      return Triple("armv5e-apple-darwin");
+      return TargetTuple(Triple("armv5e-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_XSCALE:
-      return Triple("xscale-apple-darwin");
+      return TargetTuple(Triple("xscale-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V6:
-      return Triple("armv6-apple-darwin");
+      return TargetTuple(Triple("armv6-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V6M:
       if (McpuDefault)
         *McpuDefault = "cortex-m0";
-      return Triple("armv6m-apple-darwin");
+      return TargetTuple(Triple("armv6m-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7:
-      return Triple("armv7-apple-darwin");
+      return TargetTuple(Triple("armv7-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7EM:
       if (McpuDefault)
         *McpuDefault = "cortex-m4";
-      return Triple("armv7em-apple-darwin");
+      return TargetTuple(Triple("armv7em-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7K:
-      return Triple("armv7k-apple-darwin");
+      return TargetTuple(Triple("armv7k-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7M:
       if (McpuDefault)
         *McpuDefault = "cortex-m3";
-      return Triple("armv7m-apple-darwin");
+      return TargetTuple(Triple("armv7m-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7S:
-      return Triple("armv7s-apple-darwin");
+      return TargetTuple(Triple("armv7s-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   case MachO::CPU_TYPE_ARM64:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_ARM64_ALL:
-      return Triple("arm64-apple-darwin");
+      return TargetTuple(Triple("arm64-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   case MachO::CPU_TYPE_POWERPC:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_POWERPC_ALL:
-      return Triple("ppc-apple-darwin");
+      return TargetTuple(Triple("ppc-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   case MachO::CPU_TYPE_POWERPC64:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_POWERPC_ALL:
-      return Triple("ppc64-apple-darwin");
+      return TargetTuple(Triple("ppc64-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   default:
-    return Triple();
+    return TargetTuple();
   }
 }
 
-Triple MachOObjectFile::getThumbArch(uint32_t CPUType, uint32_t CPUSubType,
-                                     const char **McpuDefault) {
+TargetTuple MachOObjectFile::getThumbArch(uint32_t CPUType, uint32_t CPUSubType,
+                                          const char **McpuDefault) {
   if (McpuDefault)
     *McpuDefault = nullptr;
 
@@ -1098,50 +1080,49 @@ Triple MachOObjectFile::getThumbArch(uint32_t CPUType, uint32_t CPUSubType,
   case MachO::CPU_TYPE_ARM:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_ARM_V4T:
-      return Triple("thumbv4t-apple-darwin");
+      return TargetTuple(Triple("thumbv4t-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V5TEJ:
-      return Triple("thumbv5e-apple-darwin");
+      return TargetTuple(Triple("thumbv5e-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_XSCALE:
-      return Triple("xscale-apple-darwin");
+      return TargetTuple(Triple("xscale-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V6:
-      return Triple("thumbv6-apple-darwin");
+      return TargetTuple(Triple("thumbv6-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V6M:
       if (McpuDefault)
         *McpuDefault = "cortex-m0";
-      return Triple("thumbv6m-apple-darwin");
+      return TargetTuple(Triple("thumbv6m-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7:
-      return Triple("thumbv7-apple-darwin");
+      return TargetTuple(Triple("thumbv7-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7EM:
       if (McpuDefault)
         *McpuDefault = "cortex-m4";
-      return Triple("thumbv7em-apple-darwin");
+      return TargetTuple(Triple("thumbv7em-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7K:
-      return Triple("thumbv7k-apple-darwin");
+      return TargetTuple(Triple("thumbv7k-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7M:
       if (McpuDefault)
         *McpuDefault = "cortex-m3";
-      return Triple("thumbv7m-apple-darwin");
+      return TargetTuple(Triple("thumbv7m-apple-darwin"));
     case MachO::CPU_SUBTYPE_ARM_V7S:
-      return Triple("thumbv7s-apple-darwin");
+      return TargetTuple(Triple("thumbv7s-apple-darwin"));
     default:
-      return Triple();
+      return TargetTuple();
     }
   default:
-    return Triple();
+    return TargetTuple();
   }
 }
 
-Triple MachOObjectFile::getArch(uint32_t CPUType, uint32_t CPUSubType,
-                                const char **McpuDefault,
-				Triple *ThumbTriple) {
-  Triple T = MachOObjectFile::getArch(CPUType, CPUSubType, McpuDefault);
-  *ThumbTriple = MachOObjectFile::getThumbArch(CPUType, CPUSubType,
-                                               McpuDefault);
+TargetTuple MachOObjectFile::getArch(uint32_t CPUType, uint32_t CPUSubType,
+                                     const char **McpuDefault,
+                                     TargetTuple *ThumbTuple) {
+  TargetTuple T = MachOObjectFile::getArch(CPUType, CPUSubType, McpuDefault);
+  *ThumbTuple = MachOObjectFile::getThumbArch(CPUType, CPUSubType, McpuDefault);
   return T;
 }
 
-Triple MachOObjectFile::getHostArch() {
-  return Triple(sys::getDefaultTargetTriple());
+TargetTuple MachOObjectFile::getHostArch() {
+  return TargetTuple(Triple(sys::getDefaultTargetTriple()));
 }
 
 bool MachOObjectFile::isValidArch(StringRef ArchFlag) {
@@ -1165,13 +1146,13 @@ bool MachOObjectFile::isValidArch(StringRef ArchFlag) {
       .Default(false);
 }
 
-Triple::ArchType MachOObjectFile::getArch() const {
+TargetTuple::ArchType MachOObjectFile::getArch() const {
   return getArch(getCPUType(this));
 }
 
-Triple MachOObjectFile::getArch(const char **McpuDefault,
-                                Triple *ThumbTriple) const {
-  *ThumbTriple = getThumbArch(Header.cputype, Header.cpusubtype, McpuDefault);
+TargetTuple MachOObjectFile::getArch(const char **McpuDefault,
+                                     TargetTuple *ThumbTuple) const {
+  *ThumbTuple = getThumbArch(Header.cputype, Header.cpusubtype, McpuDefault);
   return getArch(Header.cputype, Header.cpusubtype, McpuDefault);
 }
 

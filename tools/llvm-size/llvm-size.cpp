@@ -387,17 +387,17 @@ static bool checkMachOAndArchFlags(ObjectFile *o, StringRef file) {
     bool ArchFound = false;
     MachO::mach_header H;
     MachO::mach_header_64 H_64;
-    Triple T;
+    TargetTuple TT;
     if (MachO->is64Bit()) {
       H_64 = MachO->MachOObjectFile::getHeader64();
-      T = MachOObjectFile::getArch(H_64.cputype, H_64.cpusubtype);
+      TT = MachOObjectFile::getArch(H_64.cputype, H_64.cpusubtype);
     } else {
       H = MachO->MachOObjectFile::getHeader();
-      T = MachOObjectFile::getArch(H.cputype, H.cpusubtype);
+      TT = MachOObjectFile::getArch(H.cputype, H.cpusubtype);
     }
     unsigned i;
     for (i = 0; i < ArchFlags.size(); ++i) {
-      if (ArchFlags[i] == T.getArchName())
+      if (ArchFlags[i] == TT.getArchName())
         ArchFound = true;
       break;
     }

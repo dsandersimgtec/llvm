@@ -17,7 +17,7 @@
 
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/SmallVector.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/Object/ObjectFile.h"
 #include "llvm/Support/MachO.h"
 
@@ -258,8 +258,8 @@ public:
   uint8_t getBytesInAddress() const override;
 
   StringRef getFileFormatName() const override;
-  Triple::ArchType getArch() const override;
-  Triple getArch(const char **McpuDefault, Triple *ThumbTriple) const;
+  TargetTuple::ArchType getArch() const override;
+  TargetTuple getArch(const char **McpuDefault, TargetTuple *ThumbTuple) const;
 
   relocation_iterator section_rel_begin(unsigned Index) const;
   relocation_iterator section_rel_end(unsigned Index) const;
@@ -404,15 +404,15 @@ public:
   static StringRef guessLibraryShortName(StringRef Name, bool &isFramework,
                                          StringRef &Suffix);
 
-  static Triple::ArchType getArch(uint32_t CPUType);
-  static Triple getArch(uint32_t CPUType, uint32_t CPUSubType,
-                        const char **McpuDefault = nullptr);
-  static Triple getThumbArch(uint32_t CPUType, uint32_t CPUSubType,
+  static TargetTuple::ArchType getArch(uint32_t CPUType);
+  static TargetTuple getArch(uint32_t CPUType, uint32_t CPUSubType,
                              const char **McpuDefault = nullptr);
-  static Triple getArch(uint32_t CPUType, uint32_t CPUSubType,
-                        const char **McpuDefault, Triple *ThumbTriple);
+  static TargetTuple getThumbArch(uint32_t CPUType, uint32_t CPUSubType,
+                                  const char **McpuDefault = nullptr);
+  static TargetTuple getArch(uint32_t CPUType, uint32_t CPUSubType,
+                             const char **McpuDefault, TargetTuple *ThumbTuple);
   static bool isValidArch(StringRef ArchFlag);
-  static Triple getHostArch();
+  static TargetTuple getHostArch();
 
   bool isRelocatableObject() const override;
 

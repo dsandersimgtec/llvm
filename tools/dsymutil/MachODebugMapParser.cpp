@@ -326,7 +326,7 @@ ErrorOr<std::vector<std::unique_ptr<DebugMap>>> MachODebugMapParser::parse() {
     return Error;
 
   std::vector<std::unique_ptr<DebugMap>> Results;
-  Triple T;
+  TargetTuple T;
   for (const auto *Binary : *MainBinOrError)
     if (shouldLinkArch(Archs, Binary->getArch(nullptr, &T).getArchName()))
       Results.push_back(parseOneBinary(*Binary, BinaryPath));

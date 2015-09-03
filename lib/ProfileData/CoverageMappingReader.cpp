@@ -465,7 +465,7 @@ static std::error_code loadBinaryFormat(MemoryBufferRef ObjectBuffer,
     // For any other object file, upcast and take ownership.
     OF.reset(cast<object::ObjectFile>(Bin.release()));
     // If we've asked for a particular arch, make sure they match.
-    if (!Arch.empty() && OF->getArch() != Triple(Arch).getArch())
+    if (!Arch.empty() && OF->getArch() != TargetTuple(Triple(Arch)).getArch())
       return object_error::arch_not_found;
   } else
     // We can only handle object files.
