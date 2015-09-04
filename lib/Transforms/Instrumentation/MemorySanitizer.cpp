@@ -96,7 +96,7 @@
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringExtras.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
@@ -466,42 +466,42 @@ void MemorySanitizer::initializeCallbacks(Module &M) {
 bool MemorySanitizer::doInitialization(Module &M) {
   auto &DL = M.getDataLayout();
 
-  Triple TargetTriple(M.getTargetTriple());
-  switch (TargetTriple.getOS()) {
-    case Triple::FreeBSD:
-      switch (TargetTriple.getArch()) {
-        case Triple::x86_64:
-          MapParams = FreeBSD_X86_MemoryMapParams.bits64;
-          break;
-        case Triple::x86:
-          MapParams = FreeBSD_X86_MemoryMapParams.bits32;
-          break;
-        default:
-          report_fatal_error("unsupported architecture");
-      }
+  const TargetTuple &TT = M.getTargetTuple();
+  switch (TT.getOS()) {
+  case TargetTuple::FreeBSD:
+    switch (TT.getArch()) {
+    case TargetTuple::x86_64:
+      MapParams = FreeBSD_X86_MemoryMapParams.bits64;
       break;
-    case Triple::Linux:
-      switch (TargetTriple.getArch()) {
-        case Triple::x86_64:
-          MapParams = Linux_X86_MemoryMapParams.bits64;
-          break;
-        case Triple::x86:
-          MapParams = Linux_X86_MemoryMapParams.bits32;
-          break;
-        case Triple::mips64:
-        case Triple::mips64el:
-          MapParams = Linux_MIPS_MemoryMapParams.bits64;
-          break;
-        case Triple::ppc64:
-        case Triple::ppc64le:
-          MapParams = Linux_PowerPC_MemoryMapParams.bits64;
-          break;
-        default:
-          report_fatal_error("unsupported architecture");
-      }
+    case TargetTuple::x86:
+      MapParams = FreeBSD_X86_MemoryMapParams.bits32;
       break;
     default:
-      report_fatal_error("unsupported operating system");
+      report_fatal_error("unsupported architecture");
+    }
+    break;
+  case TargetTuple::Linux:
+    switch (TT.getArch()) {
+    case TargetTuple::x86_64:
+      MapParams = Linux_X86_MemoryMapParams.bits64;
+      break;
+    case TargetTuple::x86:
+      MapParams = Linux_X86_MemoryMapParams.bits32;
+      break;
+    case TargetTuple::mips64:
+    case TargetTuple::mips64el:
+      MapParams = Linux_MIPS_MemoryMapParams.bits64;
+      break;
+    case TargetTuple::ppc64:
+    case TargetTuple::ppc64le:
+      MapParams = Linux_PowerPC_MemoryMapParams.bits64;
+      break;
+    default:
+      report_fatal_error("unsupported architecture");
+    }
+    break;
+  default:
+    report_fatal_error("unsupported operating system");
   }
 
   C = &(M.getContext());
@@ -3061,11 +3061,11 @@ VarArgHelper *CreateVarArgHelper(Function &Func, MemorySanitizer &Msan,
                                  MemorySanitizerVisitor &Visitor) {
   // VarArg handling is only implemented on AMD64. False positives are possible
   // on other platforms.
-  llvm::Triple TargetTriple(Func.getParent()->getTargetTriple());
-  if (TargetTriple.getArch() == llvm::Triple::x86_64)
+  const TargetTuple &TT = Func.getParent()->getTargetTuple();
+  if (TT.getArch() == llvm::TargetTuple::x86_64)
     return new VarArgAMD64Helper(Func, Msan, Visitor);
-  else if (TargetTriple.getArch() == llvm::Triple::mips64 ||
-           TargetTriple.getArch() == llvm::Triple::mips64el)
+  else if (TT.getArch() == llvm::TargetTuple::mips64 ||
+           TT.getArch() == llvm::TargetTuple::mips64el)
     return new VarArgMIPS64Helper(Func, Msan, Visitor);
   else
     return new VarArgNoOpHelper(Func, Msan, Visitor);

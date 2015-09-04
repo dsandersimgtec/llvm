@@ -15,7 +15,7 @@
 
 #include "llvm/Transforms/Instrumentation.h"
 
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/Module.h"
@@ -52,9 +52,7 @@ private:
   DenseMap<GlobalVariable *, GlobalVariable *> RegionCounters;
   std::vector<Value *> UsedVars;
 
-  bool isMachO() const {
-    return Triple(M->getTargetTriple()).isOSBinFormatMachO();
-  }
+  bool isMachO() const { return M->getTargetTuple().isOSBinFormatMachO(); }
 
   /// Get the section name for the counter variables.
   StringRef getCountersSection() const {
@@ -250,7 +248,7 @@ InstrProfiling::getOrCreateRegionCounters(InstrProfIncrementInst *Inc) {
 
 void InstrProfiling::emitRegistration() {
   // Don't do this for Darwin.  compiler-rt uses linker magic.
-  if (Triple(M->getTargetTriple()).isOSDarwin())
+  if (M->getTargetTuple().isOSDarwin())
     return;
 
   // Construct the function.

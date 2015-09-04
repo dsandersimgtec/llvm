@@ -1439,14 +1439,15 @@ void insertSinCosCall(IRBuilder<> &B, Function *OrigCallee, Value *Arg,
   Type *ResTy;
   StringRef Name;
 
-  Triple T(OrigCallee->getParent()->getTargetTriple());
+  const TargetTuple &TT = OrigCallee->getParent()->getTargetTuple();
   if (UseFloat) {
     Name = "__sincospif_stret";
 
-    assert(T.getArch() != Triple::x86 && "x86 messy and unsupported for now");
+    assert(TT.getArch() != TargetTuple::x86 &&
+           "x86 messy and unsupported for now");
     // x86_64 can't use {float, float} since that would be returned in both
     // xmm0 and xmm1, which isn't what a real struct would do.
-    ResTy = T.getArch() == Triple::x86_64
+    ResTy = TT.getArch() == TargetTuple::x86_64
                 ? static_cast<Type *>(VectorType::get(ArgTy, 2))
                 : static_cast<Type *>(StructType::get(ArgTy, ArgTy, nullptr));
   } else {

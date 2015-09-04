@@ -99,16 +99,16 @@ std::unique_ptr<Module> llvm::parseInputFile(StringRef Filename,
 
   // If we don't have an override triple, use the first one to configure
   // bugpoint, or use the host triple if none provided.
-  if (TargetTriple.getTriple().empty()) {
-    Triple TheTriple(Result->getTargetTriple());
+  if (TargetTriple.str().empty()) {
+    TargetTuple TT = Result->getTargetTuple();
 
-    if (TheTriple.getTriple().empty())
-      TheTriple.setTriple(sys::getDefaultTargetTriple());
+    if (TT.isUnknown())
+      TT = TargetTuple(Triple(sys::getDefaultTargetTriple()));
 
-    TargetTriple.setTriple(TheTriple.getTriple());
+    TargetTriple = TT.getTargetTriple();
   }
 
-  Result->setTargetTriple(TargetTriple.getTriple()); // override the triple
+  Result->setTargetTuple(TargetTuple(TargetTriple)); // override the triple
   return Result;
 }
 

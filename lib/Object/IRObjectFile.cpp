@@ -43,8 +43,7 @@ IRObjectFile::IRObjectFile(MemoryBufferRef Object, std::unique_ptr<Module> Mod)
   if (InlineAsm.empty())
     return;
 
-  Triple TheTriple(M->getTargetTriple());
-  TargetTuple TT(TheTriple);
+  const TargetTuple &TT = M->getTargetTuple();
   std::string Err;
   const Target *T = TargetRegistry::lookupTarget(TT, Err);
   if (!T)

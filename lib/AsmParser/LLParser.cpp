@@ -296,13 +296,16 @@ bool LLParser::ParseTargetDefinition() {
   std::string Str;
   switch (Lex.Lex()) {
   default: return TokError("unknown target property");
-  case lltok::kw_triple:
+  case lltok::kw_triple: {
     Lex.Lex();
     if (ParseToken(lltok::equal, "expected '=' after target triple") ||
         ParseStringConstant(Str))
       return true;
-    M->setTargetTriple(Str);
+    Triple TheTriple(Str);
+    TargetTuple TT(TheTriple);
+    M->setTargetTuple(TT);
     return false;
+  }
   case lltok::kw_datalayout:
     Lex.Lex();
     if (ParseToken(lltok::equal, "expected '=' after target datalayout") ||

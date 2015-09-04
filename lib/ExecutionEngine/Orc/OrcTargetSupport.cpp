@@ -1,4 +1,4 @@
-#include "llvm/ADT/Triple.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/ExecutionEngine/Orc/OrcTargetSupport.h"
 #include <array>
 
@@ -39,10 +39,10 @@ void OrcX86_64::insertResolverBlock(
         reinterpret_cast<uintptr_t>(executeCompileCallback));
 
   std::ostringstream AsmStream;
-  Triple TT(M.getTargetTriple());
+  const TargetTuple &TT = M.getTargetTuple();
 
   // Switch to text section.
-  if (TT.getOS() == Triple::Darwin)
+  if (TT.getOS() == TargetTuple::Darwin)
     AsmStream << ".section __TEXT,__text,regular,pure_instructions\n"
               << ".align 4, 0x90\n";
   else
@@ -106,9 +106,9 @@ OrcX86_64::insertCompileCallbackTrampolines(Module &M,
   const char *ResolverBlockPtrName = "Lorc_resolve_block_addr";
 
   std::ostringstream AsmStream;
-  Triple TT(M.getTargetTriple());
+  const TargetTuple &TT = M.getTargetTuple();
 
-  if (TT.getOS() == Triple::Darwin)
+  if (TT.getOS() == TargetTuple::Darwin)
     AsmStream << ".section __TEXT,__text,regular,pure_instructions\n"
               << ".align 4, 0x90\n";
   else

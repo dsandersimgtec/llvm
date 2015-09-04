@@ -423,8 +423,8 @@ bool PPCCTRLoops::mightUseCTR(const TargetTuple &TT, BasicBlock *BB) {
 bool PPCCTRLoops::convertToCTRLoop(Loop *L) {
   bool MadeChange = false;
 
-  const TargetTuple TT = TargetTuple(
-      Triple(L->getHeader()->getParent()->getParent()->getTargetTriple()));
+  const TargetTuple &TT =
+      L->getHeader()->getParent()->getParent()->getTargetTuple();
   if (!TT.isArch32Bit() && !TT.isArch64Bit())
     return MadeChange; // Unknown arch. type.
 

@@ -206,7 +206,7 @@ LTOModule *LTOModule::makeLTOModule(MemoryBufferRef Buffer,
   if (!M)
     return nullptr;
 
-  std::string TripleStr = M->getTargetTriple();
+  std::string TripleStr = M->getTargetTuple().getTargetTriple().str();
   if (TripleStr.empty())
     TripleStr = sys::getDefaultTargetTriple();
   llvm::Triple Triple(TripleStr);

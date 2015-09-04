@@ -203,11 +203,11 @@ lto_module_t lto_module_create_in_codegen_context(const void *mem,
 void lto_module_dispose(lto_module_t mod) { delete unwrap(mod); }
 
 const char* lto_module_get_target_triple(lto_module_t mod) {
-  return unwrap(mod)->getTargetTriple().c_str();
+  return unwrap(mod)->getTargetTuple().getTargetTriple().str().c_str();
 }
 
 void lto_module_set_target_triple(lto_module_t mod, const char *triple) {
-  return unwrap(mod)->setTargetTriple(triple);
+  return unwrap(mod)->setTargetTuple(TargetTuple(Triple(triple)));
 }
 
 unsigned int lto_module_get_num_symbols(lto_module_t mod) {

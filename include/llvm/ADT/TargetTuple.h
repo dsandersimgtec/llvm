@@ -202,6 +202,10 @@ public:
   /// the mutator methods to apply the tool options.
   explicit TargetTuple(const Triple &GnuTT) : GnuTT(GnuTT) {}
 
+  bool operator==(const TargetTuple &Other) const {
+    return GnuTT == Other.GnuTT;
+  }
+
   /// @}
   /// @name Typed Component Access
   /// @{
@@ -327,8 +331,8 @@ public:
     return GnuTT.isOSVersionLT(Major, Minor, Micro);
   }
 
-  bool isOSVersionLT(const Triple &Other) const {
-    return GnuTT.isOSVersionLT(Other);
+  bool isOSVersionLT(const TargetTuple &Other) const {
+    return GnuTT.isOSVersionLT(Other.GnuTT);
   }
 
   /// Comparison function for checking OS X version
@@ -430,6 +434,8 @@ public:
   static ArchType getArchTypeForLLVMName(StringRef Str);
 
   /// @}
+
+  bool isUnknown() const { return GnuTT.str().empty(); }
 
   // FIXME: Remove. This function exists to avoid having to migrate everything
   //        at once.

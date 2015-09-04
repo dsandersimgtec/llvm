@@ -1976,13 +1976,13 @@ void CppWriter::printModule(const std::string& fname,
   nl(Out) << "Module* mod = new Module(\"";
   printEscapedString(mName);
   Out << "\", getGlobalContext());";
-  if (!TheModule->getTargetTriple().empty()) {
+  if (!TheModule->getTargetTuple().isUnknown()) {
     nl(Out) << "mod->setDataLayout(\"" << TheModule->getDataLayoutStr()
             << "\");";
   }
-  if (!TheModule->getTargetTriple().empty()) {
-    nl(Out) << "mod->setTargetTriple(\"" << TheModule->getTargetTriple()
-            << "\");";
+  if (!TheModule->getTargetTuple().isUnknown()) {
+    nl(Out) << "mod->setTargetTuple(TargetTuple(Triple(\""
+            << TheModule->getTargetTuple().getTargetTriple().str() << "\")));";
   }
 
   if (!TheModule->getModuleInlineAsm().empty()) {

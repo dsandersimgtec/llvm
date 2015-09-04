@@ -241,8 +241,8 @@ static int compileModule(char **argv, LLVMContext &Context) {
 
     // If we are supposed to override the target triple, do so now.
     if (!TargetTriple.empty())
-      M->setTargetTriple(Triple::normalize(TargetTriple));
-    TheTriple = Triple(M->getTargetTriple());
+      M->setTargetTuple(TargetTuple(Triple(Triple::normalize(TargetTriple))));
+    TheTriple = M->getTargetTuple().getTargetTriple();
   } else {
     TheTriple = Triple(Triple::normalize(TargetTriple));
   }

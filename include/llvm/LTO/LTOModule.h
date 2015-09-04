@@ -115,15 +115,11 @@ public:
 
   std::unique_ptr<Module> takeModule() { return IRFile->takeModule(); }
 
-  /// Return the Module's target triple.
-  const std::string &getTargetTriple() {
-    return getModule().getTargetTriple();
-  }
+  /// Return the Module's target tuple.
+  const TargetTuple &getTargetTuple() { return getModule().getTargetTuple(); }
 
-  /// Set the Module's target triple.
-  void setTargetTriple(StringRef Triple) {
-    getModule().setTargetTriple(Triple);
-  }
+  /// Set the Module's target tuple.
+  void setTargetTuple(const TargetTuple &TT) { getModule().setTargetTuple(TT); }
 
   /// Get the number of symbols
   uint32_t getSymbolCount() {

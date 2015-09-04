@@ -1589,7 +1589,7 @@ std::error_code BitcodeReader::parseValueSymbolTable() {
 
   SmallVector<uint64_t, 64> Record;
 
-  Triple TT(TheModule->getTargetTriple());
+  const TargetTuple &TT = TheModule->getTargetTuple();
 
   // Read all the records for this value table.
   SmallString<128> ValueName;
@@ -2930,7 +2930,9 @@ std::error_code BitcodeReader::parseModule(bool Resume,
       std::string S;
       if (convertToString(Record, 0, S))
         return error("Invalid record");
-      TheModule->setTargetTriple(S);
+      Triple TheTriple(S);
+      TargetTuple TT(TheTriple);
+      TheModule->setTargetTuple(TT);
       break;
     }
     case bitc::MODULE_CODE_DATALAYOUT: {  // DATALAYOUT: [strchr x N]

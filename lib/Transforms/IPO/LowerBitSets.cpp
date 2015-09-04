@@ -276,10 +276,10 @@ bool LowerBitSets::doInitialization(Module &Mod) {
   M = &Mod;
   const DataLayout &DL = Mod.getDataLayout();
 
-  Triple TargetTriple(M->getTargetTriple());
-  LinkerSubsectionsViaSymbols = TargetTriple.isMacOSX();
-  Arch = TargetTriple.getArch();
-  ObjectFormat = TargetTriple.getObjectFormat();
+  const TargetTuple &TT = M->getTargetTuple();
+  LinkerSubsectionsViaSymbols = TT.isMacOSX();
+  Arch = TT.getArch();
+  ObjectFormat = TT.getObjectFormat();
 
   Int1Ty = Type::getInt1Ty(M->getContext());
   Int8Ty = Type::getInt8Ty(M->getContext());

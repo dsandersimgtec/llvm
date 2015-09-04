@@ -15,7 +15,6 @@
 #define LLVM_OBJECT_MACHOUNIVERSAL_H
 
 #include "llvm/ADT/StringRef.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/Object/Archive.h"
 #include "llvm/Object/Binary.h"

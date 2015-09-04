@@ -18,6 +18,7 @@
 #include "llvm/ADT/SetVector.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/Statistic.h"
+#include "llvm/ADT/TargetTuple.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DebugInfo.h"
@@ -1481,10 +1482,10 @@ bool ModuleLinker::linkModuleFlagsMetadata() {
   return HasErr;
 }
 
-// This function returns true if the triples match.
-static bool triplesMatch(const Triple &T0, const Triple &T1) {
+// This function returns true if the tuples match.
+static bool tuplesMatch(const TargetTuple &T0, const TargetTuple &T1) {
   // If vendor is apple, ignore the version number.
-  if (T0.getVendor() == Triple::Apple)
+  if (T0.getVendor() == TargetTuple::Apple)
     return T0.getArch() == T1.getArch() &&
            T0.getSubArch() == T1.getSubArch() &&
            T0.getVendor() == T1.getVendor() &&
@@ -1493,14 +1494,15 @@ static bool triplesMatch(const Triple &T0, const Triple &T1) {
   return T0 == T1;
 }
 
-// This function returns the merged triple.
-static std::string mergeTriples(const Triple &SrcTriple, const Triple &DstTriple) {
+// This function returns the merged tuple.
+static TargetTuple mergeTuples(const TargetTuple &SrcTT,
+                               const TargetTuple &DstTT) {
   // If vendor is apple, pick the triple with the larger version number.
-  if (SrcTriple.getVendor() == Triple::Apple)
-    if (DstTriple.isOSVersionLT(SrcTriple))
-      return SrcTriple.str();
+  if (SrcTT.getVendor() == TargetTuple::Apple)
+    if (DstTT.isOSVersionLT(SrcTT))
+      return SrcTT;
 
-  return DstTriple.str();
+  return DstTT;
 }
 
 bool ModuleLinker::run() {
@@ -1521,19 +1523,20 @@ bool ModuleLinker::run() {
   }
 
   // Copy the target triple from the source to dest if the dest's is empty.
-  if (DstM->getTargetTriple().empty() && !SrcM->getTargetTriple().empty())
-    DstM->setTargetTriple(SrcM->getTargetTriple());
+  if (DstM->getTargetTuple().isUnknown() && !SrcM->getTargetTuple().isUnknown())
+    DstM->setTargetTuple(SrcM->getTargetTuple());
 
-  Triple SrcTriple(SrcM->getTargetTriple()), DstTriple(DstM->getTargetTriple());
+  const TargetTuple &SrcTuple = SrcM->getTargetTuple();
+  const TargetTuple &DstTuple = DstM->getTargetTuple();
 
-  if (!SrcM->getTargetTriple().empty() && !triplesMatch(SrcTriple, DstTriple))
+  if (!SrcM->getTargetTuple().isUnknown() && !tuplesMatch(SrcTuple, DstTuple))
     emitWarning("Linking two modules of different target triples: " +
                 SrcM->getModuleIdentifier() + "' is '" +
-                SrcM->getTargetTriple() + "' whereas '" +
+                SrcM->getTargetTuple().getTargetTriple().str() + "' whereas '" +
                 DstM->getModuleIdentifier() + "' is '" +
-                DstM->getTargetTriple() + "'\n");
+                DstM->getTargetTuple().getTargetTriple().str() + "'\n");
 
-  DstM->setTargetTriple(mergeTriples(SrcTriple, DstTriple));
+  DstM->setTargetTuple(mergeTuples(SrcTuple, DstTuple));
 
   // Append the module inline asm string.
   if (!SrcM->getModuleInlineAsm().empty()) {

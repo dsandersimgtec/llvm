@@ -426,12 +426,12 @@ FunctionType *DataFlowSanitizer::getCustomFunctionType(FunctionType *T) {
 }
 
 bool DataFlowSanitizer::doInitialization(Module &M) {
-  llvm::Triple TargetTriple(M.getTargetTriple());
-  bool IsX86_64 = TargetTriple.getArch() == llvm::Triple::x86_64;
-  bool IsMIPS64 = TargetTriple.getArch() == llvm::Triple::mips64 ||
-                  TargetTriple.getArch() == llvm::Triple::mips64el;
-  bool IsAArch64 = TargetTriple.getArch() == llvm::Triple::aarch64 ||
-                   TargetTriple.getArch() == llvm::Triple::aarch64_be;
+  const llvm::TargetTuple &TT = M.getTargetTuple();
+  bool IsX86_64 = TT.getArch() == llvm::TargetTuple::x86_64;
+  bool IsMIPS64 = TT.getArch() == llvm::TargetTuple::mips64 ||
+                  TT.getArch() == llvm::TargetTuple::mips64el;
+  bool IsAArch64 = TT.getArch() == llvm::TargetTuple::aarch64 ||
+                   TT.getArch() == llvm::TargetTuple::aarch64_be;
 
   const DataLayout &DL = M.getDataLayout();
 

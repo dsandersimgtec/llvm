@@ -17,7 +17,6 @@
 
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/ADT/TargetTuple.h"
-#include "llvm/ADT/Triple.h"
 #include "llvm/IR/Comdat.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Function.h"
@@ -218,8 +217,7 @@ private:
   std::unique_ptr<GVMaterializer>
   Materializer;                   ///< Used to materialize GlobalValues
   std::string ModuleID;           ///< Human readable identifier for the module
-  std::string TargetTriple;       ///< Platform target triple Module compiled on
-                                  ///< Format: (arch)(sub)-(vendor)-(sys0-(abi)
+  TargetTuple TheTargetTuple;     ///< Platform target tuple Module compiled on
   void *NamedMDSymTab;            ///< NamedMDNode names.
   DataLayout DL;                  ///< DataLayout associated with the module
 
@@ -258,13 +256,9 @@ public:
   /// Get the data layout for the module's target platform.
   const DataLayout &getDataLayout() const;
 
-  /// Get the target triple which is a string describing the target host.
-  /// @returns a string containing the target triple.
-  const std::string &getTargetTriple() const { return TargetTriple; }
-  // FIXME: Return a reference once we have one.
-  const TargetTuple getTargetTuple() const {
-    return TargetTuple(Triple(TargetTriple));
-  }
+  /// Get the target tuple which is a string describing the target host.
+  /// @returns a TargetTuple containing the target triple.
+  const TargetTuple &getTargetTuple() const { return TheTargetTuple; }
 
   /// Get the global data context.
   /// @returns LLVMContext - a container for LLVM's global information
@@ -297,7 +291,7 @@ public:
   void setDataLayout(const DataLayout &Other);
 
   /// Set the target triple.
-  void setTargetTriple(StringRef T) { TargetTriple = T; }
+  void setTargetTuple(const TargetTuple &TT) { TheTargetTuple = TT; }
 
   /// Set the module-scope inline assembly blocks.
   /// A trailing newline is added if the input doesn't have one.

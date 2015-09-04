@@ -1397,7 +1397,7 @@ bool AddressSanitizerModule::runOnModule(Module &M) {
   C = &(M.getContext());
   int LongSize = M.getDataLayout().getPointerSizeInBits();
   IntptrTy = Type::getIntNTy(*C, LongSize);
-  TargetTriple = Triple(M.getTargetTriple());
+  TargetTriple = M.getTargetTuple().getTargetTriple();
   Mapping = getShadowMapping(TargetTriple, LongSize, CompileKernel);
   initializeCallbacks(M);
 
@@ -1484,7 +1484,7 @@ bool AddressSanitizer::doInitialization(Module &M) {
   C = &(M.getContext());
   LongSize = M.getDataLayout().getPointerSizeInBits();
   IntptrTy = Type::getIntNTy(*C, LongSize);
-  TargetTriple = Triple(M.getTargetTriple());
+  TargetTriple = M.getTargetTuple().getTargetTriple();
 
   if (!CompileKernel) {
     std::tie(AsanCtorFunction, AsanInitFunction) =

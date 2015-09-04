@@ -15,9 +15,8 @@
 
 using namespace llvm;
 
-ModuleBuilder::ModuleBuilder(LLVMContext &Context, StringRef Triple,
+ModuleBuilder::ModuleBuilder(LLVMContext &Context, StringRef TripleStr,
                              StringRef Name)
-  : M(new Module(Name, Context)),
-    Builder(Context) {
-  M->setTargetTriple(Triple);
+    : M(new Module(Name, Context)), Builder(Context) {
+  M->setTargetTuple(TargetTuple(Triple(TripleStr)));
 }

@@ -335,14 +335,15 @@ static void addCygMingExtraModule(ExecutionEngine *EE,
                                   StringRef TargetTripleStr) {
   IRBuilder<> Builder(Context);
   Triple TargetTriple(TargetTripleStr);
+  TargetTuple TT(TargetTriple);
 
   // Create a new module.
   std::unique_ptr<Module> M = make_unique<Module>("CygMingHelper", Context);
-  M->setTargetTriple(TargetTripleStr);
+  M->setTargetTuple(TT);
 
   // Create an empty function named "__main".
   Function *Result;
-  if (TargetTriple.isArch64Bit()) {
+  if (TT.isArch64Bit()) {
     Result = Function::Create(
       TypeBuilder<int64_t(void), false>::get(Context),
       GlobalValue::ExternalLinkage, "__main", M.get());
@@ -354,7 +355,7 @@ static void addCygMingExtraModule(ExecutionEngine *EE,
   BasicBlock *BB = BasicBlock::Create(Context, "__main", Result);
   Builder.SetInsertPoint(BB);
   Value *ReturnVal;
-  if (TargetTriple.isArch64Bit())
+  if (TT.isArch64Bit())
     ReturnVal = ConstantInt::get(Context, APInt(64, 0));
   else
     ReturnVal = ConstantInt::get(Context, APInt(32, 0));
@@ -443,7 +444,7 @@ int main(int argc, char **argv, char * const *envp) {
 
   // If we are supposed to override the target triple, do so now.
   if (!TargetTriple.empty())
-    Mod->setTargetTriple(Triple::normalize(TargetTriple));
+    Mod->setTargetTuple(TargetTuple(Triple(Triple::normalize(TargetTriple))));
 
   // Enable MCJIT if desired.
   RTDyldMemoryManager *RTDyldMM = nullptr;
@@ -535,8 +536,9 @@ int main(int argc, char **argv, char * const *envp) {
 
   // If the target is Cygwin/MingW and we are generating remote code, we
   // need an extra module to help out with linking.
-  if (RemoteMCJIT && Triple(Mod->getTargetTriple()).isOSCygMing()) {
-    addCygMingExtraModule(EE, Context, Mod->getTargetTriple());
+  if (RemoteMCJIT && Mod->getTargetTuple().isOSCygMing()) {
+    addCygMingExtraModule(EE, Context,
+                          Mod->getTargetTuple().getTargetTriple().str());
   }
 
   // The following functions have no effect if their respective profiling

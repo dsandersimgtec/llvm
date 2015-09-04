@@ -42,7 +42,7 @@ Module *llvm::CloneModule(
   // First off, we need to create the new module.
   Module *New = new Module(M->getModuleIdentifier(), M->getContext());
   New->setDataLayout(M->getDataLayout());
-  New->setTargetTriple(M->getTargetTriple());
+  New->setTargetTuple(M->getTargetTuple());
   New->setModuleInlineAsm(M->getModuleInlineAsm());
    
   // Loop over all of the global variables, making corresponding globals in the

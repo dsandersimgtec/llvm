@@ -579,9 +579,10 @@ static void writeComdats(const ValueEnumerator &VE, BitstreamWriter &Stream) {
 static void WriteModuleInfo(const Module *M, const ValueEnumerator &VE,
                             BitstreamWriter &Stream) {
   // Emit various pieces of data attached to a module.
-  if (!M->getTargetTriple().empty())
-    WriteStringRecord(bitc::MODULE_CODE_TRIPLE, M->getTargetTriple(),
-                      0/*TODO*/, Stream);
+  if (!M->getTargetTuple().isUnknown())
+    WriteStringRecord(bitc::MODULE_CODE_TRIPLE,
+                      M->getTargetTuple().getTargetTriple().str(), 0 /*TODO*/,
+                      Stream);
   const std::string &DL = M->getDataLayoutStr();
   if (!DL.empty())
     WriteStringRecord(bitc::MODULE_CODE_DATALAYOUT, DL, 0 /*TODO*/, Stream);
@@ -2490,7 +2491,7 @@ static void WriteInt32ToBuffer(uint32_t Value, SmallVectorImpl<char> &Buffer,
 }
 
 static void EmitDarwinBCHeaderAndTrailer(SmallVectorImpl<char> &Buffer,
-                                         const Triple &TT) {
+                                         const TargetTuple &TT) {
   unsigned CPUType = ~0U;
 
   // Match x86_64-*, i[3-9]86-*, powerpc-*, powerpc64-*, arm-*, thumb-*,
@@ -2504,16 +2505,16 @@ static void EmitDarwinBCHeaderAndTrailer(SmallVectorImpl<char> &Buffer,
     DARWIN_CPU_TYPE_POWERPC    = 18
   };
 
-  Triple::ArchType Arch = TT.getArch();
-  if (Arch == Triple::x86_64)
+  TargetTuple::ArchType Arch = TT.getArch();
+  if (Arch == TargetTuple::x86_64)
     CPUType = DARWIN_CPU_TYPE_X86 | DARWIN_CPU_ARCH_ABI64;
-  else if (Arch == Triple::x86)
+  else if (Arch == TargetTuple::x86)
     CPUType = DARWIN_CPU_TYPE_X86;
-  else if (Arch == Triple::ppc)
+  else if (Arch == TargetTuple::ppc)
     CPUType = DARWIN_CPU_TYPE_POWERPC;
-  else if (Arch == Triple::ppc64)
+  else if (Arch == TargetTuple::ppc64)
     CPUType = DARWIN_CPU_TYPE_POWERPC | DARWIN_CPU_ARCH_ABI64;
-  else if (Arch == Triple::arm || Arch == Triple::thumb)
+  else if (Arch == TargetTuple::arm || Arch == TargetTuple::thumb)
     CPUType = DARWIN_CPU_TYPE_ARM;
 
   // Traditional Bitcode starts after header.
@@ -2544,7 +2545,7 @@ void llvm::WriteBitcodeToFile(const Module *M, raw_ostream &Out,
 
   // If this is darwin or another generic macho target, reserve space for the
   // header.
-  Triple TT(M->getTargetTriple());
+  const TargetTuple &TT = M->getTargetTuple();
   if (TT.isOSDarwin())
     Buffer.insert(Buffer.begin(), DarwinBCHeaderSize, 0);
 

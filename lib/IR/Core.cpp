@@ -170,11 +170,13 @@ void LLVMSetDataLayout(LLVMModuleRef M, const char *Triple) {
 
 /*--.. Target triple .......................................................--*/
 const char * LLVMGetTarget(LLVMModuleRef M) {
-  return unwrap(M)->getTargetTriple().c_str();
+  return unwrap(M)->getTargetTuple().getTargetTriple().str().c_str();
 }
 
-void LLVMSetTarget(LLVMModuleRef M, const char *Triple) {
-  unwrap(M)->setTargetTriple(Triple);
+void LLVMSetTarget(LLVMModuleRef M, const char *TripleStr) {
+  Triple TheTriple(TripleStr);
+  TargetTuple TT(TheTriple);
+  unwrap(M)->setTargetTuple(TT);
 }
 
 void LLVMDumpModule(LLVMModuleRef M) {
