@@ -30,7 +30,7 @@ static void codegen(Module *M, llvm::raw_pwrite_stream &OS,
                     const TargetOptions &Options, Reloc::Model RM,
                     CodeModel::Model CM, CodeGenOpt::Level OL) {
   std::unique_ptr<TargetMachine> TM(TheTarget->createTargetMachine(
-      M->getTargetTriple(), CPU, Features, Options, RM, CM, OL));
+      M->getTargetTuple(), CPU, Features, Options, RM, CM, OL));
 
   legacy::PassManager CodeGenPasses;
   if (TM->addPassesToEmitFile(CodeGenPasses, OS,
@@ -44,9 +44,9 @@ llvm::splitCodeGen(std::unique_ptr<Module> M,
                    ArrayRef<llvm::raw_pwrite_stream *> OSs, StringRef CPU,
                    StringRef Features, const TargetOptions &Options,
                    Reloc::Model RM, CodeModel::Model CM, CodeGenOpt::Level OL) {
-  StringRef TripleStr = M->getTargetTriple();
+  const TargetTuple &TT = M->getTargetTuple();
   std::string ErrMsg;
-  const Target *TheTarget = TargetRegistry::lookupTarget(TripleStr, ErrMsg);
+  const Target *TheTarget = TargetRegistry::lookupTarget(TT, ErrMsg);
   if (!TheTarget)
     report_fatal_error(Twine("Target not found: ") + ErrMsg);
 
