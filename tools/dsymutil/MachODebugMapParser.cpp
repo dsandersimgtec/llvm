@@ -136,9 +136,9 @@ void MachODebugMapParser::switchToNewDebugMapObject(StringRef Filename,
 }
 
 static std::string getArchName(const object::MachOObjectFile &Obj) {
-  Triple ThumbTriple;
-  Triple T = Obj.getArch(nullptr, &ThumbTriple);
-  return T.getArchName();
+  TargetTuple ThumbTuple;
+  TargetTuple TT = Obj.getArch(nullptr, &ThumbTuple);
+  return TT.getArchName();
 }
 
 std::unique_ptr<DebugMap>
@@ -308,9 +308,9 @@ bool MachODebugMapParser::dumpStab() {
     return false;
   }
 
-  Triple T;
+  TargetTuple TT;
   for (const auto *Binary : *MainBinOrError)
-    if (shouldLinkArch(Archs, Binary->getArch(nullptr, &T).getArchName()))
+    if (shouldLinkArch(Archs, Binary->getArch(nullptr, &TT).getArchName()))
       dumpOneBinaryStab(*Binary, BinaryPath);
 
   return true;
