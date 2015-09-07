@@ -267,6 +267,8 @@ convertTripleVendorToTupleVendor(Triple::VendorType Vendor) {
     return TargetTuple::NVIDIA;
   case Triple::CSR:
     return TargetTuple::CSR;
+  case Triple::Myriad:
+    return TargetTuple::Myriad;
   }
   llvm_unreachable("Unmapped vendor.");
 }
