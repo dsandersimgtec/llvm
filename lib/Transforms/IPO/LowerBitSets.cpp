@@ -212,8 +212,8 @@ struct LowerBitSets : public ModulePass {
   Module *M;
 
   bool LinkerSubsectionsViaSymbols;
-  Triple::ArchType Arch;
-  Triple::ObjectFormatType ObjectFormat;
+  TargetTuple::ArchType Arch;
+  TargetTuple::ObjectFormatType ObjectFormat;
   IntegerType *Int1Ty;
   IntegerType *Int8Ty;
   IntegerType *Int32Ty;
@@ -655,7 +655,7 @@ void LowerBitSets::verifyBitSetMDNode(MDNode *Op) {
 static const unsigned kX86JumpTableEntrySize = 8;
 
 unsigned LowerBitSets::getJumpTableEntrySize() {
-  if (Arch != Triple::x86 && Arch != Triple::x86_64)
+  if (Arch != TargetTuple::x86 && Arch != TargetTuple::x86_64)
     report_fatal_error("Unsupported architecture for jump tables");
 
   return kX86JumpTableEntrySize;
@@ -667,7 +667,7 @@ unsigned LowerBitSets::getJumpTableEntrySize() {
 // target-specific jump table entry size.
 Constant *LowerBitSets::createJumpTableEntry(GlobalObject *Src, Function *Dest,
                                              unsigned Distance) {
-  if (Arch != Triple::x86 && Arch != Triple::x86_64)
+  if (Arch != TargetTuple::x86 && Arch != TargetTuple::x86_64)
     report_fatal_error("Unsupported architecture for jump tables");
 
   const unsigned kJmpPCRel32Code = 0xe9;
@@ -694,7 +694,7 @@ Constant *LowerBitSets::createJumpTableEntry(GlobalObject *Src, Function *Dest,
 }
 
 Type *LowerBitSets::getJumpTableEntryType() {
-  if (Arch != Triple::x86 && Arch != Triple::x86_64)
+  if (Arch != TargetTuple::x86 && Arch != TargetTuple::x86_64)
     report_fatal_error("Unsupported architecture for jump tables");
 
   return StructType::get(M->getContext(),
@@ -800,7 +800,7 @@ void LowerBitSets::buildBitSetsFromFunctions(ArrayRef<Metadata *> BitSets,
   auto JumpTable = new GlobalVariable(*M, JumpTableType,
                                       /*isConstant=*/true,
                                       GlobalValue::PrivateLinkage, nullptr);
-  JumpTable->setSection(ObjectFormat == Triple::MachO
+  JumpTable->setSection(ObjectFormat == TargetTuple::MachO
                             ? "__TEXT,__text,regular,pure_instructions"
                             : ".text");
   lowerBitSetCalls(BitSets, JumpTable, GlobalLayout);
