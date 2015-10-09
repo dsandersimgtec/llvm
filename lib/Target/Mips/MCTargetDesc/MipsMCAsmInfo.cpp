@@ -42,4 +42,5 @@ MipsMCAsmInfo::MipsMCAsmInfo(const Triple &TheTriple) {
   SupportsDebugInformation = true;
   ExceptionsType = ExceptionHandling::DwarfCFI;
   DwarfRegNumForCFI = true;
+  UseIntegratedAssembler = true;
 }
